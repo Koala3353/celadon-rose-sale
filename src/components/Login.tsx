@@ -123,14 +123,13 @@ const Login: React.FC<LoginProps> = ({ onSuccess }) => {
               /* Sign In State */
               <>
                 {/* Google Sign-In Button Container */}
-                <div className="flex justify-center">
-                  {isLoading ? (
+                <div className="flex flex-col items-center justify-center">
+                  <div id="google-signin-button" className="flex justify-center"></div>
+                  {isLoading && (
                     <div className="flex items-center justify-center py-4">
                       <span className="w-6 h-6 border-2 border-rose-200 border-t-rose-600 rounded-full animate-spin"></span>
                       <span className="ml-3 text-gray-600">Signing in...</span>
                     </div>
-                  ) : (
-                    <div id="google-signin-button" className="flex justify-center"></div>
                   )}
                 </div>
                 

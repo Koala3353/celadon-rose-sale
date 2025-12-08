@@ -58,12 +58,15 @@ function AppContent() {
 }
 
 function App() {
+  // Use basename for GitHub Pages subdirectory deployment
+  const basename = import.meta.env.PROD ? '/celadon-rose-sale' : '';
+  
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
           <CustomCursor />
-          <Router>
+          <Router basename={basename}>
             <AppContent />
           </Router>
         </CartProvider>

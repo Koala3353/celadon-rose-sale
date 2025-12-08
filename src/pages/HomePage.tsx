@@ -40,9 +40,22 @@ const HomePage = () => {
     if (!products) return [];
     const featuredIds = new Set(featuredProducts.map(p => p.id));
     const available = products.filter(p => p.stock > 0 && !featuredIds.has(p.id));
-    // Shuffle and take 4
-    const shuffled = [...available].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4);
+    // Shuffle and take up to 4
+    let shuffled = [...available].sort(() => Math.random() - 0.5);
+    if (shuffled.length >= 4) {
+      return shuffled.slice(0, 4);
+    }
+    // If less than 4, fill with featured products (not already included)
+    const needed = 4 - shuffled.length;
+    const featuredFill = featuredProducts.filter(p => !shuffled.some(sp => sp.id === p.id)).slice(0, needed);
+    let result = [...shuffled, ...featuredFill];
+    // If still less than 4, fill with any other products (not already included)
+    if (result.length < 4) {
+      const allIds = new Set(result.map(p => p.id));
+      const extra = products.filter(p => !allIds.has(p.id)).slice(0, 4 - result.length);
+      result = [...result, ...extra];
+    }
+    return result;
   }, [products, featuredProducts]);
 
   useEffect(() => {
