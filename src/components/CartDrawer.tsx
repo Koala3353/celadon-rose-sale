@@ -1,0 +1,198 @@
+import React from 'react';
+import { useCart } from '../context/CartContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+interface CartDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onCheckout: () => void;
+}
+
+const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) => {
+  const { cart, removeFromCart, clearCart } = useCart();
+
+  const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+          />
+          
+          {/* Drawer */}
+          <motion.div
+            className="fixed top-0 right-0 h-full w-full max-w-md bg-gradient-to-b from-white to-rose-50 shadow-2xl z-50 flex flex-col"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          >
+            {/* Header */}
+            <div className="p-6 border-b border-rose-100 bg-white/80 backdrop-blur-sm">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-lg">🛒</span>
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Your Cart</h2>
+                    <p className="text-sm text-gray-500">{cart.length} item{cart.length !== 1 ? 's' : ''}</p>
+                  </div>
+                </div>
+                <motion.button
+                  onClick={onClose}
+                  className="w-10 h-10 rounded-full bg-gray-100 hover:bg-rose-100 flex items-center justify-center transition-colors"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Cart Items */}
+            <div className="flex-grow overflow-y-auto p-6">
+              {cart.length === 0 ? (
+                <motion.div 
+                  className="flex flex-col items-center justify-center h-full text-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mb-4">
+                    <span className="text-4xl">🌹</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Your cart is empty</h3>
+                  <p className="text-gray-500 mb-6">Add some beautiful roses to get started!</p>
+                  <motion.button
+                    onClick={onClose}
+                    className="px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-medium shadow-lg shadow-rose-200"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Browse Roses
+                  </motion.button>
+                </motion.div>
+              ) : (
+                <ul className="space-y-4">
+                  <AnimatePresence>
+                    {cart.map((item, index) => (
+                      <motion.li
+                        key={item.id}
+                        className="bg-white rounded-2xl p-4 shadow-sm border border-rose-100 hover:shadow-md transition-shadow"
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -50, height: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        layout
+                      >
+                        <div className="flex gap-4">
+                          {/* Product Image Placeholder */}
+                          <div className="w-20 h-20 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <span className="text-3xl">🌹</span>
+                          </div>
+                          
+                          {/* Product Details */}
+                          <div className="flex-grow min-w-0">
+                            <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
+                            <p className="text-rose-600 font-bold text-lg">₱{item.price.toFixed(2)}</p>
+                            {item.category && (
+                              <span className="inline-block px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full mt-1">
+                                {item.category}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Remove Button */}
+                          <motion.button
+                            onClick={() => removeFromCart(item.id)}
+                            className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors flex-shrink-0"
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </motion.button>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </AnimatePresence>
+                </ul>
+              )}
+            </div>
+
+            {/* Footer */}
+            {cart.length > 0 && (
+              <motion.div 
+                className="p-6 border-t border-rose-100 bg-white/90 backdrop-blur-sm"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                {/* Subtotal */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₱{total.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Delivery</span>
+                    <span className="text-green-600">Free</span>
+                  </div>
+                  <div className="h-px bg-rose-200 my-2"></div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-xl font-bold text-gray-800">Total</span>
+                    <span className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                      ₱{total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Checkout Button */}
+                <motion.button
+                  onClick={onCheckout}
+                  className="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  Proceed to Checkout
+                </motion.button>
+
+                {/* Clear Cart */}
+                <motion.button
+                  onClick={clearCart}
+                  className="w-full mt-3 py-3 text-gray-500 hover:text-red-500 font-medium transition-colors flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Clear Cart
+                </motion.button>
+
+                {/* Security Badge */}
+                <div className="flex items-center justify-center gap-2 mt-4 text-gray-400 text-sm">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  <span>Secure checkout</span>
+                </div>
+              </motion.div>
+            )}
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+};
+
+export default CartDrawer;
