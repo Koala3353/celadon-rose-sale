@@ -131,6 +131,21 @@ rose-sale-shop/
 2. Set environment variables
 3. Deploy automatically on push
 
+### CI / Automatic Deployments (GitHub Actions)
+
+- Frontend is configured to automatically build and deploy `dist/` to the `gh-pages` branch via `.github/workflows/deploy-frontend.yml` on pushes to `main`. No additional secrets are required (it uses the built-in `GITHUB_TOKEN`).
+- Backend deployment to Vercel is wired with `.github/workflows/deploy-backend-vercel.yml` but requires the following repository secrets to be set in GitHub:
+   - `VERCEL_TOKEN` — a Vercel personal token with deploy permissions
+   - `VERCEL_ORG_ID` — your Vercel organization ID
+   - `VERCEL_PROJECT_ID` — the Vercel project ID for the API
+
+To obtain Vercel values:
+1. Create a Vercel token in your Vercel dashboard (Account → Tokens).
+2. Find your org and project IDs in the project settings (or using the Vercel CLI).
+3. Add these values to your GitHub repo settings → Secrets → Actions.
+
+After setting those secrets, pushes to `main` will trigger an automatic Vercel deploy for the backend and a GitHub Pages deploy for the frontend.
+
 ## Environment Variables
 
 | Variable | Description | Required |
