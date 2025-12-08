@@ -4,7 +4,7 @@ import { Product } from './types';
 // Read from Vite env variable when available for easy deployment overrides
 // In development this falls back to the local API server
 // Allow overriding the API URL with Vite's env variable VITE_API_BASE_URL
-export const API_BASE_URL = ((import.meta as any)?.env?.VITE_API_BASE_URL) || 'http://localhost:3001/api';
+export const API_BASE_URL = ((import.meta as any)?.env?.VITE_API_BASE_URL) || 'https://cela-rose-sale-api.vercel.app/api';
 
 // Google Sheets Configuration (kept for reference, API handles this now)
 export const GOOGLE_SHEET_ID = '1zroV5ASCbTRLWnkl1k1eKkJG992OZqhetdH9u48QZeU';

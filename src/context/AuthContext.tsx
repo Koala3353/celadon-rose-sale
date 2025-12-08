@@ -122,7 +122,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     restoreSession();
 
     // Load Google Identity Services script
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    // Hardcoded for GitHub Pages deployment (env vars don't work with static hosting)
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '209811888034-djp2budt4vnifesedsk8ujfnip314l1m.apps.googleusercontent.com';
     if (clientId && typeof window !== 'undefined') {
       const scriptId = 'google-identity-services';
       

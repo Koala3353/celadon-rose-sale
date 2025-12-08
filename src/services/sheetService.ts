@@ -312,3 +312,44 @@ export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
     return [];
   }
 };
+
+/**
+ * Track a page view for analytics
+ */
+export const trackPageView = async (page: 'home' | 'shop' | 'product', productId?: string): Promise<void> => {
+  try {
+    await fetch(`${API_BASE_URL}/analytics/pageview`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ page, productId }),
+    });
+  } catch (error) {
+    // Silently fail - analytics should not affect user experience
+    console.debug('Analytics tracking failed:', error);
+  }
+};
+
+/**
+ * Fetch analytics data
+ */
+export const fetchAnalytics = async (): Promise<any> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/analytics`, {
+      method: 'GET',
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    return result.data;
+  } catch (error) {
+    console.error('Failed to fetch analytics:', error);
+    return null;
+  }
+};

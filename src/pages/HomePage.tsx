@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { fetchProducts } from '../services/sheetService';
+import { fetchProducts, trackPageView } from '../services/sheetService';
 import { Product } from '../types';
 
 // Floating petal component
@@ -53,6 +53,9 @@ const HomePage = () => {
       left: `${Math.random() * 100}%`,
     }));
     setPetals(newPetals);
+    
+    // Track home page view
+    trackPageView('home');
   }, []);
 
   return (

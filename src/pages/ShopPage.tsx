@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../types';
 import CartDrawer from '../components/CartDrawer';
-import { fetchProducts } from '../services/sheetService';
+import { fetchProducts, trackPageView } from '../services/sheetService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -15,6 +15,11 @@ const ShopPage = () => {
     queryKey: ['products'],
     queryFn: fetchProducts,
   });
+
+  // Track shop page view
+  useEffect(() => {
+    trackPageView('shop');
+  }, []);
 
   // Extract unique categories
   const categories = useMemo(() => {
