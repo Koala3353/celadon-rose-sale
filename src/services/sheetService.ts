@@ -7,6 +7,7 @@ import {
   API_BASE_URL
 } from '../constants';
 import { Product, OrderFormData, CartItem, Order, ProductFilters } from '../types';
+import { getAuthHeaders } from './auth';
 
 interface CachedData {
   timestamp: number;
@@ -247,10 +248,12 @@ export const submitOrder = async (orderData: any, paymentProof: File): Promise<b
   }
 
   try {
-    // Submit to API server (include credentials for session cookie)
+    // Submit to API server. Use JWT Authorization header if available.
+    const headers = getAuthHeaders();
+
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'POST',
-      credentials: 'include',
+      headers,
       body: formData  // Don't set Content-Type header - browser will set it with boundary
     });
 
@@ -285,9 +288,11 @@ export const submitOrder = async (orderData: any, paymentProof: File): Promise<b
 export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
   try {
     // Fetch orders from API (which reads from Google Sheet Orders tab)
+    const headers = getAuthHeaders();
+
     const response = await fetch(`${API_BASE_URL}/orders`, {
       method: 'GET',
-      credentials: 'include', // Include session cookie for authentication
+      headers,
     });
 
     if (!response.ok) {
@@ -318,12 +323,15 @@ export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
  */
 export const trackPageView = async (page: 'home' | 'shop' | 'product', productId?: string): Promise<void> => {
   try {
+    // Analytics should be fire-and-forget and not rely on cookies to avoid
+    // third-party cookie issues when the frontend is hosted on a different origin.
+    const headers = { 'Content-Type': 'application/json', ...getAuthHeaders() };
+
     await fetch(`${API_BASE_URL}/analytics/pageview`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
+      headers,
+      // Do NOT include credentials here on purpose — analytics doesn't require auth
+      // and omitting credentials avoids third-party cookie problems in some browsers.
       body: JSON.stringify({ page, productId }),
     });
   } catch (error) {
@@ -337,9 +345,11 @@ export const trackPageView = async (page: 'home' | 'shop' | 'product', productId
  */
 export const fetchAnalytics = async (): Promise<any> => {
   try {
+    const headers = getAuthHeaders();
+
     const response = await fetch(`${API_BASE_URL}/analytics`, {
       method: 'GET',
-      credentials: 'include',
+      headers,
     });
 
     if (!response.ok) {

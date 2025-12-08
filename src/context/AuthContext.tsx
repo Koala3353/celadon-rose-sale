@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { User } from '../types';
+import { decodeJwt } from '../services/auth';
 import { API_BASE_URL } from '../constants';
 
 interface AuthContextType {
@@ -28,15 +29,21 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Helper to call backend auth endpoints
+// Helper to call backend auth endpoints. Uses JWT from localStorage when available.
 async function fetchAuth(endpoint: string, options?: RequestInit) {
+  const token = typeof window !== 'undefined' ? localStorage.getItem('rose_jwt') : null;
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string> || {}),
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   const res = await fetch(`${API_BASE_URL}/auth${endpoint}`, {
     ...options,
-    credentials: 'include', // include cookies
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options?.headers || {}),
-    },
+    headers,
   });
   return res.json();
 }
@@ -56,7 +63,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     setIsLoading(true);
     try {
-      // Send ID token to backend for verification + session creation
+      // Send ID token to backend for verification. Backend returns a JWT.
       const authResp = await fetchAuth('/google', {
         method: 'POST',
         body: JSON.stringify({ idToken: response.credential }),
@@ -67,6 +74,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }
 
       const u = authResp.data.user;
+      const token = authResp.data.token;
+      if (token) {
+        try {
+          localStorage.setItem('rose_jwt', token);
+        } catch (e) {
+          console.warn('Failed to persist JWT to localStorage', e);
+        }
+
+        // Optimistically decode token to set user immediately for snappy UI
+        const decoded = decodeJwt(token);
+        if (decoded) {
+          const optimistic: User = {
+            id: decoded.id || u.id,
+            email: decoded.email || u.email,
+            name: decoded.name || u.name,
+            photoUrl: u.photoUrl || '',
+            studentId: '',
+            contactNumber: '',
+            facebookLink: '',
+          };
+          setUser(optimistic);
+        }
+      }
+
+      // Finalize with backend-provided user info (ensures consistency)
       const loggedIn: User = {
         id: u.id,
         email: u.email,
@@ -88,7 +120,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const restoreSession = async () => {
       try {
-        // First try backend session
+        // If we have a JWT, try to restore user from backend /auth/me
+        const token = localStorage.getItem('rose_jwt');
+        if (!token) {
+          setIsLoading(false);
+          return;
+        }
+
+        // Optimistically restore user from token while validating with backend
+        const decoded = decodeJwt(token);
+        if (decoded) {
+          setUser({
+            id: decoded.id || '',
+            email: decoded.email || '',
+            name: decoded.name || '',
+            photoUrl: '',
+            studentId: '',
+            contactNumber: '',
+            facebookLink: '',
+          });
+        }
+
         const resp = await fetchAuth('/me');
         if (resp.success && resp.data?.user) {
           const u = resp.data.user;
@@ -109,11 +161,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           }
           setUser(restored);
         } else {
-          // No backend session, clear local
+          // Token invalid or no user - clear stored data
           localStorage.removeItem('rose_user_profile');
+          localStorage.removeItem('rose_jwt');
         }
       } catch (err) {
         console.warn('Failed to restore session', err);
+        localStorage.removeItem('rose_jwt');
       } finally {
         setIsLoading(false);
       }
@@ -198,6 +252,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
     setUser(null);
     localStorage.removeItem('rose_user_profile');
+    localStorage.removeItem('rose_jwt');
     // Revoke google session
     if ((window as any).google?.accounts?.id) {
       try {
