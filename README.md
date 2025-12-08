@@ -106,45 +106,31 @@ rose-sale-shop/
 
 ## Deployment
 
-### GitHub Pages
+## Frontend: GitHub Pages
 
-1. Update `vite.config.ts` base path to match your repo name:
-   ```ts
-   base: '/your-repo-name/'
-   ```
+The frontend is automatically deployed to GitHub Pages from the `main` branch using GitHub Actions.
 
-2. Create `.env.production` with your production API URL:
-   ```env
-   VITE_API_BASE_URL=https://your-api.onrender.com/api
-   ```
+- The build output (`dist/`) is published to the `gh-pages` branch.
+- Asset paths are automatically handled for GitHub Pages.
+- No manual deployment needed.
 
-3. Deploy:
-   ```bash
-   npm run deploy
-   ```
+### Setup
+1. Ensure your repository is public.
+2. Enable GitHub Pages in your repo settings, set source to `gh-pages` branch.
+3. The workflow uses the built-in `GITHUB_TOKEN` for authentication.
 
-4. Enable GitHub Pages in repo settings (use `gh-pages` branch)
+## Backend: Vercel
 
-### Vercel / Netlify
+The backend is automatically deployed to Vercel from the `main` branch using GitHub Actions.
 
-1. Connect your GitHub repo
-2. Set environment variables
-3. Deploy automatically on push
+### Setup
+1. Add the following secrets to your GitHub repository:
+   - `VERCEL_TOKEN`
+   - `VERCEL_ORG_ID`
+   - `VERCEL_PROJECT_ID`
+2. The workflow will deploy the backend on every push to `main`.
 
-### CI / Automatic Deployments (GitHub Actions)
-
-- Frontend is configured to automatically build and deploy `dist/` to the `gh-pages` branch via `.github/workflows/deploy-frontend.yml` on pushes to `main`. No additional secrets are required (it uses the built-in `GITHUB_TOKEN`).
-- Backend deployment to Vercel is wired with `.github/workflows/deploy-backend-vercel.yml` but requires the following repository secrets to be set in GitHub:
-   - `VERCEL_TOKEN` — a Vercel personal token with deploy permissions
-   - `VERCEL_ORG_ID` — your Vercel organization ID
-   - `VERCEL_PROJECT_ID` — the Vercel project ID for the API
-
-To obtain Vercel values:
-1. Create a Vercel token in your Vercel dashboard (Account → Tokens).
-2. Find your org and project IDs in the project settings (or using the Vercel CLI).
-3. Add these values to your GitHub repo settings → Secrets → Actions.
-
-After setting those secrets, pushes to `main` will trigger an automatic Vercel deploy for the backend and a GitHub Pages deploy for the frontend.
+---
 
 ## Environment Variables
 

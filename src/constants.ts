@@ -6,14 +6,6 @@ import { Product } from './types';
 // Allow overriding the API URL with Vite's env variable VITE_API_BASE_URL
 export const API_BASE_URL = ((import.meta as any)?.env?.VITE_API_BASE_URL) || 'https://cela-rose-sale-api.vercel.app/api';
 
-// Google Sheets Configuration (kept for reference, API handles this now)
-export const GOOGLE_SHEET_ID = '1zroV5ASCbTRLWnkl1k1eKkJG992OZqhetdH9u48QZeU';
-export const GOOGLE_API_KEY = 'YOUR_GOOGLE_API_KEY';
-export const SHEET_NAME = 'Products';
-
-// Google Sheets API URL (legacy - now handled by API server)
-export const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SHEET_NAME}?key=${GOOGLE_API_KEY}`;
-
 // Fallback products (used when Google Sheets is unavailable)
 export const INITIAL_PRODUCTS: Product[] = [
   { id: 'rose-red', name: 'Red Rose', price: 100, category: 'Single', stock: 50, imageUrl: 'https://picsum.photos/seed/rose-red/300/300' },
