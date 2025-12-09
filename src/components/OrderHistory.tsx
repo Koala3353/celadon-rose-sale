@@ -407,11 +407,22 @@ const OrderHistory: React.FC = () => {
 
                     {/* Order Footer */}
                     <div className="px-6 py-4 bg-gray-50 border-t border-rose-100 flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-gray-500 text-sm">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <span>Order confirmed</span>
+                      <div className="flex items-center gap-2 text-sm">
+                        {order.paymentConfirmed ? (
+                          <div className="flex items-center gap-2 text-green-600 font-medium">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Payment Verified</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-gray-500">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Order Confirmed</span>
+                          </div>
+                        )}
                       </div>
                       <motion.button
                         onClick={() => setSelectedOrder(order)}

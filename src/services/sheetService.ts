@@ -243,6 +243,7 @@ export interface SheetOrder {
   total: number;
   payment: number;
   status: string;
+  paymentConfirmed: boolean;
   assignedDoveEmail: string;
 }
 
