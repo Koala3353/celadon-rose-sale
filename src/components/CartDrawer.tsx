@@ -2,6 +2,7 @@ import React from 'react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
+import { StickmanConfused } from './StickmanComponents';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -78,11 +79,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  <div className="w-24 h-24 bg-rose-100 rounded-full flex items-center justify-center mb-4">
-                    <span className="text-4xl">🌹</span>
+                  <div className="w-32 h-32 flex items-center justify-center mb-2">
+                    <StickmanConfused className="w-full h-full text-gray-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Your cart is empty</h3>
-                  <p className="text-gray-500 mb-6">Add some beautiful roses to get started!</p>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">Where are the roses?</h3>
+                  <p className="text-gray-500 mb-6">I'm ready to carry your beautiful flowers!</p>
                   <motion.button
                     onClick={onClose}
                     className="px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-medium shadow-lg shadow-rose-200"

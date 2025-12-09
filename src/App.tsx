@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
+import NotFound from './pages/NotFound';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
 import Navbar from './components/Navbar';
@@ -48,6 +49,7 @@ function AppContent() {
             <Route path="/" element={<HomePage />} />
             <Route path="/shop" element={<ShopPage />} />
             <Route path="/orders" element={<OrderHistory />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         )}
       </main>

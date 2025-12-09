@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { submitOrder } from '../services/sheetService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DeliveryVenue } from '../types';
+import OrderSuccessAnimation from './OrderSuccessAnimation';
 
 interface CheckoutFormProps {
   onBack: () => void;
@@ -65,6 +66,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   // 8MB in bytes
   const MAX_FILE_SIZE = 8 * 1024 * 1024;
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -513,7 +516,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="max-w-md w-full text-center">
+        <OrderSuccessAnimation targetRef={buttonRef} />
+
+        <div className="max-w-md w-full text-center relative z-10">
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -554,17 +559,37 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
             Thank you for your purchase! Your roses will be delivered with love.
           </motion.p>
 
-          <motion.button
-            onClick={onBack}
-            className="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold text-lg shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            Continue Shopping
-          </motion.button>
+          <div className="relative inline-block">
+            {/* Girl Character sitting on button */}
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none">
+              <svg width="40" height="50" viewBox="0 0 24 24" className="text-rose-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="5" r="3" fill="currentColor" fillOpacity="0.2" />
+                {/* Sitting Body */}
+                <path d="M12 8 L12 14" />
+                {/* Sitting Legs */}
+                <path d="M12 14 L15 14 L15 19" /> {/* Leg hanging down */}
+                <path d="M12 14 L9 14 L9 17" />   {/* Other leg */}
+                {/* Arms */}
+                <path d="M12 9 L15 11" />
+                <path d="M12 9 L9 11" />
+                {/* Dress/Skirt sitting */}
+                <path d="M9 14 Q 12 16 15 14" fill="currentColor" fillOpacity="0.1" />
+              </svg>
+            </div>
+
+            <motion.button
+              ref={buttonRef}
+              onClick={onBack}
+              className="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold text-lg shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300 relative z-20"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              Continue Shopping
+            </motion.button>
+          </div>
         </div>
       </motion.div>
     );

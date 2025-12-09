@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { StickmanSitting } from './StickmanComponents';
 
 const Footer: React.FC = () => {
   return (
@@ -45,7 +46,10 @@ const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-6 border-t border-rose-100 text-center text-gray-400 text-sm">
+        <div className="pt-6 border-t border-rose-100 text-center text-gray-400 text-sm relative">
+          <div className="absolute -top-24 right-10 md:right-20 hidden sm:block opacity-80">
+            <StickmanSitting className="w-32 h-20" />
+          </div>
           <p>© 2026 Rose Sale. Made with 💕 by Keene.</p>
         </div>
 
