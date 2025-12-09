@@ -90,6 +90,39 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     if (user?.name) setPurchaserName(user.name);
   }, [user]);
 
+  // Load saved details from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedDetails = localStorage.getItem('rose_sale_checkout_details');
+      if (savedDetails) {
+        const parsed = JSON.parse(savedDetails);
+        // Prioritize saved data for fields not controlled by auth
+        if (parsed.studentId) setStudentId(parsed.studentId);
+        if (parsed.contactNumber) setContactNumber(parsed.contactNumber);
+        if (parsed.facebookLink) setFacebookLink(parsed.facebookLink);
+
+        // For name/email, only set if empty (to avoid overriding auth)
+        if (parsed.purchaserName && !purchaserName) setPurchaserName(parsed.purchaserName);
+        if (parsed.email && !email) setEmail(parsed.email);
+      }
+    } catch (error) {
+      console.warn('Failed to load checkout details:', error);
+    }
+  }, []);
+
+  // Save specific details to localStorage when they change
+  useEffect(() => {
+    const details = {
+      purchaserName,
+      email,
+      studentId,
+      contactNumber,
+      facebookLink
+    };
+    // Debounce or just save (localStorage is sync and fast enough for text content)
+    localStorage.setItem('rose_sale_checkout_details', JSON.stringify(details));
+  }, [purchaserName, email, studentId, contactNumber, facebookLink]);
+
   // Validate Student ID (6 digits, 200000-260000)
   const validateStudentId = (value: string): boolean => {
     const numValue = parseInt(value, 10);
