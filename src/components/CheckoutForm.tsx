@@ -4,7 +4,6 @@ import { useAuth } from '../context/AuthContext';
 import { submitOrder } from '../services/sheetService';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DeliveryVenue } from '../types';
-import OrderSuccessAnimation from './OrderSuccessAnimation';
 
 interface CheckoutFormProps {
   onBack: () => void;
@@ -516,7 +515,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <OrderSuccessAnimation targetRef={buttonRef} />
 
         <div className="max-w-md w-full text-center relative z-10">
           <motion.div
@@ -560,23 +558,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           </motion.p>
 
           <div className="relative inline-block">
-            {/* Girl Character sitting on button */}
-            <div className="absolute -top-12 left-1/2 -translate-x-1/2 pointer-events-none">
-              <svg width="40" height="50" viewBox="0 0 24 24" className="text-rose-400" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="5" r="3" fill="currentColor" fillOpacity="0.2" />
-                {/* Sitting Body */}
-                <path d="M12 8 L12 14" />
-                {/* Sitting Legs */}
-                <path d="M12 14 L15 14 L15 19" /> {/* Leg hanging down */}
-                <path d="M12 14 L9 14 L9 17" />   {/* Other leg */}
-                {/* Arms */}
-                <path d="M12 9 L15 11" />
-                <path d="M12 9 L9 11" />
-                {/* Dress/Skirt sitting */}
-                <path d="M9 14 Q 12 16 15 14" fill="currentColor" fillOpacity="0.1" />
-              </svg>
-            </div>
-
             <motion.button
               ref={buttonRef}
               onClick={onBack}

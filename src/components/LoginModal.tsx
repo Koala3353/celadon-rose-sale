@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { StickmanPeeking } from './StickmanComponents';
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -57,10 +56,6 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
               transition={{ type: 'spring', damping: 25 }}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Stickman Peeking - moved outside overflow-hidden */}
-              <div className="absolute top-20 -left-16 z-0">
-                <StickmanPeeking className="w-24 h-24 text-rose-300 transform -rotate-12" side="left" />
-              </div>
 
               <div className="relative bg-white rounded-3xl shadow-2xl overflow-hidden z-10">
                 {/* Close button */}

@@ -94,23 +94,27 @@ export const StickmanPeeking: React.FC<StickmanProps & { side?: 'left' | 'right'
             style={{ scale, transform: side === 'right' ? 'scaleX(-1)' : undefined }}
         >
             <motion.g
-                initial={{ x: -10 }}
-                animate={{ x: 0 }}
+                initial={{ x: -10, rotate: -5 }}
+                animate={{ x: 0, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 100, delay: 0.5 }}
+                style={{ originX: "22px", originY: "15px" }}
             >
-                {/* Head peeking */}
-                <circle cx="12" cy="8" r="3" fill="currentColor" fillOpacity="0.1" />
-                {/* Hands holding the edge */}
-                <path d="M8 14 C8 14, 6 14, 6 16" />
-                <path d="M8 18 C8 18, 6 18, 6 20" />
-                {/* Body hidden mostly */}
-                <path d="M12 11 L12 24" />
-                {/* Arm waving */}
+                {/* Hands holding the edge (at x=22) - simplified */}
+                <path d="M21 15 C21 15, 19 15, 19 17" />
+                <path d="M21 19 C21 19, 19 19, 19 21" />
+
+                {/* Body leaning out from x=20 */}
+                <path d="M17 12 L20 20" />
+
+                {/* Head */}
+                <circle cx="15" cy="10" r="3.5" fill="currentColor" fillOpacity="0.1" />
+
+                {/* Waving Arm (Left side) */}
                 <motion.path
-                    d="M12 13 L16 10 L18 12"
-                    animate={{ rotate: [0, 10, 0] }}
-                    transition={{ repeat: Infinity, duration: 1 }}
-                    style={{ originX: "12px", originY: "13px" }}
+                    d="M13 13 L9 10 L7 12"
+                    animate={{ rotate: [0, 15, 0] }}
+                    transition={{ repeat: Infinity, duration: 1, ease: "easeInOut" }}
+                    style={{ originX: "13px", originY: "13px" }}
                 />
             </motion.g>
         </svg>
