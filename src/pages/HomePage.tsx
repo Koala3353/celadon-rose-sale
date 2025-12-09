@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchProducts, trackPageView, ProductsResult } from '../services/sheetService';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
+import RunningAnimation from '../components/RunningAnimation';
 
 // Optimized floating petal - reduced complexity
 const FloatingPetal = ({ delay, left }: { delay: number; left: string }) => {
@@ -612,6 +613,9 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Running Animation Overlay */}
+      <RunningAnimation />
     </div>
   );
 };

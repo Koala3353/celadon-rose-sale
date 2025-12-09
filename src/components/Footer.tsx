@@ -49,65 +49,6 @@ const Footer: React.FC = () => {
           <p>© 2026 Rose Sale. Made with 💕 by Keene.</p>
         </div>
 
-        {/* Running Animation */}
-        <div className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none h-16">
-          <motion.div
-            className="flex items-end gap-12 absolute bottom-0"
-            initial={{ x: '-20%' }}
-            animate={{ x: '110vw' }}
-            transition={{
-              duration: 20, // Slower for vector art
-              repeat: Infinity,
-              ease: "linear",
-              delay: 0
-            }}
-          >
-            {/* Girl Running */}
-            <motion.div
-              animate={{ y: [0, -3, 0] }}
-              transition={{ duration: 0.4, repeat: Infinity }}
-              className="w-12 h-12 text-rose-400"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="5" r="3" fill="currentColor" fillOpacity="0.2" />
-                <path d="M10 8 L14 8 L16 18 L19 18" /> {/* Arms/front */}
-                <path d="M12 8 L8 18" /> {/* Back arm */}
-                {/* Dress */}
-                <path d="M12 8 L9 16 L15 16 Z" fill="currentColor" fillOpacity="0.1" />
-                {/* Legs */}
-                <path d="M10 16 L8 22" />
-                <path d="M14 16 L17 21" />
-                {/* Hair */}
-                <path d="M15 5 C15 5 17 6 17 8" />
-              </svg>
-            </motion.div>
-
-            {/* Guy Running with Flowers */}
-            <motion.div
-              animate={{ y: [0, -3, 0] }}
-              transition={{ duration: 0.4, repeat: Infinity, delay: 0.2 }}
-              className="w-12 h-12 text-gray-500"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="5" r="3" fill="currentColor" fillOpacity="0.2" />
-                {/* Body */}
-                <path d="M12 8 L12 15" />
-                {/* Legs */}
-                <path d="M12 15 L9 22" /> {/* Back leg */}
-                <path d="M12 15 L16 20 L18 19" /> {/* Front leg bent */}
-                {/* Arms */}
-                <path d="M12 10 L9 13" /> {/* Back arm */}
-                <path d="M12 10 L16 12" /> {/* Front arm holding flowers */}
-                {/* Flowers */}
-                <g transform="translate(16, 10)">
-                  <circle cx="0" cy="-1" r="1.5" className="text-rose-500" fill="currentColor" stroke="none" />
-                  <circle cx="-1.5" cy="0.5" r="1.5" className="text-pink-500" fill="currentColor" stroke="none" />
-                  <circle cx="1.5" cy="0.5" r="1.5" className="text-red-500" fill="currentColor" stroke="none" />
-                </g>
-              </svg>
-            </motion.div>
-          </motion.div>
-        </div>
       </div>
     </footer>
   );
