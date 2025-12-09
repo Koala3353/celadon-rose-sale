@@ -11,6 +11,18 @@ interface CheckoutFormProps {
 
 type DeliveryType = 'deliver' | 'pickup';
 
+interface AddOn {
+  id: string;
+  name: string;
+  price: number;
+}
+
+const ADD_ONS: AddOn[] = [
+  { id: 'card-heart', name: "Valentine's Day Card Rose Heart", price: 20 },
+  { id: 'card-ribbon', name: "Valentine's Day Card Rose Ribbon", price: 20 },
+  { id: 'card-tulip', name: "Valentine's Day Card Tulip", price: 20 },
+];
+
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const { cart, clearCart } = useCart();
   const { user } = useAuth();
@@ -53,6 +65,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
   const [paymentProofError, setPaymentProofError] = useState('');
   const [advocacyDonation, setAdvocacyDonation] = useState(0);
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [messageForRecipient, setMessageForRecipient] = useState('');
   const [messageForBeneficiary, setMessageForBeneficiary] = useState('');
   const [specialRequests, setSpecialRequests] = useState('');
@@ -84,7 +97,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   };
 
-  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0) + (advocacyDonation * 15);
+  const addonsTotal = selectedAddons.reduce((acc, id) => {
+    const addon = ADD_ONS.find(a => a.id === id);
+    return acc + (addon?.price || 0);
+  }, 0);
+
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0) + (advocacyDonation * 80) + addonsTotal;
 
   // Update email when user logs in
   useEffect(() => {
@@ -385,11 +403,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       room2: deliveryType === 'deliver' ? room2 : '',
       time2: deliveryType === 'deliver' ? time2 : '',
       advocacyDonation,
-      msgRecipient: messageForRecipient,
-      msgBeneficiary: messageForBeneficiary,
+      msgRecipient: selectedAddons.length > 0 ? messageForRecipient : '',
+      msgBeneficiary: advocacyDonation > 0 ? messageForBeneficiary : '',
       notes: specialRequests,
       items: cart,
-      cartItems: cart.map(item => `${item.name} x${item.quantity}`).join(', '),
+      cartItems: [
+        ...cart.map(item => `${item.name} x${item.quantity}`),
+        ...selectedAddons.map(id => ADD_ONS.find(a => a.id === id)?.name)
+      ].filter(Boolean).join(', '),
       total,
     };
 
@@ -1086,9 +1107,46 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))}
                             className={`${inputClass} w-32`}
                           />
-                          <span className="text-gray-600">roses × ₱15 = ₱{(advocacyDonation * 15).toFixed(2)}</span>
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">Each advocacy rose costs ₱15</p>
+                        <p className="text-sm text-gray-500 mt-1">Each advocacy rose costs ₱80</p>
+                      </div>
+
+                      <div>
+                        <label className={labelClass}>Add-ons</label>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                          {ADD_ONS.map((addon) => (
+                            <div
+                              key={addon.id}
+                              onClick={() => {
+                                setSelectedAddons(prev =>
+                                  prev.includes(addon.id)
+                                    ? prev.filter(id => id !== addon.id)
+                                    : [...prev, addon.id]
+                                );
+                              }}
+                              className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${selectedAddons.includes(addon.id)
+                                ? 'border-rose-500 bg-rose-50'
+                                : 'border-rose-100 bg-white hover:border-rose-300'
+                                }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="font-medium text-gray-800 text-sm">{addon.name}</span>
+                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedAddons.includes(addon.id)
+                                  ? 'bg-rose-500 border-rose-500'
+                                  : 'border-gray-300 bg-white'
+                                  }`}>
+                                  {selectedAddons.includes(addon.id) && (
+                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
+                              </div>
+                              <p className="text-rose-600 font-semibold">₱{addon.price}</p>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-500">Select an add-on card to include a personal message!</p>
                       </div>
 
                       {advocacyDonation > 0 && (
@@ -1104,16 +1162,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                       )}
 
-                      <div>
-                        <label className={labelClass}>Letter/Message for Recipient</label>
-                        <textarea
-                          placeholder="Write a sweet message for the recipient..."
-                          value={messageForRecipient}
-                          onChange={(e) => setMessageForRecipient(e.target.value)}
-                          rows={4}
-                          className={`${inputClass} resize-none`}
-                        />
-                      </div>
+                      {selectedAddons.length > 0 && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                        >
+                          <label className={labelClass}>Letter/Message for Recipient</label>
+                          <textarea
+                            placeholder="Write a sweet message for the recipient..."
+                            value={messageForRecipient}
+                            onChange={(e) => setMessageForRecipient(e.target.value)}
+                            rows={4}
+                            className={`${inputClass} resize-none`}
+                          />
+                        </motion.div>
+                      )}
 
                       <div>
                         <label className={labelClass}>Other Notes and Concerns/Special Request</label>
@@ -1282,12 +1346,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               <div className="border-t border-rose-100 pt-4 space-y-2">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
-                  <span>₱{(total - (advocacyDonation * 15)).toFixed(2)}</span>
+                  <span>₱{(total - (advocacyDonation * 80) - addonsTotal).toFixed(2)}</span>
                 </div>
+                {selectedAddons.length > 0 && (
+                  <div className="flex justify-between text-gray-600">
+                    <span>Add-ons ({selectedAddons.length})</span>
+                    <span>₱{addonsTotal.toFixed(2)}</span>
+                  </div>
+                )}
                 {advocacyDonation > 0 && (
                   <div className="flex justify-between text-gray-600">
                     <span>Advocacy Donation ({advocacyDonation} roses)</span>
-                    <span>₱{(advocacyDonation * 15).toFixed(2)}</span>
+                    <span>₱{(advocacyDonation * 80).toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-gray-600">

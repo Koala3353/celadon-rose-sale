@@ -679,7 +679,7 @@ const OrderHistory: React.FC = () => {
                         Advocacy Donation
                       </h3>
                       <p className="text-gray-600">
-                        {selectedOrder.advocacyDonation} rose(s) donated = ₱{(selectedOrder.advocacyDonation * 15).toFixed(2)}
+                        {selectedOrder.advocacyDonation} rose(s) donated = ₱{(selectedOrder.advocacyDonation * 80).toFixed(2)}
                       </p>
                     </div>
                   )}
