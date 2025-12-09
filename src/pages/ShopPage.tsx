@@ -2,24 +2,42 @@ import { useState, useMemo, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../types';
 import CartDrawer from '../components/CartDrawer';
-import { fetchProducts, trackPageView } from '../services/sheetService';
+import { fetchProducts, trackPageView, ProductsResult } from '../services/sheetService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import RoseLoader from '../components/RoseLoader';
+
+const PRODUCTS_PER_PAGE = 12;
 
 const ShopPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'price-asc' | 'price-desc'>('name');
+  const [currentPage, setCurrentPage] = useState(1);
 
-  const { data: products, isLoading, error } = useQuery<Product[], Error>({
+  const { data: productsResult, isLoading, error } = useQuery<ProductsResult, Error>({
     queryKey: ['products'],
     queryFn: fetchProducts,
   });
+
+  const products = productsResult?.products;
+  const isFallback = productsResult?.isFallback ?? false;
+  const isExpiredCache = productsResult?.isExpiredCache ?? false;
+
+  // Scroll to top on mount
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, []);
 
   // Track shop page view
   useEffect(() => {
     trackPageView('shop');
   }, []);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedCategory, sortBy]);
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -59,11 +77,123 @@ const ShopPage = () => {
     return filtered;
   }, [products, searchQuery, selectedCategory, sortBy]);
 
+  // Pagination
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = useMemo(() => {
+    const start = (currentPage - 1) * PRODUCTS_PER_PAGE;
+    return filteredProducts.slice(start, start + PRODUCTS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Pagination component
+  const Pagination = () => {
+    if (totalPages <= 1) return null;
+
+    return (
+      <div className="flex items-center justify-center gap-2 my-6">
+        <motion.button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === 1
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white border border-rose-200 text-rose-600 hover:bg-rose-50'
+            }`}
+          whileHover={currentPage !== 1 ? { scale: 1.02 } : {}}
+          whileTap={currentPage !== 1 ? { scale: 0.98 } : {}}
+        >
+          ← Previous
+        </motion.button>
+
+        <div className="flex items-center gap-1">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+            // Show first, last, current, and adjacent pages
+            const showPage = page === 1 || page === totalPages ||
+              Math.abs(page - currentPage) <= 1;
+            const showEllipsis = page === 2 && currentPage > 3 ||
+              page === totalPages - 1 && currentPage < totalPages - 2;
+
+            if (showEllipsis) {
+              return <span key={page} className="px-2 text-gray-400">...</span>;
+            }
+
+            if (!showPage) return null;
+
+            return (
+              <motion.button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-10 h-10 rounded-lg font-medium transition-all ${page === currentPage
+                  ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200'
+                  : 'bg-white border border-rose-200 text-gray-600 hover:bg-rose-50'
+                  }`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                {page}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        <motion.button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className={`px-4 py-2 rounded-lg font-medium transition-all ${currentPage === totalPages
+            ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            : 'bg-white border border-rose-200 text-rose-600 hover:bg-rose-50'
+            }`}
+          whileHover={currentPage !== totalPages ? { scale: 1.02 } : {}}
+          whileTap={currentPage !== totalPages ? { scale: 0.98 } : {}}
+        >
+          Next →
+        </motion.button>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-rose-50 pt-20 md:pt-24">
       <CartDrawer />
 
-      {/* Hero Section */}
+      {/* Fallback/Expired Cache Warning Banner */}
+      {(isFallback || isExpiredCache) && (
+        <motion.div
+          className="bg-amber-50 border-b border-amber-200"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <div className="max-w-7xl mx-auto px-4 py-3">
+            <div className="flex items-center gap-3">
+              <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div className="flex-1">
+                <p className="text-amber-800 font-medium text-sm">
+                  {isFallback
+                    ? "⚠️ Showing backup product list - items may be outdated"
+                    : "⚠️ Unable to fetch latest products - showing cached data"
+                  }
+                </p>
+                <p className="text-amber-600 text-xs mt-0.5">
+                  If this issue persists, please contact support via our{' '}
+                  <a
+                    href="https://www.facebook.com/CeladonRoseSale/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-amber-800"
+                  >
+                    Facebook page
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
       <motion.div
         className="relative py-12 md:py-20 px-4 overflow-hidden"
         initial={{ opacity: 0 }}
@@ -103,7 +233,7 @@ const ShopPage = () => {
             {/* Search */}
             <div className="flex-1 relative">
               <svg
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -120,7 +250,8 @@ const ShopPage = () => {
                 placeholder="Search roses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="input-field pl-12 w-full"
+                className="input-field w-full"
+                style={{ paddingLeft: '2.75rem' }}
               />
             </div>
 
@@ -191,8 +322,7 @@ const ShopPage = () => {
       <div className="max-w-7xl mx-auto px-4 pb-20">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20">
-            <div className="spinner mb-4" />
-            <p className="text-gray-500">Loading our beautiful roses...</p>
+            <RoseLoader size="lg" message="Loading our beautiful roses..." />
           </div>
         ) : error ? (
           <div className="text-center py-20">
@@ -212,19 +342,28 @@ const ShopPage = () => {
           </div>
         ) : (
           <>
-            <p className="text-gray-500 mb-6">
-              Showing {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
-            </p>
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-gray-500">
+                Showing {(currentPage - 1) * PRODUCTS_PER_PAGE + 1}-{Math.min(currentPage * PRODUCTS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length} {filteredProducts.length === 1 ? 'product' : 'products'}
+              </p>
+            </div>
+
+            {/* Top Pagination */}
+            <Pagination />
+
             <motion.div
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               layout
             >
               <AnimatePresence mode="popLayout">
-                {filteredProducts.map((product, index) => (
+                {paginatedProducts.map((product, index) => (
                   <ProductCard key={product.id} product={product} index={index} />
                 ))}
               </AnimatePresence>
             </motion.div>
+
+            {/* Bottom Pagination */}
+            <Pagination />
           </>
         )}
       </div>

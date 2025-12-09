@@ -82,18 +82,21 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
 
               {/* Content */}
               <div className="px-8 py-8">
-                {isLoading ? (
-                  <div className="flex flex-col items-center justify-center py-8">
+                {/* Loading indicator - shown above buttons when loading */}
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center py-4 mb-4">
                     <div className="w-10 h-10 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mb-4"></div>
                     <p className="text-gray-600">Signing you in...</p>
                   </div>
-                ) : (
-                  <>
-                    {/* Google Sign-In Button */}
-                    <div className="flex justify-center mb-6">
-                      <div id="google-signin-modal-button"></div>
-                    </div>
+                )}
 
+                {/* Google Sign-In Button - always render container, hide when loading */}
+                <div className={`flex justify-center mb-6 transition-opacity ${isLoading ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+                  <div id="google-signin-modal-button"></div>
+                </div>
+
+                {!isLoading && (
+                  <>
                     {/* Divider */}
                     <div className="relative my-6">
                       <div className="absolute inset-0 flex items-center">

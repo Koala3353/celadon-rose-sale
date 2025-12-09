@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useCart } from '../context/CartContext';
 import { Product } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import RoseLoader from './RoseLoader';
 
 interface ProductCardProps {
   product: Product;
@@ -42,32 +43,30 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
       {/* Image Container */}
       <div className="relative overflow-hidden aspect-square bg-rose-50">
         {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="spinner" />
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
+            <RoseLoader size="sm" />
           </div>
         )}
         <motion.img
           src={product.imageUrl}
           alt={product.name}
-          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'
+            }`}
           onLoad={() => setImageLoaded(true)}
           loading="lazy"
         />
-        
+
         {/* Overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         {/* Quick Add Button - shows on hover */}
         <motion.button
           onClick={handleAddToCart}
           disabled={product.stock === 0}
-          className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full font-medium shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 ${
-            product.stock === 0
-              ? 'bg-gray-400 text-white cursor-not-allowed'
-              : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
-          }`}
+          className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full font-medium shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 ${product.stock === 0
+            ? 'bg-gray-400 text-white cursor-not-allowed'
+            : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
+            }`}
           whileTap={{ scale: 0.95 }}
         >
           {product.stock === 0 ? 'Sold Out' : 'Quick Add'}
@@ -91,7 +90,7 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
         <h3 className="text-lg font-playfair font-bold text-gray-800 mb-1 line-clamp-1">
           {product.name}
         </h3>
-        
+
         {product.description && (
           <p className="text-gray-500 text-sm mb-3 line-clamp-2">
             {product.description}
@@ -113,15 +112,14 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           <div>
             <span className="text-2xl font-bold gradient-text">₱{product.price.toFixed(2)}</span>
           </div>
-          
+
           <motion.button
             onClick={handleAddToCart}
             disabled={product.stock === 0}
-            className={`p-3 rounded-full transition-all duration-300 ${
-              product.stock === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
-            }`}
+            className={`p-3 rounded-full transition-all duration-300 ${product.stock === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
+              }`}
             whileHover={{ scale: product.stock > 0 ? 1.1 : 1 }}
             whileTap={{ scale: product.stock > 0 ? 0.9 : 1 }}
           >

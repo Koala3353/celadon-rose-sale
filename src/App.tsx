@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import CustomCursor from './components/CustomCursor';
 import CartDrawer from './components/CartDrawer';
 import CheckoutForm from './components/CheckoutForm';
 import LoginModal from './components/LoginModal';
@@ -29,17 +28,17 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <CartDrawer 
-        isOpen={isCartOpen} 
-        onClose={() => setIsCartOpen(false)} 
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
         onCheckout={() => {
           setIsCartOpen(false);
           setShowCheckout(true);
-        }} 
+        }}
       />
-      <LoginModal 
-        isOpen={showLoginModal} 
-        onClose={() => setShowLoginModal(false)} 
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
       />
       <main className="flex-grow">
         {showCheckout ? (
@@ -60,12 +59,11 @@ function AppContent() {
 function App() {
   // Use basename for GitHub Pages subdirectory deployment
   const basename = import.meta.env.PROD ? '/celadon-rose-sale' : '';
-  
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <CartProvider>
-          <CustomCursor />
           <Router basename={basename}>
             <AppContent />
           </Router>

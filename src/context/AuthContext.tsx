@@ -180,7 +180,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '209811888034-djp2budt4vnifesedsk8ujfnip314l1m.apps.googleusercontent.com';
     if (clientId && typeof window !== 'undefined') {
       const scriptId = 'google-identity-services';
-      
+
       const initGoogle = () => {
         if ((window as any).google?.accounts?.id) {
           (window as any).google.accounts.id.initialize({
@@ -257,7 +257,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if ((window as any).google?.accounts?.id) {
       try {
         (window as any).google.accounts.id.disableAutoSelect();
-      } catch {}
+      } catch { }
     }
   };
 

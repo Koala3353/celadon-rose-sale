@@ -36,14 +36,15 @@ const Navbar = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <motion.div
-                className="w-10 h-10 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full flex items-center justify-center shadow-lg"
-                whileHover={{ rotate: 360, scale: 1.1 }}
-                transition={{ duration: 0.6 }}
+                className="w-10 h-10 overflow-hidden rounded-full shadow-lg"
+                whileHover={{ scale: 1.1 }}
+                transition={{ duration: 0.3 }}
               >
-                <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C9.5 2 7.5 4 7.5 6.5C7.5 9 9.5 11 12 11C14.5 11 16.5 9 16.5 6.5C16.5 4 14.5 2 12 2Z" />
-                  <circle cx="12" cy="12" r="3" fill="white" opacity="0.8" />
-                </svg>
+                <img
+                  src={`${import.meta.env.BASE_URL}assets/logo.png`}
+                  alt="Rose Sale Logo"
+                  className="w-full h-full object-cover"
+                />
               </motion.div>
               <span className="text-xl md:text-2xl font-playfair font-bold gradient-text">
                 Rose Sale 2026
@@ -56,11 +57,10 @@ const Navbar = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`relative text-base font-medium transition-colors ${
-                    location.pathname === link.path
+                  className={`relative text-base font-medium transition-colors ${location.pathname === link.path
                       ? 'text-rose-600'
                       : 'text-gray-600 hover:text-rose-500'
-                  }`}
+                    }`}
                 >
                   {link.label}
                   {location.pathname === link.path && (
@@ -172,11 +172,10 @@ const Navbar = () => {
                     key={link.path}
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`block text-lg font-medium py-2 ${
-                      location.pathname === link.path
+                    className={`block text-lg font-medium py-2 ${location.pathname === link.path
                         ? 'text-rose-600'
                         : 'text-gray-700 hover:text-rose-500'
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </Link>

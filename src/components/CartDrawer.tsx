@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface CartDrawerProps {
@@ -10,8 +11,18 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) => {
   const { cart, removeFromCart, clearCart } = useCart();
+  const { user, setShowLoginModal } = useAuth();
 
   const total = cart.reduce((acc, item) => acc + item.price, 0);
+
+  const handleCheckout = () => {
+    if (!user) {
+      // Show login modal if not signed in
+      setShowLoginModal(true);
+      return;
+    }
+    onCheckout();
+  };
 
   return (
     <AnimatePresence>
@@ -25,7 +36,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
             exit={{ opacity: 0 }}
             onClick={onClose}
           />
-          
+
           {/* Drawer */}
           <motion.div
             className="fixed top-0 right-0 h-full w-full max-w-md bg-gradient-to-b from-white to-rose-50 shadow-2xl z-50 flex flex-col"
@@ -62,7 +73,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
             {/* Cart Items */}
             <div className="flex-grow overflow-y-auto p-6">
               {cart.length === 0 ? (
-                <motion.div 
+                <motion.div
                   className="flex flex-col items-center justify-center h-full text-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -95,11 +106,19 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                         layout
                       >
                         <div className="flex gap-4">
-                          {/* Product Image Placeholder */}
-                          <div className="w-20 h-20 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <span className="text-3xl">🌹</span>
+                          {/* Product Image */}
+                          <div className="w-20 h-20 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {item.imageUrl ? (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <span className="text-3xl">🌹</span>
+                            )}
                           </div>
-                          
+
                           {/* Product Details */}
                           <div className="flex-grow min-w-0">
                             <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
@@ -110,7 +129,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                               </span>
                             )}
                           </div>
-                          
+
                           {/* Remove Button */}
                           <motion.button
                             onClick={() => removeFromCart(item.id)}
@@ -132,7 +151,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
 
             {/* Footer */}
             {cart.length > 0 && (
-              <motion.div 
+              <motion.div
                 className="p-6 border-t border-rose-100 bg-white/90 backdrop-blur-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -156,14 +175,24 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                   </div>
                 </div>
 
+                {/* Sign In Notice */}
+                {!user && (
+                  <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center gap-3">
+                    <svg className="w-5 h-5 text-amber-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span className="text-sm text-amber-700">Please sign in to checkout</span>
+                  </div>
+                )}
+
                 {/* Checkout Button */}
                 <motion.button
-                  onClick={onCheckout}
+                  onClick={handleCheckout}
                   className="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-2xl font-semibold text-lg shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Proceed to Checkout
+                  {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
                 </motion.button>
 
                 {/* Clear Cart */}

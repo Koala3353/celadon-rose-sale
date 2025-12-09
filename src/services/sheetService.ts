@@ -1,8 +1,8 @@
-import { 
-  INITIAL_PRODUCTS, 
-  CACHE_KEY_PRODUCTS, 
+import {
+  INITIAL_PRODUCTS,
+  CACHE_KEY_PRODUCTS,
   CACHE_KEY_FILTERS,
-  CACHE_DURATION_MS, 
+  CACHE_DURATION_MS,
   SHEET_API_URL,
   API_BASE_URL
 } from '../constants';
@@ -38,62 +38,71 @@ if (typeof window !== 'undefined') {
 }
 
 /**
+ * Product fetch result with fallback indicator
+ */
+export interface ProductsResult {
+  products: Product[];
+  isFallback: boolean;
+  isExpiredCache: boolean;
+}
+
+/**
  * Fetches products from the API server (which caches Google Sheets data)
  */
-export const fetchProducts = async (): Promise<Product[]> => {
+export const fetchProducts = async (): Promise<ProductsResult> => {
   // Check local cache first for instant loading
   const cached = localStorage.getItem(CACHE_KEY_PRODUCTS);
-  
+
   if (cached) {
     const parsed: CachedData = JSON.parse(cached);
     const now = Date.now();
-    
+
     // Use shorter local cache since API has its own caching
     if (now - parsed.timestamp < CACHE_DURATION_MS) {
       console.log('Serving products from local cache');
-      return parsed.products;
+      return { products: parsed.products, isFallback: false, isExpiredCache: false };
     }
   }
 
   try {
     // Fetch from API server
     const response = await fetch(`${API_BASE_URL}/products`);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const result: ApiResponse<Product[]> = await response.json();
-    
+
     if (!result.success || !result.data) {
       throw new Error(result.error || 'Failed to fetch products');
     }
-    
+
     const products = result.data;
-    
+
     // Cache locally
     const newCache: CachedData = {
       timestamp: Date.now(),
       products
     };
     localStorage.setItem(CACHE_KEY_PRODUCTS, JSON.stringify(newCache));
-    
+
     console.log(`Fetched ${products.length} products from API (cached: ${result.cached}, age: ${result.cacheAge}ms)`);
-    return products;
-    
+    return { products, isFallback: false, isExpiredCache: false };
+
   } catch (error) {
     console.error('Failed to fetch from API, trying fallback:', error);
-    
+
     // Return cached data if available (even if expired)
     if (cached) {
       const parsed: CachedData = JSON.parse(cached);
       console.log('Serving expired local cache due to fetch error');
-      return parsed.products;
+      return { products: parsed.products, isFallback: false, isExpiredCache: true };
     }
-    
+
     // Last resort: use initial products
     console.log('Using fallback products');
-    return INITIAL_PRODUCTS;
+    return { products: INITIAL_PRODUCTS, isFallback: true, isExpiredCache: false };
   }
 };
 
@@ -103,17 +112,17 @@ export const fetchProducts = async (): Promise<Product[]> => {
 export const fetchFilters = async (): Promise<CachedFilters | null> => {
   try {
     const response = await fetch(`${API_BASE_URL}/filters`);
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const result: ApiResponse<CachedFilters> = await response.json();
-    
+
     if (!result.success || !result.data) {
       throw new Error(result.error || 'Failed to fetch filters');
     }
-    
+
     return result.data;
   } catch (error) {
     console.error('Failed to fetch filters:', error);
@@ -128,13 +137,13 @@ export const extractFilters = (products: Product[]): CachedFilters => {
   const categories = [...new Set(products.map(p => p.category))].sort();
   const allTags = products.flatMap(p => p.tags || []);
   const tags = [...new Set(allTags)].sort();
-  
+
   const prices = products.map(p => p.price);
   const priceRange = {
     min: Math.min(...prices),
     max: Math.max(...prices)
   };
-  
+
   return {
     timestamp: Date.now(),
     categories,
@@ -152,7 +161,7 @@ export const filterProducts = (products: Product[], filters: ProductFilters): Pr
     if (filters.category && product.category !== filters.category) {
       return false;
     }
-    
+
     // Price range filter
     if (filters.minPrice !== undefined && product.price < filters.minPrice) {
       return false;
@@ -160,19 +169,19 @@ export const filterProducts = (products: Product[], filters: ProductFilters): Pr
     if (filters.maxPrice !== undefined && product.price > filters.maxPrice) {
       return false;
     }
-    
+
     // Stock filter
     if (filters.inStock && product.stock <= 0) {
       return false;
     }
-    
+
     // Tags filter (product must have at least one matching tag)
     if (filters.tags && filters.tags.length > 0) {
       const productTags = product.tags || [];
       const hasMatchingTag = filters.tags.some(tag => productTags.includes(tag));
       if (!hasMatchingTag) return false;
     }
-    
+
     // Search query filter
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
@@ -180,12 +189,12 @@ export const filterProducts = (products: Product[], filters: ProductFilters): Pr
       const matchesDescription = product.description?.toLowerCase().includes(query);
       const matchesCategory = product.category.toLowerCase().includes(query);
       const matchesTags = product.tags?.some(t => t.toLowerCase().includes(query));
-      
+
       if (!matchesName && !matchesDescription && !matchesCategory && !matchesTags) {
         return false;
       }
     }
-    
+
     return true;
   });
 };
@@ -232,6 +241,7 @@ export interface SheetOrder {
   msgRecipient: string;
   notes: string;
   total: number;
+  payment: number;
   status: string;
   assignedDoveEmail: string;
 }
@@ -239,9 +249,9 @@ export interface SheetOrder {
 export const submitOrder = async (orderData: any, paymentProof: File): Promise<boolean> => {
   // Use FormData to support file upload
   const formData = new FormData();
-  
+
   formData.append('orderData', JSON.stringify(orderData));
-  
+
   // Add payment proof file if provided
   if (paymentProof) {
     formData.append('paymentProof', paymentProof);
@@ -258,7 +268,7 @@ export const submitOrder = async (orderData: any, paymentProof: File): Promise<b
     });
 
     const result = await response.json();
-    
+
     if (!result.success) {
       throw new Error(result.error || 'Failed to submit order');
     }
@@ -311,7 +321,7 @@ export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
 
     console.log(`Fetched ${result.data.length} orders for ${email} from API`);
     return result.data;
-    
+
   } catch (error) {
     console.error('Failed to fetch orders from API:', error);
     return [];

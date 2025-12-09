@@ -14,7 +14,7 @@ type DeliveryType = 'deliver' | 'pickup';
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const { cart, clearCart } = useCart();
   const { user } = useAuth();
-  
+
   // Purchaser Details
   const [email, setEmail] = useState(user?.email || '');
   const [purchaserName, setPurchaserName] = useState(user?.name || '');
@@ -24,11 +24,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const [contactNumberError, setContactNumberError] = useState('');
   const [facebookLink, setFacebookLink] = useState('');
   const [facebookLinkError, setFacebookLinkError] = useState('');
-  
+
   // Delivery Type
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('deliver');
   const [pickupDate, setPickupDate] = useState('');
-  
+
   // Recipient Details
   const [recipientName, setRecipientName] = useState('');
   const [recipientContact, setRecipientContact] = useState('');
@@ -36,31 +36,51 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const [recipientFbLink, setRecipientFbLink] = useState('');
   const [recipientFbLinkError, setRecipientFbLinkError] = useState('');
   const [anonymous, setAnonymous] = useState(false);
-  
+
   // Delivery Choice 1
   const [deliveryDate1, setDeliveryDate1] = useState('');
   const [venue1, setVenue1] = useState('');
   const [room1, setRoom1] = useState('');
   const [time1, setTime1] = useState('');
-  
+
   // Delivery Choice 2
   const [deliveryDate2, setDeliveryDate2] = useState('');
   const [venue2, setVenue2] = useState('');
   const [room2, setRoom2] = useState('');
   const [time2, setTime2] = useState('');
-  
+
   // Payment & Messages
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentProofError, setPaymentProofError] = useState('');
   const [advocacyDonation, setAdvocacyDonation] = useState(0);
   const [messageForRecipient, setMessageForRecipient] = useState('');
   const [messageForBeneficiary, setMessageForBeneficiary] = useState('');
   const [specialRequests, setSpecialRequests] = useState('');
-  
+
   // Form State
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+
+  // 8MB in bytes
+  const MAX_FILE_SIZE = 8 * 1024 * 1024;
+
+  const handlePaymentProofChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (file.size > MAX_FILE_SIZE) {
+        setPaymentProofError(`File too large (${(file.size / 1024 / 1024).toFixed(1)}MB). Max size is 8MB.`);
+        setPaymentProof(null);
+        e.target.value = ''; // Reset the input
+        return;
+      }
+      setPaymentProofError('');
+      setPaymentProof(file);
+    } else {
+      setPaymentProof(null);
+    }
+  };
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0) + (advocacyDonation * 15);
 
@@ -138,10 +158,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   // Validate delivery dates (1st must be before 2nd)
   const validateDeliveryDates = (): boolean => {
     if (!deliveryDate1 || !time1 || !deliveryDate2 || !time2) return true;
-    
+
     const date1 = new Date(`${deliveryDate1}T${time1}`);
     const date2 = new Date(`${deliveryDate2}T${time2}`);
-    
+
     if (date1 >= date2) {
       setError('First delivery option must be before the second delivery option');
       return false;
@@ -152,7 +172,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   // Comprehensive step validation
   const validateCurrentStep = (): boolean => {
     setError('');
-    
+
     if (currentStep === 1) {
       // Validate purchaser details
       if (!email.trim()) {
@@ -186,7 +206,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       setFacebookLinkError('');
       return true;
     }
-    
+
     if (currentStep === 2) {
       if (deliveryType === 'pickup') {
         // Validate pickup details
@@ -219,7 +239,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       }
       return true;
     }
-    
+
     if (currentStep === 3 && deliveryType === 'deliver') {
       // Validate delivery details
       if (!deliveryDate1) {
@@ -259,7 +279,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       }
       return true;
     }
-    
+
     return true;
   };
 
@@ -388,7 +408,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   const RoseIcon = () => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z"/>
+      <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
     </svg>
   );
 
@@ -420,26 +440,26 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       case 'package':
         return <svg className={sizeClass} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>;
       case 'rose':
-        return <svg className={sizeClass} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z"/></svg>;
+        return <svg className={sizeClass} viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" /></svg>;
       default:
         return null;
     }
   };
 
-  const steps = deliveryType === 'deliver' 
+  const steps = deliveryType === 'deliver'
     ? [
-        { id: 1, name: 'Your Details', icon: 'user' },
-        { id: 2, name: 'Recipient', icon: 'gift' },
-        { id: 3, name: 'Delivery', icon: 'truck' },
-        { id: 4, name: 'Messages', icon: 'envelope' },
-        { id: 5, name: 'Payment', icon: 'card' },
-      ]
+      { id: 1, name: 'Your Details', icon: 'user' },
+      { id: 2, name: 'Recipient', icon: 'gift' },
+      { id: 3, name: 'Delivery', icon: 'truck' },
+      { id: 4, name: 'Messages', icon: 'envelope' },
+      { id: 5, name: 'Payment', icon: 'card' },
+    ]
     : [
-        { id: 1, name: 'Your Details', icon: 'user' },
-        { id: 2, name: 'Pickup', icon: 'package' },
-        { id: 3, name: 'Messages', icon: 'envelope' },
-        { id: 4, name: 'Payment', icon: 'card' },
-      ];
+      { id: 1, name: 'Your Details', icon: 'user' },
+      { id: 2, name: 'Pickup', icon: 'package' },
+      { id: 3, name: 'Messages', icon: 'envelope' },
+      { id: 4, name: 'Payment', icon: 'card' },
+    ];
 
   const totalSteps = steps.length;
 
@@ -455,7 +475,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   if (success) {
     return (
-      <motion.div 
+      <motion.div
         className="min-h-[70vh] flex items-center justify-center px-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -479,8 +499,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               />
             </svg>
           </motion.div>
-          
-          <motion.h2 
+
+          <motion.h2
             className="text-4xl font-bold text-gray-800 mb-4 flex items-center justify-center gap-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -488,11 +508,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           >
             Order Confirmed!
             <svg className="w-8 h-8 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z"/>
+              <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
             </svg>
           </motion.h2>
-          
-          <motion.p 
+
+          <motion.p
             className="text-gray-600 text-lg mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -500,7 +520,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           >
             Thank you for your purchase! Your roses will be delivered with love.
           </motion.p>
-          
+
           <motion.button
             onClick={onBack}
             className="px-8 py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold text-lg shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
@@ -518,7 +538,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   }
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen bg-gradient-to-b from-rose-50 to-white pt-24 md:pt-28 pb-8 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -526,7 +546,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <motion.h1 
+          <motion.h1
             className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent mb-2"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -540,40 +560,37 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         <div className="mb-8 overflow-x-auto pb-2">
           <div className="flex justify-between items-center relative min-w-max">
             <div className="absolute top-1/2 left-0 right-0 h-1 bg-rose-100 -translate-y-1/2 z-0">
-              <motion.div 
+              <motion.div
                 className="h-full bg-gradient-to-r from-rose-500 to-pink-500"
                 initial={{ width: '0%' }}
                 animate={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
                 transition={{ duration: 0.3 }}
               />
             </div>
-            
+
             {steps.map((step) => (
               <motion.button
                 key={step.id}
                 onClick={() => step.id <= currentStep && setCurrentStep(step.id)}
-                className={`relative z-10 flex flex-col items-center px-2 ${
-                  step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
-                }`}
+                className={`relative z-10 flex flex-col items-center px-2 ${step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
+                  }`}
                 whileHover={step.id <= currentStep ? { scale: 1.1 } : {}}
                 whileTap={step.id <= currentStep ? { scale: 0.95 } : {}}
               >
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${
-                  step.id === currentStep 
-                    ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200' 
-                    : step.id < currentStep 
-                      ? 'bg-green-500 text-white' 
-                      : 'bg-white border-2 border-rose-200 text-gray-400'
-                }`}>
+                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${step.id === currentStep
+                  ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200'
+                  : step.id < currentStep
+                    ? 'bg-green-500 text-white'
+                    : 'bg-white border-2 border-rose-200 text-gray-400'
+                  }`}>
                   {step.id < currentStep ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : getStepIcon(step.icon)}
                 </div>
-                <span className={`mt-2 text-xs md:text-sm font-medium whitespace-nowrap ${
-                  step.id === currentStep ? 'text-rose-600' : 'text-gray-500'
-                }`}>
+                <span className={`mt-2 text-xs md:text-sm font-medium whitespace-nowrap ${step.id === currentStep ? 'text-rose-600' : 'text-gray-500'
+                  }`}>
                   {step.name}
                 </span>
               </motion.button>
@@ -584,13 +601,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Form Section */}
           <div className="lg:col-span-2">
-            <motion.div 
+            <motion.div
               className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 md:p-8 border border-rose-100"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
             >
               {error && (
-                <motion.div 
+                <motion.div
                   className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 flex items-center gap-3 border border-red-100"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -621,64 +638,64 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Your Details</h3>
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Email Address</label>
-                        <input 
-                          type="email" 
-                          placeholder="your.email@student.ateneo.edu" 
-                          value={email} 
-                          onChange={(e) => setEmail(e.target.value)} 
-                          required 
-                          className={inputClass} 
+                        <input
+                          type="email"
+                          placeholder="your.email@student.ateneo.edu"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                          className={inputClass}
                         />
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Purchaser's Full Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="Enter your full name" 
-                          value={purchaserName} 
-                          onChange={(e) => setPurchaserName(e.target.value)} 
-                          required 
-                          className={inputClass} 
+                        <input
+                          type="text"
+                          placeholder="Enter your full name"
+                          value={purchaserName}
+                          onChange={(e) => setPurchaserName(e.target.value)}
+                          required
+                          className={inputClass}
                         />
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Purchaser's Student ID Number</label>
-                        <input 
-                          type="text" 
-                          placeholder="e.g., 234567" 
-                          value={studentId} 
+                        <input
+                          type="text"
+                          placeholder="e.g., 234567"
+                          value={studentId}
                           onChange={handleStudentIdChange}
-                          required 
+                          required
                           className={studentIdError ? inputErrorClass : inputClass}
                           maxLength={6}
                         />
                         {studentIdError && <p className={errorTextClass}>{studentIdError}</p>}
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Purchaser's Contact Number</label>
-                        <input 
-                          type="tel" 
-                          placeholder="0917 123 4567" 
-                          value={contactNumber} 
+                        <input
+                          type="tel"
+                          placeholder="0917 123 4567"
+                          value={contactNumber}
                           onChange={handleContactNumberChange}
-                          required 
+                          required
                           className={contactNumberError ? inputErrorClass : inputClass}
                         />
                         {contactNumberError && <p className={errorTextClass}>{contactNumberError}</p>}
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Purchaser's Facebook Link</label>
-                        <input 
-                          type="url" 
-                          placeholder="https://www.facebook.com/yourprofile" 
-                          value={facebookLink} 
+                        <input
+                          type="url"
+                          placeholder="https://www.facebook.com/yourprofile"
+                          value={facebookLink}
                           onChange={(e) => {
                             setFacebookLink(e.target.value);
                             if (e.target.value && !validateFacebookUrl(e.target.value)) {
@@ -686,24 +703,23 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             } else {
                               setFacebookLinkError('');
                             }
-                          }} 
-                          required 
-                          className={facebookLinkError ? inputErrorClass : inputClass} 
+                          }}
+                          required
+                          className={facebookLinkError ? inputErrorClass : inputClass}
                         />
                         {facebookLinkError && <p className={errorTextClass}>{facebookLinkError}</p>}
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>I would like to...</label>
                         <div className="grid grid-cols-2 gap-4">
                           <button
                             type="button"
                             onClick={() => setDeliveryType('deliver')}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              deliveryType === 'deliver'
-                                ? 'border-rose-500 bg-rose-50 text-rose-700'
-                                : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
-                            }`}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'deliver'
+                              ? 'border-rose-500 bg-rose-50 text-rose-700'
+                              : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
+                              }`}
                           >
                             <span className="mb-2 block">
                               <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -715,11 +731,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <button
                             type="button"
                             onClick={() => setDeliveryType('pickup')}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              deliveryType === 'pickup'
-                                ? 'border-rose-500 bg-rose-50 text-rose-700'
-                                : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
-                            }`}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'pickup'
+                              ? 'border-rose-500 bg-rose-50 text-rose-700'
+                              : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
+                              }`}
                           >
                             <span className="mb-2 block">
                               <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -750,19 +765,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Pickup Details</h3>
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>When will the order be picked up?</label>
-                        <input 
-                          type="date" 
-                          value={pickupDate} 
-                          onChange={(e) => setPickupDate(e.target.value)} 
-                          required 
+                        <input
+                          type="date"
+                          value={pickupDate}
+                          onChange={(e) => setPickupDate(e.target.value)}
+                          required
                           className={inputClass}
                           min={new Date().toISOString().split('T')[0]}
                         />
                       </div>
-                      
+
                       <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
                         <p className="text-sm text-gray-600">
                           <span className="font-medium text-rose-600 inline-flex items-center gap-1">
@@ -793,38 +808,38 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Recipient Details</h3>
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Recipient's Full Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="Who will receive the roses?" 
-                          value={recipientName} 
-                          onChange={(e) => setRecipientName(e.target.value)} 
-                          required 
-                          className={inputClass} 
+                        <input
+                          type="text"
+                          placeholder="Who will receive the roses?"
+                          value={recipientName}
+                          onChange={(e) => setRecipientName(e.target.value)}
+                          required
+                          className={inputClass}
                         />
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Recipient's Contact Number</label>
-                        <input 
-                          type="tel" 
-                          placeholder="0917 123 4567" 
-                          value={recipientContact} 
+                        <input
+                          type="tel"
+                          placeholder="0917 123 4567"
+                          value={recipientContact}
                           onChange={handleRecipientContactChange}
-                          required 
+                          required
                           className={recipientContactError ? inputErrorClass : inputClass}
                         />
                         {recipientContactError && <p className={errorTextClass}>{recipientContactError}</p>}
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Recipient's Facebook Link</label>
-                        <input 
-                          type="url" 
-                          placeholder="https://www.facebook.com/recipientprofile" 
-                          value={recipientFbLink} 
+                        <input
+                          type="url"
+                          placeholder="https://www.facebook.com/recipientprofile"
+                          value={recipientFbLink}
                           onChange={(e) => {
                             setRecipientFbLink(e.target.value);
                             if (e.target.value && !validateFacebookUrl(e.target.value)) {
@@ -832,13 +847,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             } else {
                               setRecipientFbLinkError('');
                             }
-                          }} 
-                          required 
-                          className={recipientFbLinkError ? inputErrorClass : inputClass} 
+                          }}
+                          required
+                          className={recipientFbLinkError ? inputErrorClass : inputClass}
                         />
                         {recipientFbLinkError && <p className={errorTextClass}>{recipientFbLinkError}</p>}
                       </div>
-                      
+
                       <div className="flex items-center gap-3 p-4 bg-rose-50 rounded-xl border border-rose-100">
                         <input
                           type="checkbox"
@@ -872,42 +887,42 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Delivery Details</h3>
                       </div>
-                      
+
                       {/* First Choice */}
                       <div className="p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100">
                         <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                           <span className="w-6 h-6 bg-rose-500 text-white rounded-full text-sm flex items-center justify-center">1</span>
                           First Choice (Preferred)
                         </h4>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className={labelClass}>Delivery Date</label>
-                            <input 
-                              type="date" 
-                              value={deliveryDate1} 
-                              onChange={(e) => setDeliveryDate1(e.target.value)} 
-                              required 
+                            <input
+                              type="date"
+                              value={deliveryDate1}
+                              onChange={(e) => setDeliveryDate1(e.target.value)}
+                              required
                               className={inputClass}
                               min={new Date().toISOString().split('T')[0]}
                             />
                           </div>
                           <div>
                             <label className={labelClass}>Delivery Time</label>
-                            <input 
-                              type="time" 
-                              value={time1} 
-                              onChange={(e) => setTime1(e.target.value)} 
-                              required 
+                            <input
+                              type="time"
+                              value={time1}
+                              onChange={(e) => setTime1(e.target.value)}
+                              required
                               className={inputClass}
                             />
                           </div>
                           <div>
                             <label className={labelClass}>Venue</label>
-                            <select 
-                              value={venue1} 
-                              onChange={(e) => setVenue1(e.target.value)} 
-                              required 
+                            <select
+                              value={venue1}
+                              onChange={(e) => setVenue1(e.target.value)}
+                              required
                               className={inputClass}
                             >
                               <option value="">Select venue...</option>
@@ -920,53 +935,53 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           </div>
                           <div>
                             <label className={labelClass}>Room Number</label>
-                            <input 
-                              type="text" 
-                              placeholder="e.g., 301" 
-                              value={room1} 
-                              onChange={(e) => setRoom1(e.target.value)} 
-                              required 
+                            <input
+                              type="text"
+                              placeholder="e.g., 301"
+                              value={room1}
+                              onChange={(e) => setRoom1(e.target.value)}
+                              required
                               className={inputClass}
                             />
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Second Choice */}
                       <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
                         <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                           <span className="w-6 h-6 bg-gray-500 text-white rounded-full text-sm flex items-center justify-center">2</span>
                           Second Choice (Backup)
                         </h4>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className={labelClass}>Delivery Date</label>
-                            <input 
-                              type="date" 
-                              value={deliveryDate2} 
-                              onChange={(e) => setDeliveryDate2(e.target.value)} 
-                              required 
+                            <input
+                              type="date"
+                              value={deliveryDate2}
+                              onChange={(e) => setDeliveryDate2(e.target.value)}
+                              required
                               className={inputClass}
                               min={deliveryDate1 || new Date().toISOString().split('T')[0]}
                             />
                           </div>
                           <div>
                             <label className={labelClass}>Delivery Time</label>
-                            <input 
-                              type="time" 
-                              value={time2} 
-                              onChange={(e) => setTime2(e.target.value)} 
-                              required 
+                            <input
+                              type="time"
+                              value={time2}
+                              onChange={(e) => setTime2(e.target.value)}
+                              required
                               className={inputClass}
                             />
                           </div>
                           <div>
                             <label className={labelClass}>Venue</label>
-                            <select 
-                              value={venue2} 
-                              onChange={(e) => setVenue2(e.target.value)} 
-                              required 
+                            <select
+                              value={venue2}
+                              onChange={(e) => setVenue2(e.target.value)}
+                              required
                               className={inputClass}
                             >
                               <option value="">Select venue...</option>
@@ -979,18 +994,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           </div>
                           <div>
                             <label className={labelClass}>Room Number</label>
-                            <input 
-                              type="text" 
-                              placeholder="e.g., 202" 
-                              value={room2} 
-                              onChange={(e) => setRoom2(e.target.value)} 
-                              required 
+                            <input
+                              type="text"
+                              placeholder="e.g., 202"
+                              value={room2}
+                              onChange={(e) => setRoom2(e.target.value)}
+                              required
                               className={inputClass}
                             />
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
                         <p className="text-sm text-gray-600">
                           <span className="font-medium text-rose-600 inline-flex items-center gap-1">
@@ -1021,54 +1036,54 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Messages & Donations</h3>
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>How many advocacy roses will you be donating to our beneficiaries?</label>
                         <div className="flex items-center gap-4">
-                          <input 
-                            type="number" 
+                          <input
+                            type="number"
                             min="0"
-                            value={advocacyDonation} 
-                            onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))} 
+                            value={advocacyDonation}
+                            onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))}
                             className={`${inputClass} w-32`}
                           />
                           <span className="text-gray-600">roses × ₱15 = ₱{(advocacyDonation * 15).toFixed(2)}</span>
                         </div>
                         <p className="text-sm text-gray-500 mt-1">Each advocacy rose costs ₱15</p>
                       </div>
-                      
+
                       {advocacyDonation > 0 && (
                         <div>
                           <label className={labelClass}>Letter/Message for Recipient from Beneficiary</label>
-                          <textarea 
-                            placeholder="Write a message that will come from the beneficiary..." 
-                            value={messageForBeneficiary} 
-                            onChange={(e) => setMessageForBeneficiary(e.target.value)} 
+                          <textarea
+                            placeholder="Write a message that will come from the beneficiary..."
+                            value={messageForBeneficiary}
+                            onChange={(e) => setMessageForBeneficiary(e.target.value)}
                             rows={3}
-                            className={`${inputClass} resize-none`} 
+                            className={`${inputClass} resize-none`}
                           />
                         </div>
                       )}
-                      
+
                       <div>
                         <label className={labelClass}>Letter/Message for Recipient</label>
-                        <textarea 
-                          placeholder="Write a sweet message for the recipient..." 
-                          value={messageForRecipient} 
-                          onChange={(e) => setMessageForRecipient(e.target.value)} 
+                        <textarea
+                          placeholder="Write a sweet message for the recipient..."
+                          value={messageForRecipient}
+                          onChange={(e) => setMessageForRecipient(e.target.value)}
                           rows={4}
-                          className={`${inputClass} resize-none`} 
+                          className={`${inputClass} resize-none`}
                         />
                       </div>
-                      
+
                       <div>
                         <label className={labelClass}>Other Notes and Concerns/Special Request</label>
-                        <textarea 
-                          placeholder="e.g., lego flower built, specific delivery instructions..." 
-                          value={specialRequests} 
-                          onChange={(e) => setSpecialRequests(e.target.value)} 
+                        <textarea
+                          placeholder="e.g., lego flower built, specific delivery instructions..."
+                          value={specialRequests}
+                          onChange={(e) => setSpecialRequests(e.target.value)}
                           rows={3}
-                          className={`${inputClass} resize-none`} 
+                          className={`${inputClass} resize-none`}
                         />
                       </div>
                     </motion.div>
@@ -1091,30 +1106,31 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         </div>
                         <h3 className="text-2xl font-bold text-gray-800">Payment</h3>
                       </div>
-                      
+
                       <div className="p-6 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl text-white">
                         <p className="text-sm opacity-80 mb-1">Transfer to</p>
                         <p className="text-2xl font-bold mb-4">GCash: 0917 XXX XXXX</p>
                         <p className="text-sm opacity-80">Amount: <span className="font-bold text-lg">₱{total.toFixed(2)}</span></p>
                       </div>
-                      
+
                       <div>
-                        <label className={labelClass}>Upload Proof of Payment</label>
+                        <label className={labelClass}>Upload Proof of Payment (Max 8MB)</label>
                         <div className="relative">
-                          <input 
-                            type="file" 
-                            onChange={(e) => setPaymentProof(e.target.files ? e.target.files[0] : null)} 
-                            required 
+                          <input
+                            type="file"
+                            onChange={handlePaymentProofChange}
+                            required
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             accept="image/*,.pdf"
                           />
-                          <div className={`${inputClass} flex items-center justify-center gap-3 border-dashed cursor-pointer hover:border-rose-400 hover:bg-rose-50`}>
+                          <div className={`${inputClass} flex items-center justify-center gap-3 border-dashed cursor-pointer hover:border-rose-400 hover:bg-rose-50 ${paymentProofError ? 'border-red-300 bg-red-50' : ''}`}>
                             {paymentProof ? (
                               <>
                                 <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                 </svg>
                                 <span className="text-gray-700">{paymentProof.name}</span>
+                                <span className="text-xs text-gray-500">({(paymentProof.size / 1024 / 1024).toFixed(1)}MB)</span>
                               </>
                             ) : (
                               <>
@@ -1126,6 +1142,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             )}
                           </div>
                         </div>
+                        {paymentProofError && (
+                          <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {paymentProofError}
+                          </p>
+                        )}
                       </div>
                     </motion.div>
                   )}
@@ -1133,8 +1157,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
                 {/* Navigation Buttons */}
                 <div className="flex justify-between items-center mt-8 pt-6 border-t border-rose-100">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => currentStep === 1 ? onBack() : setCurrentStep(currentStep - 1)}
                     className="flex items-center gap-2 text-gray-600 hover:text-rose-600 font-medium transition-colors"
                   >
@@ -1143,7 +1167,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                     </svg>
                     {currentStep === 1 ? 'Back to Shop' : 'Previous'}
                   </button>
-                  
+
                   {currentStep < totalSteps ? (
                     <motion.button
                       type="button"
@@ -1178,7 +1202,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         <>
                           Place Order
                           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z"/>
+                            <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
                           </svg>
                         </>
                       )}
@@ -1191,20 +1215,20 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <motion.div 
+            <motion.div
               className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 border border-rose-100 sticky top-24"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
             >
               <h3 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h3>
-              
+
               <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
                 {cart.map((item) => (
                   <div key={item.id} className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500">
                       <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z"/>
+                        <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
                       </svg>
                     </div>
                     <div className="flex-grow min-w-0">
@@ -1215,7 +1239,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                   </div>
                 ))}
               </div>
-              
+
               <div className="border-t border-rose-100 pt-4 space-y-2">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal</span>
@@ -1238,7 +1262,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="mt-6 p-4 bg-rose-50 rounded-xl">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

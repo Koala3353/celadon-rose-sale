@@ -9,7 +9,7 @@ const OrderHistory: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedOrder, setSelectedOrder] = useState<SheetOrder | null>(null);
-  
+
   const { data: orders, isLoading, error } = useQuery<SheetOrder[], Error>({
     queryKey: ['orders', user?.email],
     queryFn: () => fetchUserOrders(user!.email!),
@@ -18,46 +18,53 @@ const OrderHistory: React.FC = () => {
 
   const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
-    
+
     if (normalizedStatus.includes('completed') || normalizedStatus.includes('delivered')) {
-      return { 
-        bg: 'bg-green-100', 
-        text: 'text-green-700', 
+      return {
+        bg: 'bg-green-100',
+        text: 'text-green-700',
         border: 'border-green-200',
         icon: '✓',
         label: 'Completed'
       };
     }
     if (normalizedStatus.includes('pending')) {
-      return { 
-        bg: 'bg-amber-100', 
-        text: 'text-amber-700', 
+      return {
+        bg: 'bg-amber-100',
+        text: 'text-amber-700',
         border: 'border-amber-200',
         icon: '⏳',
         label: 'Pending'
       };
     }
     if (normalizedStatus.includes('process') || normalizedStatus.includes('processing')) {
-      return { 
-        bg: 'bg-blue-100', 
-        text: 'text-blue-700', 
+      let label = status;
+      if (normalizedStatus.includes('1st')) {
+        label = 'In Process (1st Attempt)';
+      } else if (normalizedStatus.includes('2nd')) {
+        label = 'In Process (2nd Attempt)';
+      }
+
+      return {
+        bg: 'bg-blue-100',
+        text: 'text-blue-700',
         border: 'border-blue-200',
         icon: '📦',
-        label: status
+        label: label
       };
     }
     if (normalizedStatus.includes('cancelled') || normalizedStatus.includes('canceled')) {
-      return { 
-        bg: 'bg-red-100', 
-        text: 'text-red-700', 
+      return {
+        bg: 'bg-red-100',
+        text: 'text-red-700',
         border: 'border-red-200',
         icon: '✗',
         label: 'Cancelled'
       };
     }
-    return { 
-      bg: 'bg-gray-100', 
-      text: 'text-gray-700', 
+    return {
+      bg: 'bg-gray-100',
+      text: 'text-gray-700',
       border: 'border-gray-200',
       icon: '•',
       label: status
@@ -79,7 +86,7 @@ const OrderHistory: React.FC = () => {
   };
 
   return (
-    <motion.div 
+    <motion.div
       className="min-h-screen bg-gradient-to-b from-rose-50 to-white pt-24 md:pt-28 pb-8 px-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -87,8 +94,8 @@ const OrderHistory: React.FC = () => {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <motion.button 
-            onClick={() => navigate('/shop')} 
+          <motion.button
+            onClick={() => navigate('/shop')}
             className="flex items-center gap-2 text-gray-600 hover:text-rose-600 font-medium transition-colors"
             whileHover={{ x: -5 }}
           >
@@ -101,7 +108,7 @@ const OrderHistory: React.FC = () => {
 
         {/* Title Section */}
         <div className="text-center mb-10">
-          <motion.div 
+          <motion.div
             className="w-16 h-16 bg-gradient-to-br from-rose-400 to-pink-500 rounded-full mx-auto flex items-center justify-center mb-4 shadow-lg shadow-rose-200"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -109,14 +116,14 @@ const OrderHistory: React.FC = () => {
           >
             <span className="text-2xl">📋</span>
           </motion.div>
-          <motion.h1 
+          <motion.h1
             className="text-4xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent mb-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             Order History
           </motion.h1>
-          <motion.p 
+          <motion.p
             className="text-gray-600"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -126,21 +133,107 @@ const OrderHistory: React.FC = () => {
           </motion.p>
         </div>
 
-        {/* Loading State */}
+        {/* Loading State - Animated Rose Blooming */}
         {isLoading && (
-          <motion.div 
+          <motion.div
             className="flex flex-col items-center justify-center py-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="w-16 h-16 border-4 border-rose-200 border-t-rose-500 rounded-full animate-spin mb-4"></div>
-            <p className="text-gray-600">Loading your orders...</p>
+            {/* Rose Blooming Animation */}
+            <div className="relative w-32 h-32 mb-6">
+              {/* Center of the rose */}
+              <motion.div
+                className="absolute top-1/2 left-1/2 w-6 h-6 -ml-3 -mt-3 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full z-10"
+                animate={{ scale: [0.8, 1, 0.8] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              />
+
+              {/* Petals - each with different animation delay for blooming effect */}
+              {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
+                <motion.div
+                  key={i}
+                  className="absolute top-1/2 left-1/2 w-10 h-14 -ml-5 origin-bottom"
+                  style={{
+                    rotate: `${i * 45}deg`,
+                    transformOrigin: 'center bottom'
+                  }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{
+                    scale: [0, 1, 1, 0],
+                    opacity: [0, 1, 1, 0],
+                    y: [0, -20, -20, 0]
+                  }}
+                  transition={{
+                    duration: 3,
+                    delay: i * 0.15,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <svg viewBox="0 0 40 56" className="w-full h-full drop-shadow-lg">
+                    <defs>
+                      <linearGradient id={`petalGradient${i}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#fda4af" />
+                        <stop offset="50%" stopColor="#fb7185" />
+                        <stop offset="100%" stopColor="#f43f5e" />
+                      </linearGradient>
+                    </defs>
+                    <path
+                      d="M20 0 C30 10, 40 25, 35 40 C30 50, 25 56, 20 56 C15 56, 10 50, 5 40 C0 25, 10 10, 20 0"
+                      fill={`url(#petalGradient${i})`}
+                    />
+                  </svg>
+                </motion.div>
+              ))}
+
+              {/* Floating particles */}
+              {[0, 1, 2, 3, 4].map((i) => (
+                <motion.div
+                  key={`particle-${i}`}
+                  className="absolute w-2 h-2 bg-rose-300 rounded-full"
+                  style={{
+                    left: `${20 + i * 15}%`,
+                    top: '50%'
+                  }}
+                  animate={{
+                    y: [-20, -60, -20],
+                    x: [0, (i % 2 === 0 ? 20 : -20), 0],
+                    opacity: [0, 1, 0],
+                    scale: [0.5, 1, 0.5]
+                  }}
+                  transition={{
+                    duration: 2.5,
+                    delay: i * 0.4,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Loading text with shimmer effect */}
+            <motion.p
+              className="text-gray-600 font-medium"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              Loading your orders...
+            </motion.p>
+            <motion.div
+              className="mt-2 text-sm text-rose-400"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+            >
+              🌹 Gathering your roses
+            </motion.div>
           </motion.div>
         )}
 
         {/* Error State */}
         {error && (
-          <motion.div 
+          <motion.div
             className="bg-red-50 text-red-600 p-6 rounded-2xl border border-red-100 text-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -155,7 +248,7 @@ const OrderHistory: React.FC = () => {
 
         {/* Not Signed In State */}
         {!user && !isLoading && (
-          <motion.div 
+          <motion.div
             className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-12 text-center border border-rose-100"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -178,7 +271,7 @@ const OrderHistory: React.FC = () => {
 
         {/* Empty State */}
         {orders && orders.length === 0 && (
-          <motion.div 
+          <motion.div
             className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-12 text-center border border-rose-100"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -207,8 +300,8 @@ const OrderHistory: React.FC = () => {
                 const statusConfig = getStatusConfig(order.status);
                 const cartItems = parseCartItems(order.cartItems);
                 return (
-                  <motion.div 
-                    key={order.orderId} 
+                  <motion.div
+                    key={order.orderId}
                     className="bg-white rounded-3xl shadow-lg shadow-rose-100/50 overflow-hidden border border-rose-100"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -230,11 +323,11 @@ const OrderHistory: React.FC = () => {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            {new Date(order.timestamp).toLocaleDateString('en-US', { 
+                            {new Date(order.timestamp).toLocaleDateString('en-US', {
                               weekday: 'long',
-                              year: 'numeric', 
-                              month: 'long', 
-                              day: 'numeric' 
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
                             })}
                           </p>
                         </div>
@@ -243,6 +336,14 @@ const OrderHistory: React.FC = () => {
                           <p className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                             ₱{order.total.toFixed(2)}
                           </p>
+                          {order.payment > 0 && (
+                            <p className="text-sm text-green-600 mt-1 flex items-center justify-end gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                              </svg>
+                              Paid: ₱{order.payment.toFixed(2)}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -263,7 +364,7 @@ const OrderHistory: React.FC = () => {
                           </div>
                         ))}
                       </div>
-                      
+
                       {/* Delivery Info */}
                       {(order.venue1 || order.venue2) && (
                         <div className="mt-6 pt-4 border-t border-rose-100">
@@ -292,7 +393,7 @@ const OrderHistory: React.FC = () => {
                           </div>
                         </div>
                       )}
-                      
+
                       {/* Recipient Info */}
                       {order.recipientName && (
                         <div className="mt-4 pt-4 border-t border-rose-100">
@@ -374,7 +475,7 @@ const OrderHistory: React.FC = () => {
                       </svg>
                     </motion.button>
                   </div>
-                  
+
                   {/* Status Badge */}
                   <div className="mt-4">
                     <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-white/20 text-white`}>
@@ -411,9 +512,9 @@ const OrderHistory: React.FC = () => {
                       {selectedOrder.facebookLink && (
                         <div className="md:col-span-2">
                           <p className="text-gray-500">Facebook</p>
-                          <a 
-                            href={selectedOrder.facebookLink} 
-                            target="_blank" 
+                          <a
+                            href={selectedOrder.facebookLink}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="font-medium text-rose-600 hover:text-rose-700 underline break-all"
                           >
@@ -446,9 +547,9 @@ const OrderHistory: React.FC = () => {
                         {selectedOrder.recipientFbLink && (
                           <div className="md:col-span-2">
                             <p className="text-gray-500">Facebook</p>
-                            <a 
-                              href={selectedOrder.recipientFbLink} 
-                              target="_blank" 
+                            <a
+                              href={selectedOrder.recipientFbLink}
+                              target="_blank"
                               rel="noopener noreferrer"
                               className="font-medium text-rose-600 hover:text-rose-700 underline break-all"
                             >
@@ -572,12 +673,23 @@ const OrderHistory: React.FC = () => {
                     </div>
                   )}
 
-                  {/* Order Total */}
+                  {/* Order Total & Payment */}
                   <div className="bg-gradient-to-r from-rose-500 to-pink-500 rounded-2xl p-4 text-white">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">Order Total</span>
                       <span className="text-2xl font-bold">₱{selectedOrder.total.toFixed(2)}</span>
                     </div>
+                    {selectedOrder.payment > 0 && (
+                      <div className="flex items-center justify-between pt-2 border-t border-white/30">
+                        <span className="flex items-center gap-2">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Payment Received
+                        </span>
+                        <span className="font-bold">₱{selectedOrder.payment.toFixed(2)}</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Assigned Dove */}
