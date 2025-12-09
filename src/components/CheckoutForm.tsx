@@ -90,6 +90,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         e.target.value = ''; // Reset the input
         return;
       }
+
+      const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+      if (!validTypes.includes(file.type)) {
+        setPaymentProofError('Invalid file type. Please upload a JPG or PNG image.');
+        setPaymentProof(null);
+        e.target.value = '';
+        return;
+      }
+
       setPaymentProofError('');
       setPaymentProof(file);
     } else {
@@ -409,7 +418,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       items: cart,
       cartItems: [
         ...cart.map(item => `${item.name} x${item.quantity}`),
-        ...selectedAddons.map(id => ADD_ONS.find(a => a.id === id)?.name)
+        ...selectedAddons.map(id => {
+          const addon = ADD_ONS.find(a => a.id === id);
+          return addon ? `${addon.name} x1` : '';
+        })
       ].filter(Boolean).join(', '),
       total,
     };
@@ -1224,7 +1236,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             onChange={handlePaymentProofChange}
                             required
                             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            accept="image/*,.pdf"
+                            accept=".jpg,.jpeg,.png"
                           />
                           <div className={`${inputClass} flex items-center justify-center gap-3 border-dashed cursor-pointer hover:border-rose-400 hover:bg-rose-50 ${paymentProofError ? 'border-red-300 bg-red-50' : ''}`}>
                             {paymentProof ? (
