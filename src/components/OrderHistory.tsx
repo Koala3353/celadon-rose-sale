@@ -336,7 +336,7 @@ const OrderHistory: React.FC = () => {
                           <p className="text-2xl font-bold bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                             ₱{order.total.toFixed(2)}
                           </p>
-                          {order.payment > 0 && (
+                          {order.payment > 0 && order.paymentConfirmed && (
                             <p className="text-sm text-green-600 mt-1 flex items-center justify-end gap-1">
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -690,7 +690,7 @@ const OrderHistory: React.FC = () => {
                       <span className="font-medium">Order Total</span>
                       <span className="text-2xl font-bold">₱{selectedOrder.total.toFixed(2)}</span>
                     </div>
-                    {selectedOrder.payment > 0 && (
+                    {selectedOrder.payment > 0 && selectedOrder.paymentConfirmed && (
                       <div className="flex items-center justify-between pt-2 border-t border-white/30">
                         <span className="flex items-center gap-2">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
