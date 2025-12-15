@@ -36,7 +36,7 @@ const Navbar = () => {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 group">
               <motion.div
-                className="w-10 h-10 overflow-hidden rounded-full shadow-lg"
+                className="w-10 h-10"
                 whileHover={{ scale: 1.1 }}
                 transition={{ duration: 0.3 }}
               >
@@ -58,8 +58,8 @@ const Navbar = () => {
                   key={link.path}
                   to={link.path}
                   className={`relative text-base font-medium transition-colors ${location.pathname === link.path
-                      ? 'text-rose-600'
-                      : 'text-gray-600 hover:text-rose-500'
+                    ? 'text-rose-600'
+                    : 'text-gray-600 hover:text-rose-500'
                     }`}
                 >
                   {link.label}
@@ -173,8 +173,8 @@ const Navbar = () => {
                     to={link.path}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`block text-lg font-medium py-2 ${location.pathname === link.path
-                        ? 'text-rose-600'
-                        : 'text-gray-700 hover:text-rose-500'
+                      ? 'text-rose-600'
+                      : 'text-gray-700 hover:text-rose-500'
                       }`}
                   >
                     {link.label}

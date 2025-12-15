@@ -9,6 +9,8 @@ const OrderHistory: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [selectedOrder, setSelectedOrder] = useState<SheetOrder | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
   const { data: orders, isLoading, error } = useQuery<SheetOrder[], Error>({
     queryKey: ['orders', user?.email],
@@ -84,6 +86,37 @@ const OrderHistory: React.FC = () => {
       return { name: trimmed, quantity: 1 };
     }).filter(item => item.name);
   };
+
+  const filterOptions = [
+    'All',
+    'Pending',
+    'In Process',
+    'Failed - 1st Attempt',
+    'Failed - 2nd Attempt',
+    'Payment Confirmed'
+  ];
+
+  const filteredOrders = orders?.filter(order => {
+    // Search
+    const query = searchQuery.toLowerCase();
+    const matchesSearch =
+      (order.orderId || '').toLowerCase().includes(query) ||
+      (order.cartItems || '').toLowerCase().includes(query);
+
+    if (!matchesSearch) return false;
+
+    // Status Filter
+    if (statusFilter === 'All') return true;
+    if (statusFilter === 'Payment Confirmed') return order.paymentConfirmed;
+
+    const status = (order.status || '').toLowerCase();
+    if (statusFilter === 'Pending') return status.includes('pending');
+    if (statusFilter === 'In Process') return status.includes('process');
+    if (statusFilter === 'Failed - 1st Attempt') return status.includes('failed') && status.includes('1st');
+    if (statusFilter === 'Failed - 2nd Attempt') return status.includes('failed') && status.includes('2nd');
+
+    return true;
+  }) || [];
 
   return (
     <motion.div
@@ -295,8 +328,64 @@ const OrderHistory: React.FC = () => {
         {/* Orders List */}
         {orders && orders.length > 0 && (
           <div className="space-y-6">
+            {/* Search and Filters */}
+            <div className="space-y-4 mb-6">
+              {/* Search Bar */}
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search by Order ID or items..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-12 pr-4 py-3 rounded-2xl border border-rose-100 focus:border-rose-300 focus:ring focus:ring-rose-200 focus:ring-opacity-50 outline-none transition-all bg-white/80 shadow-sm"
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+              </div>
+
+              {/* Filter Chips */}
+              <div className="flex flex-wrap gap-2">
+                {filterOptions.map((filter) => (
+                  <button
+                    key={filter}
+                    onClick={() => setStatusFilter(filter)}
+                    className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === filter
+                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
+                        : 'bg-white text-gray-600 hover:bg-rose-50 border border-rose-100'
+                      }`}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* No Results State */}
+            {filteredOrders.length === 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-center py-12 bg-white rounded-3xl border border-rose-100 shadow-sm"
+              >
+                <div className="w-16 h-16 bg-gray-100 rounded-full mx-auto flex items-center justify-center mb-4 text-3xl">
+                  🔍
+                </div>
+                <h3 className="text-lg font-medium text-gray-800">No orders found</h3>
+                <p className="text-gray-500">Try adjusting your search or filters</p>
+                <button
+                  onClick={() => { setSearchQuery(''); setStatusFilter('All'); }}
+                  className="mt-4 text-rose-600 hover:text-rose-700 font-medium"
+                >
+                  Clear all filters
+                </button>
+              </motion.div>
+            )}
+
             <AnimatePresence>
-              {orders.map((order, index) => {
+              {filteredOrders.map((order, index) => {
                 const statusConfig = getStatusConfig(order.status);
                 const cartItems = parseCartItems(order.cartItems);
                 return (

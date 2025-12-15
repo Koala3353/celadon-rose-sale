@@ -344,10 +344,42 @@ const HomePage = () => {
             }}
           >
             {[
-              { icon: '🌹', title: 'Fresh Roses', desc: 'Handpicked daily' },
-              { icon: '🎁', title: 'Gift Wrapped', desc: 'Beautifully packaged' },
-              { icon: '🚚', title: 'Fast Delivery', desc: 'Same-day available' },
-              { icon: '💝', title: 'Personal Notes', desc: 'Custom messages' },
+              {
+                icon: (
+                  <svg className="w-10 h-10 text-rose-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                ),
+                title: 'Fresh Roses',
+                desc: 'Handpicked daily'
+              },
+              {
+                icon: (
+                  <svg className="w-10 h-10 text-rose-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                ),
+                title: 'Gift Wrapped',
+                desc: 'Beautifully packaged'
+              },
+              {
+                icon: (
+                  <svg className="w-10 h-10 text-rose-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                ),
+                title: 'Fast Delivery',
+                desc: 'Same-day available'
+              },
+              {
+                icon: (
+                  <svg className="w-10 h-10 text-rose-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                ),
+                title: 'Personal Notes',
+                desc: 'Custom messages'
+              },
             ].map((feature, i) => (
               <motion.div
                 key={i}
@@ -357,7 +389,7 @@ const HomePage = () => {
                   visible: { opacity: 1, y: 0 }
                 }}
               >
-                <span className="text-4xl mb-3 block">{feature.icon}</span>
+                <div className="mb-3 flex justify-center">{feature.icon}</div>
                 <h3 className="font-semibold text-gray-800 mb-1">{feature.title}</h3>
                 <p className="text-gray-500 text-sm">{feature.desc}</p>
               </motion.div>
@@ -492,9 +524,36 @@ const HomePage = () => {
             }}
           >
             {[
-              { step: '1', title: 'Choose Your Roses', desc: 'Browse our collection and pick your favorites', icon: '🌹' },
-              { step: '2', title: 'Add Your Message', desc: 'Include a heartfelt note for your recipient', icon: '💌' },
-              { step: '3', title: 'We Deliver', desc: 'Your roses are hand-delivered with care', icon: '🚚' },
+              {
+                step: '1',
+                title: 'Choose Your Roses',
+                desc: 'Browse our collection and pick your favorites',
+                icon: (
+                  <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                )
+              },
+              {
+                step: '2',
+                title: 'Add Your Message',
+                desc: 'Include a heartfelt note for your recipient',
+                icon: (
+                  <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                )
+              },
+              {
+                step: '3',
+                title: 'We Deliver',
+                desc: 'Your roses are hand-delivered with care',
+                icon: (
+                  <svg className="w-8 h-8 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                )
+              },
             ].map((item, i) => (
               <motion.div
                 key={i}
@@ -505,7 +564,7 @@ const HomePage = () => {
                 }}
               >
                 <div className="relative inline-block mb-6">
-                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center text-4xl">
+                  <div className="w-20 h-20 bg-white rounded-2xl shadow-lg flex items-center justify-center">
                     {item.icon}
                   </div>
                   <span className="absolute -top-2 -right-2 w-8 h-8 bg-rose-500 text-white text-sm font-bold rounded-full flex items-center justify-center shadow-lg">

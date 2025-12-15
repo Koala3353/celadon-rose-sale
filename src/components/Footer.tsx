@@ -11,7 +11,7 @@ const Footer: React.FC = () => {
             className="flex items-center justify-center gap-2 mb-4"
             whileHover={{ scale: 1.02 }}
           >
-            <div className="w-12 h-12 overflow-hidden rounded-full shadow-lg border-2 border-rose-100">
+            <div className="w-12 h-12">
               <img
                 src={`${import.meta.env.BASE_URL}assets/logo.png`}
                 alt="Rose Sale Logo"
