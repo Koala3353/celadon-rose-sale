@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import HomePage from './pages/HomePage';
 import ShopPage from './pages/ShopPage';
 import NotFound from './pages/NotFound';
+import ProductDetailPage from './pages/ProductDetailPage';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
 import Navbar from './components/Navbar';
@@ -48,6 +49,7 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/shop" element={<ShopPage />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/orders" element={<OrderHistory />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

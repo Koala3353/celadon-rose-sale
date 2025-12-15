@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { Product } from '../types';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -42,54 +43,60 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
     >
       {/* Image Container */}
       <div className="relative overflow-hidden aspect-square bg-rose-50">
-        {!imageLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
-            <RoseLoader size="sm" />
-          </div>
-        )}
-        <motion.img
-          src={product.imageUrl}
-          alt={product.name}
-          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-          onLoad={() => setImageLoaded(true)}
-          loading="lazy"
-        />
+        <Link to={`/product/${product.id}`} className="block w-full h-full cursor-pointer">
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-rose-50 to-pink-50">
+              <RoseLoader size="sm" />
+            </div>
+          )}
+          <motion.img
+            src={product.imageUrl}
+            alt={product.name}
+            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-110 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setImageLoaded(true)}
+            loading="lazy"
+          />
 
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Overlay on hover - inside Link so it's clickable part of the card */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-        {/* Quick Add Button - shows on hover */}
+          {/* Stock Badge - inside Link */}
+          <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
+            {status.text}
+          </span>
+
+          {/* Category Tag - inside Link */}
+          {product.category && (
+            <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700">
+              {product.category}
+            </span>
+          )}
+        </Link>
+
+        {/* Quick Add Button - separate from Link, higher z-index */}
         <motion.button
-          onClick={handleAddToCart}
+          onClick={(e) => {
+            e.preventDefault(); // Safety check
+            handleAddToCart();
+          }}
           disabled={product.stock === 0}
-          className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full font-medium shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 ${product.stock === 0
-            ? 'bg-gray-400 text-white cursor-not-allowed'
-            : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
+          className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full font-medium shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 z-10 ${product.stock === 0
+              ? 'bg-gray-400 text-white cursor-not-allowed'
+              : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
             }`}
           whileTap={{ scale: 0.95 }}
         >
           {product.stock === 0 ? 'Sold Out' : 'Quick Add'}
         </motion.button>
-
-        {/* Stock Badge */}
-        <span className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-medium ${status.color}`}>
-          {status.text}
-        </span>
-
-        {/* Category Tag */}
-        {product.category && (
-          <span className="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur-sm rounded-full text-xs font-medium text-gray-700">
-            {product.category}
-          </span>
-        )}
       </div>
 
       {/* Content */}
       <div className="p-5">
-        <h3 className="text-lg font-playfair font-bold text-gray-800 mb-1 line-clamp-1">
-          {product.name}
-        </h3>
+        <Link to={`/product/${product.id}`}>
+          <h3 className="text-lg font-playfair font-bold text-gray-800 mb-1 line-clamp-1 hover:text-rose-600 transition-colors">
+            {product.name}
+          </h3>
+        </Link>
 
         {product.description && (
           <p className="text-gray-500 text-sm mb-3 line-clamp-2">
@@ -117,8 +124,8 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             onClick={handleAddToCart}
             disabled={product.stock === 0}
             className={`p-3 rounded-full transition-all duration-300 ${product.stock === 0
-              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
               }`}
             whileHover={{ scale: product.stock > 0 ? 1.1 : 1 }}
             whileTap={{ scale: product.stock > 0 ? 0.9 : 1 }}

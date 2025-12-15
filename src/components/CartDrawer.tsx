@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -108,7 +109,11 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                       >
                         <div className="flex gap-4">
                           {/* Product Image */}
-                          <div className="w-20 h-20 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden">
+                          <Link
+                            to={`/product/${item.id}`}
+                            onClick={onClose}
+                            className="w-20 h-20 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 overflow-hidden hover:opacity-80 transition-opacity"
+                          >
                             {item.imageUrl ? (
                               <img
                                 src={item.imageUrl}
@@ -118,11 +123,13 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                             ) : (
                               <span className="text-3xl">🌹</span>
                             )}
-                          </div>
+                          </Link>
 
                           {/* Product Details */}
                           <div className="flex-grow min-w-0">
-                            <h3 className="font-semibold text-gray-800 truncate">{item.name}</h3>
+                            <Link to={`/product/${item.id}`} onClick={onClose}>
+                              <h3 className="font-semibold text-gray-800 truncate hover:text-rose-600 transition-colors">{item.name}</h3>
+                            </Link>
                             <p className="text-rose-600 font-bold text-lg">₱{item.price.toFixed(2)}</p>
                             {item.category && (
                               <span className="inline-block px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full mt-1">
