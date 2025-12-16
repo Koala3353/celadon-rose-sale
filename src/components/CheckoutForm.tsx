@@ -18,7 +18,6 @@ interface AddOn {
 }
 
 const ADD_ONS: AddOn[] = [
-  { id: 'service-delivery', name: "Delivery Service", price: 20 },
   { id: 'card-heart', name: "Valentine's Day Card Rose Heart", price: 20 },
   { id: 'card-ribbon', name: "Valentine's Day Card Rose Ribbon", price: 20 },
   { id: 'card-tulip', name: "Valentine's Day Card Tulip", price: 20 },
@@ -28,9 +27,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const { cart, clearCart } = useCart();
   const { user } = useAuth();
 
-  // Purchaser Details
+  // ... (existing state) ...
+
   const [email, setEmail] = useState(user?.email || '');
   const [purchaserName, setPurchaserName] = useState(user?.name || '');
+  // Purchaser Details
   const [studentId, setStudentId] = useState('');
   const [studentIdError, setStudentIdError] = useState('');
   const [contactNumber, setContactNumber] = useState('');
@@ -107,15 +108,24 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   };
 
-  const addonsTotal = selectedAddons.reduce((acc, id) => {
-    // Skip delivery service charge if pickup is selected
-    if (id === 'service-delivery' && deliveryType !== 'deliver') return acc;
+  // Calculate fees
+  const deliveryFee = deliveryType === 'deliver' ? 20 : 0;
 
+  const addonsTotal = selectedAddons.reduce((acc, id) => {
     const addon = ADD_ONS.find(a => a.id === id);
     return acc + (addon?.price || 0);
   }, 0);
 
-  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0) + (advocacyDonation * 80) + addonsTotal;
+  const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0) + (advocacyDonation * 80) + addonsTotal + deliveryFee;
+
+  // ... (rest of component code until rendering total) ...
+
+  <div className="flex justify-between text-gray-600">
+    <span>Delivery</span>
+    <span className={deliveryFee > 0 ? "text-gray-800" : "text-green-600"}>
+      {deliveryFee > 0 ? `₱${deliveryFee.toFixed(2)}` : 'Free'}
+    </span>
+  </div>
 
   // Update email when user logs in
   useEffect(() => {
@@ -367,11 +377,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     setSuccess(false);
     setIsSubmitting(true);
 
-    if (!user) {
-      setError('You must be logged in to place an order.');
-      setIsSubmitting(false);
-      return;
-    }
+    setSuccess(false);
+    setIsSubmitting(true);
 
     if (cart.length === 0) {
       setError('Your cart is empty.');
