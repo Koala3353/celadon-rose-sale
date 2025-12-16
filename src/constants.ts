@@ -44,3 +44,5 @@ export const CACHE_KEY_PRODUCTS = 'rose_sale_products';
 export const CACHE_KEY_FILTERS = 'rose_sale_filters';
 export const CACHE_DURATION_MS = 5 * 60 * 1000; // 5 minutes (shorter for more frequent updates)
 export const SHEET_API_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'; // For order submission
+export const GOOGLE_SHEET_ID = process.env.GOOGLE_SHEET_ID || '';
+export const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || '';

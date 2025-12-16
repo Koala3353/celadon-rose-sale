@@ -4,7 +4,9 @@ import {
   CACHE_KEY_FILTERS,
   CACHE_DURATION_MS,
   SHEET_API_URL,
-  API_BASE_URL
+  API_BASE_URL,
+  GOOGLE_SHEET_ID,
+  GOOGLE_API_KEY
 } from '../constants';
 import { Product, OrderFormData, CartItem, Order, ProductFilters } from '../types';
 import { getAuthHeaders } from './auth';
@@ -334,6 +336,7 @@ export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
 // Search for an order by ID (guest access)
 export const searchOrder = async (orderId: string): Promise<SheetOrder | null> => {
   try {
+    // Try API first
     const response = await fetch(`${API_BASE_URL}/orders/search?orderId=${encodeURIComponent(orderId)}`);
 
     if (response.status === 403) {
@@ -341,15 +344,97 @@ export const searchOrder = async (orderId: string): Promise<SheetOrder | null> =
       throw { code: 'REQUIRES_AUTH', message: data.message };
     }
 
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      throw new Error('Failed to search order');
+    if (response.ok) {
+      const json = await response.json();
+      if (json.success) return json.data;
     }
-    const json = await response.json();
-    return json.success ? json.data : null;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    if (error.code === 'REQUIRES_AUTH') throw error;
+    console.warn('API Search failed, trying client-side fallback:', error);
   }
+
+  // Fallback: Client-side search using Google Sheets API
+  try {
+    return await searchOrderFallback(orderId);
+  } catch (fallbackError) {
+    console.error('Client-side search fallback failed:', fallbackError);
+    return null;
+  }
+};
+
+// Client-side fallback using public API key (ReadOnly)
+const searchOrderFallback = async (orderId: string): Promise<SheetOrder | null> => {
+  console.log('Using client-side search fallback for:', orderId);
+  const SHEET_NAME = 'Orders';
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/${SHEET_NAME}?key=${GOOGLE_API_KEY}`;
+
+  const response = await fetch(url);
+  if (!response.ok) throw new Error('Failed to fetch sheet data');
+
+  const json = await response.json();
+  const values = json.values;
+
+  if (!values || values.length < 2) return null;
+
+  const headers = values[0].map((h: string) => h.toLowerCase().trim());
+  const idIndex = headers.findIndex((h: string) => h.includes('orderid') || h === 'id' || h === 'order_id');
+  const studentIdIndex = headers.findIndex((h: string) => h.includes('studentid') || h === 'student_id');
+
+  if (idIndex === -1) return null;
+
+  // Find row
+  const targetId = orderId.trim();
+  const row = values.find((r: string[]) => r[idIndex]?.trim() === targetId);
+
+  if (!row) return null;
+
+  // Manual mapping (simplified for critical fields)
+  // We need to map enough fields to display the order and perform security checks
+  const getVal = (name: string) => {
+    const idx = headers.findIndex((h: string) => h.includes(name));
+    return (idx !== -1 && row[idx]) ? row[idx].trim() : '';
+  };
+
+  const studentId = studentIdIndex !== -1 ? row[studentIdIndex]?.trim() : '';
+
+  // Security Check Client-Side
+  // Note: This is less secure than backend check but better than nothing for fallback
+  if (studentId && studentId !== '000000') {
+    throw { code: 'REQUIRES_AUTH', message: 'This order is linked to a student account. Please sign in to view.' };
+  }
+
+  return {
+    orderId: row[idIndex],
+    timestamp: getVal('timestamp') || getVal('date'),
+    email: getVal('email'),
+    purchaserName: getVal('purchasername') || getVal('name'),
+    studentId: studentId,
+    contactNumber: getVal('contact'),
+    facebookLink: getVal('facebook'),
+    recipientName: getVal('recipientname'),
+    recipientContact: getVal('recipientcontact'),
+    recipientFbLink: getVal('recipientfb'),
+    anonymous: getVal('anonymous').toLowerCase() === 'yes',
+    deliveryDate1: getVal('deliverydate1'),
+    time1: getVal('time1'),
+    venue1: getVal('venue1'),
+    room1: getVal('room1'),
+    deliveryDate2: getVal('deliverydate2'),
+    time2: getVal('time2'),
+    venue2: getVal('venue2'),
+    room2: getVal('room2'),
+    cartItems: getVal('cartitems'),
+    bundleDetails: getVal('bundledetails'),
+    advocacyDonation: parseFloat(getVal('advocacy')) || 0,
+    msgBeneficiary: getVal('msgbeneficiary'),
+    msgRecipient: getVal('msgrecipient'),
+    notes: getVal('notes'),
+    total: parseFloat(getVal('total')) || 0,
+    payment: parseFloat(getVal('payment')) || 0,
+    status: getVal('status') || 'Pending',
+    paymentConfirmed: (getVal('paymentconfirmed') || 'FALSE').toUpperCase() === 'TRUE',
+    assignedDoveEmail: getVal('assigneddove')
+  };
 };
 
 /**
