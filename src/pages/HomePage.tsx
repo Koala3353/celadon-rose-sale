@@ -512,7 +512,12 @@ const HomePage = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {popularProducts.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  onQuickAdd={handleQuickAdd}
+                />
               ))}
             </div>
 

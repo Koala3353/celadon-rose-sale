@@ -74,8 +74,18 @@ export const getRelatedBundles = (product: Product, allProducts: Product[]): Pro
 /**
  * Finds a product that matches the selected option string (if it's not a literal)
  */
+/**
+ * Finds a product that matches the selected option string (if it's not a literal)
+ * Matches by ID or Name (case-insensitive)
+ */
 export const findProductForOption = (option: string, allProducts: Product[]): Product | undefined => {
-    if (isLiteralOption(option)) return undefined; // Litrals are never products
+    if (isLiteralOption(option)) return undefined; // Literals are never products
 
-    return allProducts.find(p => p.id === option);
+    const search = option.toLowerCase().trim();
+
+    return allProducts.find(p =>
+        p.id.toLowerCase() === search ||
+        p.name.toLowerCase() === search
+    );
 };
+
