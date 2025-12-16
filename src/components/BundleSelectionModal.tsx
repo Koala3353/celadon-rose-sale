@@ -99,13 +99,13 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
                             {/* Slots */}
                             <div className="space-y-6">
                                 {bundleSlots.map((slot, index) => (
-                                    <div key={index} className="pb-4 border-b border-rose-100 last:border-0 last:pb-0">
+                                    <div key={index} className="pb-6 border-b border-rose-100 last:border-0 last:pb-0">
                                         <p className="font-semibold text-sm text-gray-500 mb-3 uppercase tracking-wide">
                                             Item {index + 1}: <span className="text-rose-600">{slot.isFixed ? formatOptionName(slot.options[0]) : 'Choose One'}</span>
                                         </p>
 
                                         {!slot.isFixed ? (
-                                            <div className="flex flex-wrap gap-2">
+                                            <div className="flex flex-wrap gap-3">
                                                 {slot.options.map((option) => (
                                                     <button
                                                         key={option}
@@ -138,8 +138,8 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
                                 onClick={handleAddToCart}
                                 disabled={!isBundleReady}
                                 className={`w-full py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all ${!isBundleReady
-                                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                        : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-rose-200 hover:scale-[1.02]'
+                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                    : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-rose-200 hover:scale-[1.02]'
                                     }`}
                             >
                                 {isBundleReady ? 'Add to Bundle' : 'Select All Options'}
