@@ -18,6 +18,7 @@ interface AddOn {
 }
 
 const ADD_ONS: AddOn[] = [
+  { id: 'service-delivery', name: "Delivery Service", price: 20 },
   { id: 'card-heart', name: "Valentine's Day Card Rose Heart", price: 20 },
   { id: 'card-ribbon', name: "Valentine's Day Card Rose Ribbon", price: 20 },
   { id: 'card-tulip', name: "Valentine's Day Card Tulip", price: 20 },
@@ -107,6 +108,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   };
 
   const addonsTotal = selectedAddons.reduce((acc, id) => {
+    // Skip delivery service charge if pickup is selected
+    if (id === 'service-delivery' && deliveryType !== 'deliver') return acc;
+
     const addon = ADD_ONS.find(a => a.id === id);
     return acc + (addon?.price || 0);
   }, 0);
@@ -430,10 +434,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       items: cart,
       cartItems: [
         ...cart.map(item => `${item.name} x${item.quantity}`),
-        ...selectedAddons.map(id => {
-          const addon = ADD_ONS.find(a => a.id === id);
-          return addon ? `${addon.name} x1` : '';
-        })
+        ...selectedAddons
+          .filter(id => !(id === 'service-delivery' && deliveryType !== 'deliver'))
+          .map(id => {
+            const addon = ADD_ONS.find(a => a.id === id);
+            return addon ? `${addon.name} x1` : '';
+          })
       ].filter(Boolean).join(', '),
       bundleDetails: cart
         .filter(item => item.selectedOptions && Object.keys(item.selectedOptions).length > 0)
@@ -1177,7 +1183,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         <div>
                           <label className={labelClass}>Add-ons</label>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            {ADD_ONS.map((addon) => (
+                            {ADD_ONS.filter(addon => {
+                              // Hide delivery service if pickup is selected
+                              if (addon.id === 'service-delivery' && deliveryType !== 'deliver') return false;
+                              return true;
+                            }).map((addon) => (
                               <div
                                 key={addon.id}
                                 onClick={() => {
