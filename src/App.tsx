@@ -61,8 +61,22 @@ function AppContent() {
 }
 
 function App() {
-  // Use basename for GitHub Pages subdirectory deployment
-  const basename = import.meta.env.PROD ? '/celadon-rose-sale' : '';
+  // Handle redirect from 404.html hack (GitHub Pages SPA)
+  // If we arrived here via a redirect (e.g. /shop), the path will be in query params or we need to check pathname manually if 404 handled it.
+  // Since we use HashRouter, we should check if window.location.pathname has extra segments and move them to hash.
+  useEffect(() => {
+    const path = window.location.pathname;
+    const basename = '/celadon-rose-sale';
+    if (path.startsWith(basename) && path !== basename && path !== basename + '/') {
+      const rest = path.substring(basename.length);
+      console.log('Redirecting path to hash:', rest);
+      window.location.replace(`${basename}/#${rest}`);
+    } else if (!path.startsWith(basename) && path.length > 1) {
+      // Localhost or different base
+      console.log('Redirecting root path to hash:', path);
+      window.location.hash = path;
+    }
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
