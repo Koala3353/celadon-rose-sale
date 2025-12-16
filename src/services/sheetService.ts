@@ -52,7 +52,7 @@ export interface ProductsResult {
  * Fetches products from the API server (which caches Google Sheets data)
  */
 export const fetchProducts = async (): Promise<ProductsResult> => {
-  return { products: INITIAL_PRODUCTS, isFallback: true, isExpiredCache: false };
+
 
   // Check local cache first for instant loading
   const cached = localStorage.getItem(CACHE_KEY_PRODUCTS);

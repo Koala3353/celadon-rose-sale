@@ -433,7 +433,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       notes: specialRequests,
       items: cart,
       cartItems: [
-        ...cart.map(item => `${item.name} x${item.quantity}`),
+        ...cart.map(item => {
+          let details = '';
+          if (item.selectedOptions && Object.keys(item.selectedOptions).length > 0) {
+            // Prioritize the pre-formatted bundle details string if available
+            if (item.selectedOptions['bundle-details']) {
+              details = ` (${item.selectedOptions['bundle-details']})`;
+            } else {
+              // Fallback for simple options not using the new configurator
+              details = ` (${Object.values(item.selectedOptions).join(', ')})`;
+            }
+          }
+          return `${item.name}${details} x${item.quantity}`;
+        }),
         ...selectedAddons
           .filter(id => !(id === 'service-delivery' && deliveryType !== 'deliver'))
           .map(id => {
@@ -444,6 +456,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       bundleDetails: cart
         .filter(item => item.selectedOptions && Object.keys(item.selectedOptions).length > 0)
         .map(item => {
+          // Keep this field for backward compatibility/extra column, but use same logic
+          if (item.selectedOptions?.['bundle-details']) {
+            return `${item.name}: [${item.selectedOptions['bundle-details']}]`;
+          }
           const options = Object.values(item.selectedOptions || {}).join(', ');
           return `${item.name}: [${options}]`;
         })
