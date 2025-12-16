@@ -14,6 +14,12 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
     // "0.1" = second slot of the bundle product selected in "0"
     const [selections, setSelections] = useState<{ [key: string]: string }>({});
 
+    // Helper to get display label (Product Name if found, otherwise formatted string)
+    const getOptionLabel = (option: string) => {
+        const p = findProductForOption(option, allProducts);
+        return p ? p.name : formatOptionName(option);
+    };
+
     // Calculate validity and generate flat string whenever selections change
     useEffect(() => {
         // We'll traverse the structure to validate
@@ -45,12 +51,12 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                         if (!subValid) levelValid = false;
                     }
 
-                    detailsParts.push(`${formatOptionName(opt)}`);
+                    detailsParts.push(`${getOptionLabel(opt)}`);
                 } else {
                     if (!selected) {
                         levelValid = false;
                     } else {
-                        detailsParts.push(`${formatOptionName(selected)}`);
+                        detailsParts.push(`${getOptionLabel(selected)}`);
                         // Recursion check for user-selected items
                         const subProduct = findProductForOption(selected, allProducts);
                         if (subProduct?.bundleItems) {
@@ -82,7 +88,7 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                 const selected = slot.isFixed ? slot.options[0] : selections[currentPath];
 
                 if (selected) {
-                    let partStr = formatOptionName(selected);
+                    let partStr = getOptionLabel(selected);
                     const subProduct = findProductForOption(selected, allProducts);
 
                     if (subProduct?.bundleItems) {
@@ -121,19 +127,19 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                         return (
                             <div key={currentPath} className="pb-4 border-b border-rose-100 last:border-0 last:pb-0">
                                 <p className="font-semibold text-sm text-gray-500 mb-2 uppercase tracking-wide">
-                                    Item {index + 1}: <span className="text-rose-600">{formatOptionName(fixedOption)}</span>
+                                    Item {index + 1}: <span className="text-rose-600">{getOptionLabel(fixedOption)}</span>
                                 </p>
                                 <div className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 inline-block">
                                     <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                                     </svg>
-                                    {formatOptionName(fixedOption)}
+                                    {getOptionLabel(fixedOption)}
                                 </div>
 
                                 {/* RECURSION FOR FIXED ITEMS */}
                                 {subProduct?.bundleItems && (
                                     <div className="mt-4 pl-4 border-l-2 border-rose-200 ml-2">
-                                        <h4 className="text-sm font-semibold text-rose-500 mb-3">Customize {formatOptionName(fixedOption)}:</h4>
+                                        <h4 className="text-sm font-semibold text-rose-500 mb-3">Customize {getOptionLabel(fixedOption)}:</h4>
                                         {renderSlots(subProduct.bundleItems, currentPath)}
                                     </div>
                                 )}
@@ -147,7 +153,7 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                     return (
                         <div key={currentPath} className="pb-6 border-b border-rose-100 last:border-0 last:pb-0">
                             <p className="font-semibold text-sm text-gray-500 mb-3 uppercase tracking-wide">
-                                Item {index + 1}: <span className="text-rose-600">{selected ? formatOptionName(selected) : 'Choose One'}</span>
+                                Item {index + 1}: <span className="text-rose-600">{selected ? getOptionLabel(selected) : 'Choose One'}</span>
                             </p>
 
                             <div className="flex flex-wrap gap-3">
@@ -174,7 +180,7 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                                             : 'bg-white text-gray-600 border-gray-200 hover:border-rose-300 hover:bg-rose-50'
                                             }`}
                                     >
-                                        {formatOptionName(option)}
+                                        {getOptionLabel(option)}
                                     </button>
                                 ))}
                             </div>
@@ -182,7 +188,7 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
                             {/* RECURSION FOR SELECTED ITEMS */}
                             {subProduct?.bundleItems && (
                                 <div className="mt-4 pl-4 border-l-2 border-rose-200 ml-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                                    <h4 className="text-sm font-semibold text-rose-500 mb-3">Customize {formatOptionName(selected!)}:</h4>
+                                    <h4 className="text-sm font-semibold text-rose-500 mb-3">Customize {getOptionLabel(selected!)}:</h4>
                                     {renderSlots(subProduct.bundleItems, currentPath)}
                                 </div>
                             )}
