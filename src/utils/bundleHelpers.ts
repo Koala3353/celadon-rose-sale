@@ -8,38 +8,52 @@ export interface BundleSlot {
 
 /**
  * Parses a bundle string like "red-rose/pink-rose, chocolate" into a structured array
- * Output: 
- * [
- *   { options: ["red-rose", "pink-rose"], label: "Select Option", isFixed: false },
- *   { options: ["chocolate"], label: "Chocolate", isFixed: true }
- * ]
  */
 export const parseBundleString = (bundleStr?: string): BundleSlot[] => {
     if (!bundleStr) return [];
 
     return bundleStr.split(',').map(part => {
         const cleanPart = part.trim();
+        // Support quoted strings that might contain slashes inside them?
+        // For now assuming slashes only separate options. 
+        // User example: "blush + power..." is one option. "rose/carnation" is two.
         const options = cleanPart.split('/').map(opt => opt.trim()).filter(Boolean);
 
         if (options.length === 0) return null;
 
         return {
             options,
-            label: options.length === 1 ? options[0] : 'Select Option',
+            label: options.length === 1 ? formatOptionName(options[0]) : 'Select Option',
             isFixed: options.length === 1
         };
     }).filter(Boolean) as BundleSlot[];
 };
 
 /**
- * Helper to pretty print option names
- * e.g. "red-rose" -> "Red Rose"
+ * Clean option name:
+ * - Removes quotes if present (literal string).
+ * - Formats "red-rose" -> "Red Rose".
  */
 export const formatOptionName = (option: string): string => {
-    return option
+    let clean = option;
+
+    // Explicitly check for quotes indicating literal string
+    if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
+        clean = clean.slice(1, -1);
+        return clean; // Return literals as-is (just stripped)
+    }
+
+    return clean
         .split('-')
         .map(word => word.charAt(0).toUpperCase() + word.slice(1))
         .join(' ');
+};
+
+/**
+ * Checks if an option is a literal string (quoted)
+ */
+export const isLiteralOption = (option: string): boolean => {
+    return (option.startsWith('"') && option.endsWith('"')) || (option.startsWith("'") && option.endsWith("'"));
 };
 
 /**
@@ -49,12 +63,19 @@ export const getRelatedBundles = (product: Product, allProducts: Product[]): Pro
     if (!product.id && !product.name) return [];
 
     const productId = product.id.toLowerCase();
-    // Simple check: does the bundle string contain the product ID?
-    // We can refine this to be more precise if IDs are substrings of each other
     return allProducts.filter(p =>
         p.category === 'Bundle' &&
         p.bundleItems &&
         (p.bundleItems.toLowerCase().includes(productId) ||
             p.bundleItems.toLowerCase().includes(product.name.toLowerCase()))
     );
+};
+
+/**
+ * Finds a product that matches the selected option string (if it's not a literal)
+ */
+export const findProductForOption = (option: string, allProducts: Product[]): Product | undefined => {
+    if (isLiteralOption(option)) return undefined; // Litrals are never products
+
+    return allProducts.find(p => p.id === option);
 };

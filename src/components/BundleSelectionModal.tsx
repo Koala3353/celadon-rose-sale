@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
-import { parseBundleString, formatOptionName, BundleSlot } from '../utils/bundleHelpers';
+import { useQuery } from '@tanstack/react-query';
+import { fetchProducts, ProductsResult } from '../services/sheetService';
+import BundleConfigurator from './BundleConfigurator';
 
 interface BundleSelectionModalProps {
     isOpen: boolean;
@@ -12,48 +14,37 @@ interface BundleSelectionModalProps {
 
 const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onClose, product }) => {
     const { addToCart, setIsCartOpen } = useCart();
-    const [bundleSlots, setBundleSlots] = useState<BundleSlot[]>([]);
-    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
+    const [isBundleReady, setIsBundleReady] = useState(false);
+    const [bundleDetails, setBundleDetails] = useState('');
 
-    // Reset/Initialize when product changes or modal opens
+    // We need all products to perform nested lookups
+    const { data: productsResult } = useQuery<ProductsResult, Error>({
+        queryKey: ['products'],
+        queryFn: fetchProducts,
+        enabled: isOpen, // Only fetch if modal is open (usually already cached)
+    });
+
+    // Reset state on open
     useEffect(() => {
-        if (product && product.bundleItems && isOpen) {
-            try {
-                const parsed = parseBundleString(product.bundleItems);
-                setBundleSlots(parsed);
-
-                const initialSelections: { [key: number]: string } = {};
-                parsed.forEach((slot, index) => {
-                    if (slot.isFixed) {
-                        initialSelections[index] = slot.options[0];
-                    }
-                });
-                setSelectedOptions(initialSelections);
-            } catch (error) {
-                console.error("Failed to parse bundle", error);
-                setBundleSlots([]);
-            }
-        } else {
-            setBundleSlots([]);
-            setSelectedOptions({});
+        if (isOpen) {
+            setIsBundleReady(false);
+            setBundleDetails('');
         }
-    }, [product, isOpen]);
-
-    if (!isOpen || !product) return null;
-
-    const isBundleReady = bundleSlots.every((slot, index) => selectedOptions[index]);
+    }, [isOpen, product]);
 
     const handleAddToCart = () => {
         if (!product) return;
 
         addToCart({
             ...product,
-            selectedOptions
+            selectedOptions: { 'bundle-details': bundleDetails }
         });
 
         onClose();
         setIsCartOpen(true);
     };
+
+    if (!isOpen || !product) return null;
 
     return (
         <AnimatePresence>
@@ -96,40 +87,15 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
                                 </div>
                             </div>
 
-                            {/* Slots */}
-                            <div className="space-y-6">
-                                {bundleSlots.map((slot, index) => (
-                                    <div key={index} className="pb-6 border-b border-rose-100 last:border-0 last:pb-0">
-                                        <p className="font-semibold text-sm text-gray-500 mb-3 uppercase tracking-wide">
-                                            Item {index + 1}: <span className="text-rose-600">{slot.isFixed ? formatOptionName(slot.options[0]) : 'Choose One'}</span>
-                                        </p>
-
-                                        {!slot.isFixed ? (
-                                            <div className="flex flex-wrap gap-3">
-                                                {slot.options.map((option) => (
-                                                    <button
-                                                        key={option}
-                                                        onClick={() => setSelectedOptions(prev => ({ ...prev, [index]: option }))}
-                                                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all border ${selectedOptions[index] === option
-                                                            ? 'bg-rose-500 text-white border-rose-500 shadow-md ring-2 ring-rose-200'
-                                                            : 'bg-white text-gray-600 border-gray-200 hover:border-rose-300 hover:bg-rose-50'
-                                                            }`}
-                                                    >
-                                                        {formatOptionName(option)}
-                                                    </button>
-                                                ))}
-                                            </div>
-                                        ) : (
-                                            <div className="flex items-center gap-2 text-gray-700 bg-gray-50 px-3 py-2 rounded-lg border border-gray-200 inline-block">
-                                                <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                </svg>
-                                                {formatOptionName(slot.options[0])}
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
+                            {/* Configurator */}
+                            <BundleConfigurator
+                                product={product}
+                                allProducts={productsResult?.products || []}
+                                onConfigChange={(valid, _, details) => {
+                                    setIsBundleReady(valid);
+                                    setBundleDetails(details);
+                                }}
+                            />
                         </div>
 
                         {/* Footer */}

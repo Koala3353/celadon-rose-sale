@@ -1412,11 +1412,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
                         {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
                           <div className="mt-1 space-y-0.5">
-                            {Object.values(item.selectedOptions).map((opt, idx) => (
-                              <p key={idx} className="text-xs text-gray-500 truncate pl-2 border-l-2 border-rose-200">
-                                {opt}
+                            {/* Check if item has pre-calculated bundle details (from recursive configurator) */}
+                            {item.selectedOptions['bundle-details'] ? (
+                              <p className="text-xs text-gray-500 truncate pl-2 border-l-2 border-rose-200">
+                                {item.selectedOptions['bundle-details']}
                               </p>
-                            ))}
+                            ) : (
+                              /* Legacy fallback for flat bundles */
+                              Object.values(item.selectedOptions).map((opt, idx) => (
+                                <p key={idx} className="text-xs text-gray-500 truncate pl-2 border-l-2 border-rose-200">
+                                  {opt}
+                                </p>
+                              ))
+                            )}
                           </div>
                         )}
                       </div>

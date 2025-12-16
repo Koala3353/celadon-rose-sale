@@ -8,6 +8,7 @@ import RoseLoader from '../components/RoseLoader';
 import NotFound from './NotFound';
 import { parseBundleString, formatOptionName, getRelatedBundles, BundleSlot } from '../utils/bundleHelpers';
 import UpsellModal from '../components/UpsellModal';
+import BundleConfigurator from '../components/BundleConfigurator';
 
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -17,8 +18,8 @@ const ProductDetailPage = () => {
     const [isAdded, setIsAdded] = useState(false);
 
     // Bundle State
-    const [bundleSlots, setBundleSlots] = useState<BundleSlot[]>([]);
-    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
+    const [isBundleReady, setIsBundleReady] = useState(false);
+    const [bundleDetails, setBundleDetails] = useState('');
 
     // Upsell State
     const [showUpsell, setShowUpsell] = useState(false);
@@ -37,24 +38,10 @@ const ProductDetailPage = () => {
     const products = productsResult?.products || [];
     const product = products.find((p) => p.id === id);
 
-    // Initialize bundle slots if product has bundleItems
+    // Reset bundle state when product changes
     useEffect(() => {
-        if (product?.bundleItems) {
-            const parsed = parseBundleString(product.bundleItems);
-            setBundleSlots(parsed);
-
-            // Auto-select fixed options
-            const initialSelections: { [key: number]: string } = {};
-            parsed.forEach((slot, index) => {
-                if (slot.isFixed) {
-                    initialSelections[index] = slot.options[0];
-                }
-            });
-            setSelectedOptions(initialSelections);
-        } else {
-            setBundleSlots([]);
-            setSelectedOptions({});
-        }
+        setIsBundleReady(false);
+        setBundleDetails('');
     }, [product]);
 
     // Check for Upsell opportunities
@@ -87,7 +74,6 @@ const ProductDetailPage = () => {
         return <NotFound />;
     }
 
-    const isBundleReady = bundleSlots.every((slot, index) => selectedOptions[index]);
 
     const handleAddToCart = () => {
         if (product.stock === 0) return;
@@ -102,7 +88,9 @@ const ProductDetailPage = () => {
 
         addToCart({
             ...product,
-            selectedOptions: product.bundleItems ? selectedOptions : undefined
+            // Pass the formatted bundle string as a special selected option or just construct the cart item with it
+            // We'll pass it in selectedOptions as a special key for now, or rely on bundleDetails handling in global cart
+            selectedOptions: product.bundleItems ? { 'bundle-details': bundleDetails } : undefined
         });
 
         setIsAdded(true);
@@ -217,44 +205,19 @@ const ProductDetailPage = () => {
                                 </div>
 
                                 {/* Bundle Configuration UI */}
-                                {bundleSlots.length > 0 && (
+                                {product.bundleItems && (
                                     <div className="mb-8 p-6 bg-rose-50 rounded-2xl border border-rose-100">
                                         <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                                             <span className="text-xl">✨</span> Customize Your Bundle
                                         </h3>
-                                        <div className="space-y-4">
-                                            {bundleSlots.map((slot, index) => (
-                                                <div key={index} className="pb-6 border-b border-rose-100 last:border-0 last:pb-0">
-                                                    <p className="font-semibold text-sm text-gray-500 mb-2 uppercase tracking-wide">
-                                                        Item {index + 1}: <span className="text-rose-600">{slot.isFixed ? formatOptionName(slot.options[0]) : 'Choose One'}</span>
-                                                    </p>
-
-                                                    {!slot.isFixed ? (
-                                                        <div className="flex flex-wrap gap-3">
-                                                            {slot.options.map((option) => (
-                                                                <button
-                                                                    key={option}
-                                                                    onClick={() => setSelectedOptions(prev => ({ ...prev, [index]: option }))}
-                                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${selectedOptions[index] === option
-                                                                        ? 'bg-rose-500 text-white border-rose-500 shadow-md'
-                                                                        : 'bg-white text-gray-600 border-gray-200 hover:border-rose-300 hover:bg-rose-50'
-                                                                        }`}
-                                                                >
-                                                                    {formatOptionName(option)}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-2 text-gray-700 bg-white px-3 py-2 rounded-lg border border-gray-100 inline-block">
-                                                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                            {formatOptionName(slot.options[0])}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
+                                        <BundleConfigurator
+                                            product={product}
+                                            allProducts={products}
+                                            onConfigChange={(valid, _, details) => {
+                                                setIsBundleReady(valid);
+                                                setBundleDetails(details);
+                                            }}
+                                        />
                                     </div>
                                 )}
 
