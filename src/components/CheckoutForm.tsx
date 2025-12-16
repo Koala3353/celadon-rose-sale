@@ -373,42 +373,51 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('handleSubmit triggered');
     setError('');
     setSuccess(false);
     setIsSubmitting(true);
 
-    setSuccess(false);
-    setIsSubmitting(true);
-
     if (cart.length === 0) {
+      console.log('Validation failed: Cart empty');
       setError('Your cart is empty.');
       setIsSubmitting(false);
       return;
     }
 
     if (!validateStudentId(studentId)) {
+      console.log('Validation failed: Student ID');
+      setStudentIdError('Please enter a valid Student ID');
+      setCurrentStep(1);
       setIsSubmitting(false);
       return;
     }
 
     if (!validatePhoneNumber(contactNumber)) {
+      console.log('Validation failed: Contact Number');
       setContactNumberError('Phone number must be 11 digits (xxxx xxx xxxx)');
+      setCurrentStep(1);
       setIsSubmitting(false);
       return;
     }
 
     if (deliveryType === 'deliver' && !validatePhoneNumber(recipientContact)) {
+      console.log('Validation failed: Recipient Contact');
       setRecipientContactError('Phone number must be 11 digits (xxxx xxx xxxx)');
+      setCurrentStep(2);
       setIsSubmitting(false);
       return;
     }
 
     if (deliveryType === 'deliver' && !validateDeliveryDates()) {
+      console.log('Validation failed: Delivery Dates');
+      setCurrentStep(3);
       setIsSubmitting(false);
       return;
     }
 
     if (!paymentProof) {
+      console.log('Validation failed: Missing Payment Proof');
       setError('Please upload proof of payment.');
       setIsSubmitting(false);
       return;
