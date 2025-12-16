@@ -17,11 +17,11 @@ const Navbar = () => {
     { path: '/shop', label: 'Shop' },
   ];
 
-  // Add Order History link when user is logged in
-  const userLinks = user ? [
+  // Add Order History link (Track for Guest, My Orders for User)
+  const userLinks = [
     ...navLinks,
-    { path: '/orders', label: 'My Orders' },
-  ] : navLinks;
+    { path: '/orders', label: user ? 'My Orders' : 'Track Order' },
+  ];
 
   return (
     <>

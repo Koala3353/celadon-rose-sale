@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StickmanConfused } from './StickmanComponents';
+import { formatOptionName } from '../utils/bundleHelpers';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -136,6 +137,18 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                                 {item.category}
                               </span>
                             )}
+
+                            {/* Selected Options for Bundles */}
+                            {item.selectedOptions && Object.values(item.selectedOptions).length > 0 && (
+                              <div className="mt-2 text-xs text-gray-500 space-y-1">
+                                {Object.values(item.selectedOptions).map((opt, i) => (
+                                  <div key={i} className="flex items-center gap-1">
+                                    <span className="w-1 h-1 bg-rose-400 rounded-full" />
+                                    {formatOptionName(opt as string)}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           {/* Remove Button */}
@@ -202,6 +215,15 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                 >
                   {user ? 'Proceed to Checkout' : 'Sign In to Checkout'}
                 </motion.button>
+
+                {!user && (
+                  <button
+                    onClick={onCheckout}
+                    className="w-full mt-3 py-3 text-rose-500 hover:text-rose-600 font-medium transition-colors text-sm hover:underline"
+                  >
+                    Or continue as Guest
+                  </button>
+                )}
 
                 {/* Clear Cart */}
                 <motion.button

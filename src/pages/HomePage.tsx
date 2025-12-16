@@ -6,6 +6,7 @@ import { fetchProducts, trackPageView, ProductsResult } from '../services/sheetS
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import RunningAnimation from '../components/RunningAnimation';
+import BundleSelectionModal from '../components/BundleSelectionModal';
 
 // Optimized floating petal - reduced complexity
 const FloatingPetal = ({ delay, left }: { delay: number; left: string }) => {
@@ -29,9 +30,7 @@ const FloatingPetal = ({ delay, left }: { delay: number; left: string }) => {
 };
 
 // Product card component for reuse
-const ProductCard = ({ product, index, showStock = false }: { product: Product; index: number; showStock?: boolean }) => {
-  const { addToCart } = useCart();
-
+const ProductCard = ({ product, index, showStock = false, onQuickAdd }: { product: Product; index: number; showStock?: boolean; onQuickAdd: (p: Product) => void }) => {
   return (
     <motion.div
       className="product-card group"
@@ -68,10 +67,10 @@ const ProductCard = ({ product, index, showStock = false }: { product: Product; 
         {/* Quick add overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
           <button
-            onClick={(e) => { e.preventDefault(); addToCart(product); }}
+            onClick={(e) => { e.preventDefault(); onQuickAdd(product); }}
             className="px-4 py-2 bg-white text-rose-600 rounded-full font-medium shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
           >
-            Quick Add
+            {product.bundleItems ? 'Customize' : 'Quick Add'}
           </button>
         </div>
       </div>
@@ -82,7 +81,7 @@ const ProductCard = ({ product, index, showStock = false }: { product: Product; 
         )}
         <div className="flex items-center justify-between mt-3">
           <span className="text-xl font-bold text-rose-600">₱{product.price.toFixed(0)}</span>
-          <Link to="/shop">
+          <Link to={`/product/${product.id}`}>
             <button className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium rounded-full transition-colors">
               View
             </button>
@@ -171,6 +170,18 @@ const HomePage = () => {
   const shouldReduceMotion = useReducedMotion();
   const [petals, setPetals] = useState<{ id: number; delay: number; left: string }[]>([]);
 
+  // Modal State
+  const [selectedBundle, setSelectedBundle] = useState<Product | null>(null);
+  const { addToCart } = useCart();
+
+  const handleQuickAdd = (product: Product) => {
+    if (product.bundleItems) {
+      setSelectedBundle(product);
+    } else {
+      addToCart(product);
+    }
+  };
+
   // Fetch products for featured section
   const { data: productsResult, isLoading } = useQuery<ProductsResult, Error>({
     queryKey: ['products'],
@@ -189,24 +200,45 @@ const HomePage = () => {
       .slice(0, 4);
   }, [products]);
 
-  // Get popular products (random selection, excluding featured items)
+  // Get popular products (ensure at least 1 bundle is shown)
   const popularProducts = useMemo(() => {
     if (!products) return [];
+
+    // Filter out already featured items
     const featuredIds = new Set(featuredProducts.map(p => p.id));
     const available = products.filter(p => p.stock > 0 && !featuredIds.has(p.id));
-    let shuffled = [...available].sort(() => Math.random() - 0.5);
-    if (shuffled.length >= 4) {
-      return shuffled.slice(0, 4);
+
+    // Separate bundles and non-bundles
+    const bundles = available.filter(p => p.category === 'Bundles' || p.bundleItems);
+    const nonBundles = available.filter(p => p.category !== 'Bundles' && !p.bundleItems);
+
+    let result: Product[] = [];
+
+    // 1. Try to add one random bundle first
+    if (bundles.length > 0) {
+      const randomBundleIndex = Math.floor(Math.random() * bundles.length);
+      result.push(bundles[randomBundleIndex]);
+      // Remove used bundle from further selection if we were to pick more (though here we mix with non-bundles)
     }
-    const needed = 4 - shuffled.length;
-    const featuredFill = featuredProducts.filter(p => !shuffled.some(sp => sp.id === p.id)).slice(0, needed);
-    let result = [...shuffled, ...featuredFill];
+
+    // 2. Fill the rest with non-bundles (shuffled)
+    const shuffledNonBundles = [...nonBundles].sort(() => Math.random() - 0.5);
+    const needed = 4 - result.length;
+
+    result = [...result, ...shuffledNonBundles.slice(0, needed)];
+
+    // 3. If we still don't have 4, fill with remaining bundles or heavily stocked items
     if (result.length < 4) {
-      const allIds = new Set(result.map(p => p.id));
-      const extra = products.filter(p => !allIds.has(p.id)).slice(0, 4 - result.length);
-      result = [...result, ...extra];
+      const usedIds = new Set(result.map(p => p.id));
+      const remBundles = bundles.filter(p => !usedIds.has(p.id));
+      const remOthers = products.filter(p => !usedIds.has(p.id) && !featuredIds.has(p.id));
+
+      const filler = [...remBundles, ...remOthers].slice(0, 4 - result.length);
+      result = [...result, ...filler];
     }
-    return result;
+
+    // Shuffle the final result so the bundle isn't always first
+    return result.sort(() => Math.random() - 0.5);
   }, [products, featuredProducts]);
 
   useEffect(() => {
@@ -423,9 +455,6 @@ const HomePage = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {featuredProducts.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} showStock />
-              ))}
             </div>
           </div>
         </section>
@@ -672,6 +701,13 @@ const HomePage = () => {
           </motion.div>
         </div>
       </section>
+
+      {/* Bundle Modal */}
+      <BundleSelectionModal
+        isOpen={!!selectedBundle}
+        onClose={() => setSelectedBundle(null)}
+        product={selectedBundle}
+      />
 
       {/* Running Animation Overlay */}
       <RunningAnimation />

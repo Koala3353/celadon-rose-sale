@@ -16,27 +16,27 @@ export const INITIAL_PRODUCTS: Product[] = [
   { id: 'carn-pomelo', name: 'Pomelo Carnation', price: 100, category: 'Single', stock: 20, imageUrl: 'https://picsum.photos/seed/carn-pom/300/300' },
   { id: 'tulip-pink', name: 'Pink Tulip', price: 250, category: 'Single', stock: 15, imageUrl: 'https://picsum.photos/seed/tulip-pink/300/300' },
   { id: 'tulip-yellow', name: 'Yellow Tulip', price: 250, category: 'Single', stock: 15, imageUrl: 'https://picsum.photos/seed/tulip-yell/300/300' },
-  
+
   { id: 'bouq-mixed', name: 'Red, White, Pink Roses Bouquet', price: 300, category: 'Bouquet', stock: 10, imageUrl: 'https://picsum.photos/seed/bouq-mix/300/300' },
   { id: 'bouq-tulip', name: '2 Pink Tulips & 1 Yellow Tulip Bouquet', price: 700, category: 'Bouquet', stock: 5, imageUrl: 'https://picsum.photos/seed/bouq-tul/300/300' },
   { id: 'bouq-carn', name: 'Baby Pink, Purple, Pomelo Carnations Bouquet', price: 300, category: 'Bouquet', stock: 8, imageUrl: 'https://picsum.photos/seed/bouq-carn/300/300' },
-  
+
   { id: 'foil-purple', name: 'Purple Foiled Rose', price: 150, category: 'Single', stock: 100, imageUrl: 'https://picsum.photos/seed/foil-purp/300/300' },
   { id: 'foil-red', name: 'Red Foiled Rose', price: 150, category: 'Single', stock: 100, imageUrl: 'https://picsum.photos/seed/foil-red/300/300' },
-  
+
   { id: 'lego-red', name: 'Red Lego Flower', price: 120, category: 'Add-on', stock: 20, imageUrl: 'https://picsum.photos/seed/lego-red/300/300' },
   { id: 'lego-pink', name: 'Pink Lego Flower', price: 120, category: 'Add-on', stock: 20, imageUrl: 'https://picsum.photos/seed/lego-pink/300/300' },
   { id: 'lego-blue', name: 'Blue Lego Flower', price: 120, category: 'Add-on', stock: 20, imageUrl: 'https://picsum.photos/seed/lego-blue/300/300' },
-  
+
   { id: 'crochet-rose-red', name: 'Red Rose Crochet Flower', price: 250, category: 'Crochet', stock: 10, imageUrl: 'https://picsum.photos/seed/cro-red/300/300' },
   { id: 'crochet-rose-pink', name: 'Pink Rose Crochet Flower', price: 250, category: 'Crochet', stock: 10, imageUrl: 'https://picsum.photos/seed/cro-pink/300/300' },
-  
+
   { id: 'bracelet-yy', name: 'Yin and Yang Friendship Bracelet', price: 200, category: 'Jewelry', stock: 50, imageUrl: 'https://picsum.photos/seed/brace-yy/300/300' },
   { id: 'bracelet-sm', name: 'Sun and Moon Friendship Bracelet', price: 200, category: 'Jewelry', stock: 50, imageUrl: 'https://picsum.photos/seed/brace-sm/300/300' },
-  
-  { id: 'bundle-roses', name: '💐 Roses Bundle', price: 600, category: 'Bundle', stock: 10, imageUrl: 'https://picsum.photos/seed/bund-rose/300/300' },
-  { id: 'bundle-tulips', name: '💐 Tulips Bundle', price: 1000, category: 'Bundle', stock: 10, imageUrl: 'https://picsum.photos/seed/bund-tul/300/300' },
-  
+
+  { id: 'bundle-roses', name: '💐 Roses Bundle', price: 600, category: 'Bundle', stock: 10, imageUrl: 'https://picsum.photos/seed/bund-rose/300/300', bundleItems: 'rose-red/rose-pink/rose-white, chocolate-box, card' },
+  { id: 'bundle-tulips', name: '💐 Tulips Bundle', price: 1000, category: 'Bundle', stock: 10, imageUrl: 'https://picsum.photos/seed/bund-tul/300/300', bundleItems: 'tulip-pink/tulip-yellow, chocolate-box' },
+
   { id: 'sunglasses', name: 'Rose Tinted Sunglasses', price: 200, category: 'Add-on', stock: 15, imageUrl: 'https://picsum.photos/seed/glasses/300/300' },
 ];
 

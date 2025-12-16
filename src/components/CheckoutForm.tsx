@@ -119,6 +119,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     if (user?.name) setPurchaserName(user.name);
   }, [user]);
 
+  useEffect(() => {
+    if (!user) {
+      setStudentId('000000');
+    }
+  }, [user]);
+
   // Load saved details from localStorage on mount
   useEffect(() => {
     try {
@@ -154,6 +160,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   // Validate Student ID (6 digits, 200000-260000)
   const validateStudentId = (value: string): boolean => {
+    // Allow default guest ID
+    if (value === '000000') {
+      setStudentIdError('');
+      return true;
+    }
+
     const numValue = parseInt(value, 10);
     if (!/^\d{6}$/.test(value)) {
       setStudentIdError('Student ID must be 6 digits');
@@ -423,6 +435,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           return addon ? `${addon.name} x1` : '';
         })
       ].filter(Boolean).join(', '),
+      bundleDetails: cart
+        .filter(item => item.selectedOptions && Object.keys(item.selectedOptions).length > 0)
+        .map(item => {
+          const options = Object.values(item.selectedOptions || {}).join(', ');
+          return `${item.name}: [${options}]`;
+        })
+        .join('; '),
       total,
     };
 
@@ -628,771 +647,813 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           <p className="text-gray-600">Complete your order in just a few steps</p>
         </div>
 
-        {/* Progress Steps */}
-        <div className="mb-8 overflow-x-auto pb-2">
-          <div className="flex justify-between items-center relative min-w-max">
-            <div className="absolute top-1/2 left-0 right-0 h-1 bg-rose-100 -translate-y-1/2 z-0">
-              <motion.div
-                className="h-full bg-gradient-to-r from-rose-500 to-pink-500"
-                initial={{ width: '0%' }}
-                animate={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
-                transition={{ duration: 0.3 }}
-              />
+        <div className="max-w-3xl mx-auto p-6 bg-white rounded-3xl shadow-xl my-10 relative overflow-hidden">
+
+          {!user && (
+            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
+              <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div>
+                <h4 className="text-amber-800 font-bold text-sm mb-1">Checking out as Guest</h4>
+                <p className="text-amber-700 text-sm">
+                  If you are an Ateneo student, please sign in with Google.
+                  Guests must ensure all details (Email, Name) are 100% accurate as we cannot verify them automatically.
+                </p>
+              </div>
             </div>
+          )}
 
-            {steps.map((step) => (
-              <motion.button
-                key={step.id}
-                onClick={() => step.id <= currentStep && setCurrentStep(step.id)}
-                className={`relative z-10 flex flex-col items-center px-2 ${step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
-                  }`}
-                whileHover={step.id <= currentStep ? { scale: 1.1 } : {}}
-                whileTap={step.id <= currentStep ? { scale: 0.95 } : {}}
-              >
-                <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${step.id === currentStep
-                  ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200'
-                  : step.id < currentStep
-                    ? 'bg-green-500 text-white'
-                    : 'bg-white border-2 border-rose-200 text-gray-400'
-                  }`}>
-                  {step.id < currentStep ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : getStepIcon(step.icon)}
-                </div>
-                <span className={`mt-2 text-xs md:text-sm font-medium whitespace-nowrap ${step.id === currentStep ? 'text-rose-600' : 'text-gray-500'
-                  }`}>
-                  {step.name}
-                </span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Form Section */}
-          <div className="lg:col-span-2">
-            <motion.div
-              className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 md:p-8 border border-rose-100"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              {error && (
+          {/* Progress Steps */}
+          <div className="mb-8 overflow-x-auto pb-2">
+            <div className="flex justify-between items-center relative min-w-max">
+              <div className="absolute top-1/2 left-0 right-0 h-1 bg-rose-100 -translate-y-1/2 z-0">
                 <motion.div
-                  className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 flex items-center gap-3 border border-red-100"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  className="h-full bg-gradient-to-r from-rose-500 to-pink-500"
+                  initial={{ width: '0%' }}
+                  animate={{ width: `${((currentStep - 1) / (totalSteps - 1)) * 100}%` }}
+                  transition={{ duration: 0.3 }}
+                />
+              </div>
+
+              {steps.map((step) => (
+                <motion.button
+                  key={step.id}
+                  onClick={() => step.id <= currentStep && setCurrentStep(step.id)}
+                  className={`relative z-10 flex flex-col items-center px-2 ${step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
+                    }`}
+                  whileHover={step.id <= currentStep ? { scale: 1.1 } : {}}
+                  whileTap={step.id <= currentStep ? { scale: 0.95 } : {}}
                 >
-                  <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  {error}
-                </motion.div>
-              )}
+                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center transition-all duration-300 ${step.id === currentStep
+                    ? 'bg-gradient-to-br from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-200'
+                    : step.id < currentStep
+                      ? 'bg-green-500 text-white'
+                      : 'bg-white border-2 border-rose-200 text-gray-400'
+                    }`}>
+                    {step.id < currentStep ? (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : getStepIcon(step.icon)}
+                  </div>
+                  <span className={`mt-2 text-xs md:text-sm font-medium whitespace-nowrap ${step.id === currentStep ? 'text-rose-600' : 'text-gray-500'
+                    }`}>
+                    {step.name}
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          </div>
 
-              <form onSubmit={handleSubmit}>
-                <AnimatePresence mode="wait">
-                  {/* Step 1: Purchaser Details */}
-                  {currentStep === 1 && (
-                    <motion.div
-                      key="step1"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Your Details</h3>
-                      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+            {/* Form Section */}
+            <div className="lg:col-span-3">
+              <motion.div
+                className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 md:p-8 border border-rose-100"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                {error && (
+                  <motion.div
+                    className="bg-red-50 text-red-600 p-4 rounded-xl mb-6 flex items-center gap-3 border border-red-100"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                  >
+                    <svg className="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {error}
+                  </motion.div>
+                )}
 
-                      <div>
-                        <label className={labelClass}>Email Address</label>
-                        <input
-                          type="email"
-                          placeholder="your.email@student.ateneo.edu"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Purchaser's Full Name</label>
-                        <input
-                          type="text"
-                          placeholder="Enter your full name"
-                          value={purchaserName}
-                          onChange={(e) => setPurchaserName(e.target.value)}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Purchaser's Student ID Number</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., 234567"
-                          value={studentId}
-                          onChange={handleStudentIdChange}
-                          required
-                          className={studentIdError ? inputErrorClass : inputClass}
-                          maxLength={6}
-                        />
-                        {studentIdError && <p className={errorTextClass}>{studentIdError}</p>}
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Purchaser's Contact Number</label>
-                        <input
-                          type="tel"
-                          placeholder="0917 123 4567"
-                          value={contactNumber}
-                          onChange={handleContactNumberChange}
-                          required
-                          className={contactNumberError ? inputErrorClass : inputClass}
-                        />
-                        {contactNumberError && <p className={errorTextClass}>{contactNumberError}</p>}
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Purchaser's Facebook Link</label>
-                        <input
-                          type="url"
-                          placeholder="https://www.facebook.com/yourprofile"
-                          value={facebookLink}
-                          onChange={(e) => {
-                            setFacebookLink(e.target.value);
-                            if (e.target.value && !validateFacebookUrl(e.target.value)) {
-                              setFacebookLinkError('URL must contain facebook.com or fb.com');
-                            } else {
-                              setFacebookLinkError('');
-                            }
-                          }}
-                          required
-                          className={facebookLinkError ? inputErrorClass : inputClass}
-                        />
-                        {facebookLinkError && <p className={errorTextClass}>{facebookLinkError}</p>}
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>I would like to...</label>
-                        <div className="grid grid-cols-2 gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setDeliveryType('deliver')}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'deliver'
-                              ? 'border-rose-500 bg-rose-50 text-rose-700'
-                              : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
-                              }`}
-                          >
-                            <span className="mb-2 block">
-                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                              </svg>
-                            </span>
-                            <span className="font-medium">Have it delivered</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setDeliveryType('pickup')}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'pickup'
-                              ? 'border-rose-500 bg-rose-50 text-rose-700'
-                              : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
-                              }`}
-                          >
-                            <span className="mb-2 block">
-                              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                              </svg>
-                            </span>
-                            <span className="font-medium">Pick it up myself</span>
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Step 2 for Pickup */}
-                  {deliveryType === 'pickup' && currentStep === 2 && (
-                    <motion.div
-                      key="step2-pickup"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                          </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Pickup Details</h3>
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>When will the order be picked up?</label>
-                        <input
-                          type="date"
-                          value={pickupDate}
-                          onChange={(e) => setPickupDate(e.target.value)}
-                          required
-                          className={inputClass}
-                          min={new Date().toISOString().split('T')[0]}
-                        />
-                      </div>
-
-                      <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium text-rose-600 inline-flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                <form onSubmit={handleSubmit}>
+                  <AnimatePresence mode="wait">
+                    {/* Step 1: Purchaser Details */}
+                    {currentStep === 1 && (
+                      <motion.div
+                        key="step1"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            Note:
-                          </span> You will be notified about the pickup location and time via email.
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Step 2 for Delivery: Recipient Details */}
-                  {deliveryType === 'deliver' && currentStep === 2 && (
-                    <motion.div
-                      key="step2-deliver"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                          </svg>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Your Details</h3>
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Recipient Details</h3>
-                      </div>
 
-                      <div>
-                        <label className={labelClass}>Recipient's Full Name</label>
-                        <input
-                          type="text"
-                          placeholder="Who will receive the roses?"
-                          value={recipientName}
-                          onChange={(e) => setRecipientName(e.target.value)}
-                          required
-                          className={inputClass}
-                        />
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Recipient's Contact Number</label>
-                        <input
-                          type="tel"
-                          placeholder="0917 123 4567"
-                          value={recipientContact}
-                          onChange={handleRecipientContactChange}
-                          required
-                          className={recipientContactError ? inputErrorClass : inputClass}
-                        />
-                        {recipientContactError && <p className={errorTextClass}>{recipientContactError}</p>}
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Recipient's Facebook Link</label>
-                        <input
-                          type="url"
-                          placeholder="https://www.facebook.com/recipientprofile"
-                          value={recipientFbLink}
-                          onChange={(e) => {
-                            setRecipientFbLink(e.target.value);
-                            if (e.target.value && !validateFacebookUrl(e.target.value)) {
-                              setRecipientFbLinkError('URL must contain facebook.com or fb.com');
-                            } else {
-                              setRecipientFbLinkError('');
-                            }
-                          }}
-                          required
-                          className={recipientFbLinkError ? inputErrorClass : inputClass}
-                        />
-                        {recipientFbLinkError && <p className={errorTextClass}>{recipientFbLinkError}</p>}
-                      </div>
-
-                      <div className="flex items-center gap-3 p-4 bg-rose-50 rounded-xl border border-rose-100">
-                        <input
-                          type="checkbox"
-                          id="anonymous"
-                          checked={anonymous}
-                          onChange={(e) => setAnonymous(e.target.checked)}
-                          className="w-5 h-5 text-rose-500 rounded border-rose-300 focus:ring-rose-500"
-                        />
-                        <label htmlFor="anonymous" className="text-gray-700 cursor-pointer">
-                          <span className="font-medium">Anonymous Delivery?</span>
-                          <p className="text-sm text-gray-500">The recipient won't know who sent the roses</p>
-                        </label>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Step 3 for Delivery: Delivery Details */}
-                  {deliveryType === 'deliver' && currentStep === 3 && (
-                    <motion.div
-                      key="step3-deliver"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                          </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Delivery Details</h3>
-                      </div>
-
-                      {/* First Choice */}
-                      <div className="p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100">
-                        <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                          <span className="w-6 h-6 bg-rose-500 text-white rounded-full text-sm flex items-center justify-center">1</span>
-                          First Choice (Preferred)
-                        </h4>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className={labelClass}>Delivery Date</label>
-                            <input
-                              type="date"
-                              value={deliveryDate1}
-                              onChange={(e) => setDeliveryDate1(e.target.value)}
-                              required
-                              className={inputClass}
-                              min={new Date().toISOString().split('T')[0]}
-                            />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Delivery Time</label>
-                            <input
-                              type="time"
-                              value={time1}
-                              onChange={(e) => setTime1(e.target.value)}
-                              required
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Venue</label>
-                            <select
-                              value={venue1}
-                              onChange={(e) => setVenue1(e.target.value)}
-                              required
-                              className={inputClass}
-                            >
-                              <option value="">Select venue...</option>
-                              {venueOptions.map((venue) => (
-                                <option key={venue.key} value={venue.value}>
-                                  {venue.value}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className={labelClass}>Room Number</label>
-                            <input
-                              type="text"
-                              placeholder="e.g., 301"
-                              value={room1}
-                              onChange={(e) => setRoom1(e.target.value)}
-                              required
-                              className={inputClass}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Second Choice */}
-                      <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                        <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                          <span className="w-6 h-6 bg-gray-500 text-white rounded-full text-sm flex items-center justify-center">2</span>
-                          Second Choice (Backup)
-                        </h4>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <label className={labelClass}>Delivery Date</label>
-                            <input
-                              type="date"
-                              value={deliveryDate2}
-                              onChange={(e) => setDeliveryDate2(e.target.value)}
-                              required
-                              className={inputClass}
-                              min={deliveryDate1 || new Date().toISOString().split('T')[0]}
-                            />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Delivery Time</label>
-                            <input
-                              type="time"
-                              value={time2}
-                              onChange={(e) => setTime2(e.target.value)}
-                              required
-                              className={inputClass}
-                            />
-                          </div>
-                          <div>
-                            <label className={labelClass}>Venue</label>
-                            <select
-                              value={venue2}
-                              onChange={(e) => setVenue2(e.target.value)}
-                              required
-                              className={inputClass}
-                            >
-                              <option value="">Select venue...</option>
-                              {venueOptions.map((venue) => (
-                                <option key={venue.key} value={venue.value}>
-                                  {venue.value}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                          <div>
-                            <label className={labelClass}>Room Number</label>
-                            <input
-                              type="text"
-                              placeholder="e.g., 202"
-                              value={room2}
-                              onChange={(e) => setRoom2(e.target.value)}
-                              required
-                              className={inputClass}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium text-rose-600 inline-flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                            </svg>
-                            Tip:
-                          </span> The first option must be earlier than the second option. Provide a backup in case the recipient is unavailable.
-                        </p>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Messages Step */}
-                  {((deliveryType === 'deliver' && currentStep === 4) || (deliveryType === 'pickup' && currentStep === 3)) && (
-                    <motion.div
-                      key="step-messages"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Messages & Donations</h3>
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>How many advocacy roses will you be donating to our beneficiaries?</label>
-                        <div className="flex items-center gap-4">
+                        <div>
+                          <label className={labelClass}>Email Address</label>
                           <input
-                            type="number"
-                            min="0"
-                            value={advocacyDonation}
-                            onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))}
-                            className={`${inputClass} w-32`}
+                            type="email"
+                            placeholder="your.email@student.ateneo.edu"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                            className={inputClass}
                           />
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">Each advocacy rose costs ₱80</p>
-                      </div>
 
-                      <div>
-                        <label className={labelClass}>Add-ons</label>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                          {ADD_ONS.map((addon) => (
-                            <div
-                              key={addon.id}
-                              onClick={() => {
-                                setSelectedAddons(prev =>
-                                  prev.includes(addon.id)
-                                    ? prev.filter(id => id !== addon.id)
-                                    : [...prev, addon.id]
-                                );
-                              }}
-                              className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${selectedAddons.includes(addon.id)
-                                ? 'border-rose-500 bg-rose-50'
-                                : 'border-rose-100 bg-white hover:border-rose-300'
+                        <div>
+                          <label className={labelClass}>Purchaser's Full Name</label>
+                          <input
+                            type="text"
+                            placeholder="Enter your full name"
+                            value={purchaserName}
+                            onChange={(e) => setPurchaserName(e.target.value)}
+                            required
+                            className={inputClass}
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            ID Number {!user && <span className="text-gray-400 font-normal">(Default for Guest)</span>}
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            value={studentId}
+                            onChange={(e) => {
+                              if (!user) return; // Prevent editing as guest
+                              const val = e.target.value.replace(/\D/g, '');
+                              if (val.length <= 6) {
+                                setStudentId(val);
+                                if (val.length > 0 && val.length !== 6) {
+                                  setStudentIdError('ID Number must be 6 digits');
+                                } else {
+                                  setStudentIdError('');
+                                }
+                              }
+                            }}
+                            disabled={!user}
+                            className={`input-field w-full ${!user ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''} ${studentIdError ? 'border-red-300 focus:border-red-500 focus:ring-red-200' : ''}`}
+                            placeholder="123456"
+                          />
+                          {studentIdError && (
+                            <p className="text-red-500 text-xs mt-1">{studentIdError}</p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Purchaser's Contact Number</label>
+                          <input
+                            type="tel"
+                            placeholder="0917 123 4567"
+                            value={contactNumber}
+                            onChange={handleContactNumberChange}
+                            required
+                            className={contactNumberError ? inputErrorClass : inputClass}
+                          />
+                          {contactNumberError && <p className={errorTextClass}>{contactNumberError}</p>}
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Purchaser's Facebook Link</label>
+                          <input
+                            type="url"
+                            placeholder="https://www.facebook.com/yourprofile"
+                            value={facebookLink}
+                            onChange={(e) => {
+                              setFacebookLink(e.target.value);
+                              if (e.target.value && !validateFacebookUrl(e.target.value)) {
+                                setFacebookLinkError('URL must contain facebook.com or fb.com');
+                              } else {
+                                setFacebookLinkError('');
+                              }
+                            }}
+                            required
+                            className={facebookLinkError ? inputErrorClass : inputClass}
+                          />
+                          {facebookLinkError && <p className={errorTextClass}>{facebookLinkError}</p>}
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>I would like to...</label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setDeliveryType('deliver')}
+                              className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'deliver'
+                                ? 'border-rose-500 bg-rose-50 text-rose-700'
+                                : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
                                 }`}
                             >
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="font-medium text-gray-800 text-sm">{addon.name}</span>
-                                <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedAddons.includes(addon.id)
-                                  ? 'bg-rose-500 border-rose-500'
-                                  : 'border-gray-300 bg-white'
-                                  }`}>
-                                  {selectedAddons.includes(addon.id) && (
-                                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                                    </svg>
-                                  )}
-                                </div>
-                              </div>
-                              <p className="text-rose-600 font-semibold">₱{addon.price}</p>
-                            </div>
-                          ))}
+                              <span className="mb-2 block">
+                                <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                                </svg>
+                              </span>
+                              <span className="font-medium">Have it delivered</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setDeliveryType('pickup')}
+                              className={`p-4 rounded-xl border-2 transition-all duration-300 ${deliveryType === 'pickup'
+                                ? 'border-rose-500 bg-rose-50 text-rose-700'
+                                : 'border-rose-100 bg-white text-gray-600 hover:border-rose-300'
+                                }`}
+                            >
+                              <span className="mb-2 block">
+                                <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                </svg>
+                              </span>
+                              <span className="font-medium">Pick it up myself</span>
+                            </button>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-500">Select an add-on card to include a personal message!</p>
-                      </div>
+                      </motion.div>
+                    )}
 
-                      {advocacyDonation > 0 && (
+                    {/* Step 2 for Pickup */}
+                    {deliveryType === 'pickup' && currentStep === 2 && (
+                      <motion.div
+                        key="step2-pickup"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Pickup Details</h3>
+                        </div>
+
                         <div>
-                          <label className={labelClass}>Letter/Message for Recipient from Beneficiary</label>
+                          <label className={labelClass}>When will the order be picked up?</label>
+                          <input
+                            type="date"
+                            value={pickupDate}
+                            onChange={(e) => setPickupDate(e.target.value)}
+                            required
+                            className={inputClass}
+                            min={new Date().toISOString().split('T')[0]}
+                          />
+                        </div>
+
+                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium text-rose-600 inline-flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                              </svg>
+                              Note:
+                            </span> You will be notified about the pickup location and time via email.
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Step 2 for Delivery: Recipient Details */}
+                    {deliveryType === 'deliver' && currentStep === 2 && (
+                      <motion.div
+                        key="step2-deliver"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                            </svg>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Recipient Details</h3>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Recipient's Full Name</label>
+                          <input
+                            type="text"
+                            placeholder="Who will receive the roses?"
+                            value={recipientName}
+                            onChange={(e) => setRecipientName(e.target.value)}
+                            required
+                            className={inputClass}
+                          />
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Recipient's Contact Number</label>
+                          <input
+                            type="tel"
+                            placeholder="0917 123 4567"
+                            value={recipientContact}
+                            onChange={handleRecipientContactChange}
+                            required
+                            className={recipientContactError ? inputErrorClass : inputClass}
+                          />
+                          {recipientContactError && <p className={errorTextClass}>{recipientContactError}</p>}
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Recipient's Facebook Link</label>
+                          <input
+                            type="url"
+                            placeholder="https://www.facebook.com/recipientprofile"
+                            value={recipientFbLink}
+                            onChange={(e) => {
+                              setRecipientFbLink(e.target.value);
+                              if (e.target.value && !validateFacebookUrl(e.target.value)) {
+                                setRecipientFbLinkError('URL must contain facebook.com or fb.com');
+                              } else {
+                                setRecipientFbLinkError('');
+                              }
+                            }}
+                            required
+                            className={recipientFbLinkError ? inputErrorClass : inputClass}
+                          />
+                          {recipientFbLinkError && <p className={errorTextClass}>{recipientFbLinkError}</p>}
+                        </div>
+
+                        <div className="flex items-center gap-3 p-4 bg-rose-50 rounded-xl border border-rose-100">
+                          <input
+                            type="checkbox"
+                            id="anonymous"
+                            checked={anonymous}
+                            onChange={(e) => setAnonymous(e.target.checked)}
+                            className="w-5 h-5 text-rose-500 rounded border-rose-300 focus:ring-rose-500"
+                          />
+                          <label htmlFor="anonymous" className="text-gray-700 cursor-pointer">
+                            <span className="font-medium">Anonymous Delivery?</span>
+                            <p className="text-sm text-gray-500">The recipient won't know who sent the roses</p>
+                          </label>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Step 3 for Delivery: Delivery Details */}
+                    {deliveryType === 'deliver' && currentStep === 3 && (
+                      <motion.div
+                        key="step3-deliver"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
+                            </svg>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Delivery Details</h3>
+                        </div>
+
+                        {/* First Choice */}
+                        <div className="p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100">
+                          <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <span className="w-6 h-6 bg-rose-500 text-white rounded-full text-sm flex items-center justify-center">1</span>
+                            First Choice (Preferred)
+                          </h4>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className={labelClass}>Delivery Date</label>
+                              <input
+                                type="date"
+                                value={deliveryDate1}
+                                onChange={(e) => setDeliveryDate1(e.target.value)}
+                                required
+                                className={inputClass}
+                                min={new Date().toISOString().split('T')[0]}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Delivery Time</label>
+                              <input
+                                type="time"
+                                value={time1}
+                                onChange={(e) => setTime1(e.target.value)}
+                                required
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Venue</label>
+                              <select
+                                value={venue1}
+                                onChange={(e) => setVenue1(e.target.value)}
+                                required
+                                className={inputClass}
+                              >
+                                <option value="">Select venue...</option>
+                                {venueOptions.map((venue) => (
+                                  <option key={venue.key} value={venue.value}>
+                                    {venue.value}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className={labelClass}>Room Number</label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 301"
+                                value={room1}
+                                onChange={(e) => setRoom1(e.target.value)}
+                                required
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Second Choice */}
+                        <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
+                          <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <span className="w-6 h-6 bg-gray-500 text-white rounded-full text-sm flex items-center justify-center">2</span>
+                            Second Choice (Backup)
+                          </h4>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <label className={labelClass}>Delivery Date</label>
+                              <input
+                                type="date"
+                                value={deliveryDate2}
+                                onChange={(e) => setDeliveryDate2(e.target.value)}
+                                required
+                                className={inputClass}
+                                min={deliveryDate1 || new Date().toISOString().split('T')[0]}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Delivery Time</label>
+                              <input
+                                type="time"
+                                value={time2}
+                                onChange={(e) => setTime2(e.target.value)}
+                                required
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className={labelClass}>Venue</label>
+                              <select
+                                value={venue2}
+                                onChange={(e) => setVenue2(e.target.value)}
+                                required
+                                className={inputClass}
+                              >
+                                <option value="">Select venue...</option>
+                                {venueOptions.map((venue) => (
+                                  <option key={venue.key} value={venue.value}>
+                                    {venue.value}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                            <div>
+                              <label className={labelClass}>Room Number</label>
+                              <input
+                                type="text"
+                                placeholder="e.g., 202"
+                                value={room2}
+                                onChange={(e) => setRoom2(e.target.value)}
+                                required
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium text-rose-600 inline-flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                              </svg>
+                              Tip:
+                            </span> The first option must be earlier than the second option. Provide a backup in case the recipient is unavailable.
+                          </p>
+                        </div>
+                      </motion.div>
+                    )}
+
+                    {/* Messages Step */}
+                    {((deliveryType === 'deliver' && currentStep === 4) || (deliveryType === 'pickup' && currentStep === 3)) && (
+                      <motion.div
+                        key="step-messages"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Messages & Donations</h3>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>How many advocacy roses will you be donating to our beneficiaries?</label>
+                          <div className="flex items-center gap-4">
+                            <input
+                              type="number"
+                              min="0"
+                              value={advocacyDonation}
+                              onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))}
+                              className={`${inputClass} w-32`}
+                            />
+                          </div>
+                          <p className="text-sm text-gray-500 mt-1">Each advocacy rose costs ₱80</p>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Add-ons</label>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                            {ADD_ONS.map((addon) => (
+                              <div
+                                key={addon.id}
+                                onClick={() => {
+                                  setSelectedAddons(prev =>
+                                    prev.includes(addon.id)
+                                      ? prev.filter(id => id !== addon.id)
+                                      : [...prev, addon.id]
+                                  );
+                                }}
+                                className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${selectedAddons.includes(addon.id)
+                                  ? 'border-rose-500 bg-rose-50'
+                                  : 'border-rose-100 bg-white hover:border-rose-300'
+                                  }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <span className="font-medium text-gray-800 text-sm">{addon.name}</span>
+                                  <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedAddons.includes(addon.id)
+                                    ? 'bg-rose-500 border-rose-500'
+                                    : 'border-gray-300 bg-white'
+                                    }`}>
+                                    {selectedAddons.includes(addon.id) && (
+                                      <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                </div>
+                                <p className="text-rose-600 font-semibold">₱{addon.price}</p>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-sm text-gray-500">Select an add-on card to include a personal message!</p>
+                        </div>
+
+                        {advocacyDonation > 0 && (
+                          <div>
+                            <label className={labelClass}>Letter/Message for Recipient from Beneficiary</label>
+                            <textarea
+                              placeholder="Write a message that will come from the beneficiary..."
+                              value={messageForBeneficiary}
+                              onChange={(e) => setMessageForBeneficiary(e.target.value)}
+                              rows={3}
+                              className={`${inputClass} resize-none`}
+                            />
+                          </div>
+                        )}
+
+                        {selectedAddons.length > 0 && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                          >
+                            <label className={labelClass}>Letter/Message for Recipient</label>
+                            <textarea
+                              placeholder="Write a sweet message for the recipient..."
+                              value={messageForRecipient}
+                              onChange={(e) => setMessageForRecipient(e.target.value)}
+                              rows={4}
+                              className={`${inputClass} resize-none`}
+                            />
+                          </motion.div>
+                        )}
+
+                        <div>
+                          <label className={labelClass}>Other Notes and Concerns/Special Request</label>
                           <textarea
-                            placeholder="Write a message that will come from the beneficiary..."
-                            value={messageForBeneficiary}
-                            onChange={(e) => setMessageForBeneficiary(e.target.value)}
+                            placeholder="e.g., lego flower built, specific delivery instructions..."
+                            value={specialRequests}
+                            onChange={(e) => setSpecialRequests(e.target.value)}
                             rows={3}
                             className={`${inputClass} resize-none`}
                           />
                         </div>
-                      )}
+                      </motion.div>
+                    )}
 
-                      {selectedAddons.length > 0 && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                        >
-                          <label className={labelClass}>Letter/Message for Recipient</label>
-                          <textarea
-                            placeholder="Write a sweet message for the recipient..."
-                            value={messageForRecipient}
-                            onChange={(e) => setMessageForRecipient(e.target.value)}
-                            rows={4}
-                            className={`${inputClass} resize-none`}
-                          />
-                        </motion.div>
-                      )}
-
-                      <div>
-                        <label className={labelClass}>Other Notes and Concerns/Special Request</label>
-                        <textarea
-                          placeholder="e.g., lego flower built, specific delivery instructions..."
-                          value={specialRequests}
-                          onChange={(e) => setSpecialRequests(e.target.value)}
-                          rows={3}
-                          className={`${inputClass} resize-none`}
-                        />
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Payment Step */}
-                  {((deliveryType === 'deliver' && currentStep === 5) || (deliveryType === 'pickup' && currentStep === 4)) && (
-                    <motion.div
-                      key="step-payment"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      className="space-y-6"
-                    >
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-2xl font-bold text-gray-800">Payment</h3>
-                      </div>
-
-                      <div className="p-6 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl text-white">
-                        <p className="text-sm opacity-80 mb-1">Transfer to</p>
-                        <p className="text-2xl font-bold mb-4">GCash: 0917 XXX XXXX</p>
-                        <p className="text-sm opacity-80">Amount: <span className="font-bold text-lg">₱{total.toFixed(2)}</span></p>
-                      </div>
-
-                      <div>
-                        <label className={labelClass}>Upload Proof of Payment (Max 8MB)</label>
-                        <div className="relative">
-                          <input
-                            type="file"
-                            onChange={handlePaymentProofChange}
-                            required
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                            accept=".jpg,.jpeg,.png"
-                          />
-                          <div className={`${inputClass} flex items-center justify-center gap-3 border-dashed cursor-pointer hover:border-rose-400 hover:bg-rose-50 ${paymentProofError ? 'border-red-300 bg-red-50' : ''}`}>
-                            {paymentProof ? (
-                              <>
-                                <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span className="text-gray-700">{paymentProof.name}</span>
-                                <span className="text-xs text-gray-500">({(paymentProof.size / 1024 / 1024).toFixed(1)}MB)</span>
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                </svg>
-                                <span className="text-gray-500">Click to upload payment screenshot</span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                        {paymentProofError && (
-                          <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    {/* Payment Step */}
+                    {((deliveryType === 'deliver' && currentStep === 5) || (deliveryType === 'pickup' && currentStep === 4)) && (
+                      <motion.div
+                        key="step-payment"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-6"
+                      >
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center text-rose-600">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                             </svg>
-                            {paymentProofError}
-                          </p>
+                          </div>
+                          <h3 className="text-2xl font-bold text-gray-800">Payment</h3>
+                        </div>
+
+                        <div className="p-6 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl text-white">
+                          <p className="text-sm opacity-80 mb-1">Transfer to</p>
+                          <p className="text-2xl font-bold mb-4">GCash: 0917 XXX XXXX</p>
+                          <p className="text-sm opacity-80">Amount: <span className="font-bold text-lg">₱{total.toFixed(2)}</span></p>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Upload Proof of Payment (Max 8MB)</label>
+                          <div className="relative">
+                            <input
+                              type="file"
+                              onChange={handlePaymentProofChange}
+                              required
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                              accept=".jpg,.jpeg,.png"
+                            />
+                            <div className={`${inputClass} flex items-center justify-center gap-3 border-dashed cursor-pointer hover:border-rose-400 hover:bg-rose-50 ${paymentProofError ? 'border-red-300 bg-red-50' : ''}`}>
+                              {paymentProof ? (
+                                <>
+                                  <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  <span className="text-gray-700">{paymentProof.name}</span>
+                                  <span className="text-xs text-gray-500">({(paymentProof.size / 1024 / 1024).toFixed(1)}MB)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-gray-500">Click to upload payment screenshot</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          {paymentProofError && (
+                            <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              {paymentProofError}
+                            </p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Navigation Buttons */}
+                  <div className="flex justify-between items-center mt-8 pt-6 border-t border-rose-100">
+                    <button
+                      type="button"
+                      onClick={() => currentStep === 1 ? onBack() : setCurrentStep(currentStep - 1)}
+                      className="flex items-center gap-2 text-gray-600 hover:text-rose-600 font-medium transition-colors"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      {currentStep === 1 ? 'Back to Shop' : 'Previous'}
+                    </button>
+
+                    {currentStep < totalSteps ? (
+                      <motion.button
+                        type="button"
+                        onClick={() => {
+                          if (validateCurrentStep()) {
+                            setCurrentStep(currentStep + 1);
+                          }
+                        }}
+                        className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Next Step
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </motion.button>
+                    ) : (
+                      <motion.button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                        whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            Place Order
+                            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
+                            </svg>
+                          </>
+                        )}
+                      </motion.button>
+                    )}
+                  </div>
+                </form>
+              </motion.div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="lg:col-span-2">
+              <motion.div
+                className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 border border-rose-100 sticky top-24"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+              >
+                <h3 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h3>
+
+                <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
+                  {cart.map((item) => (
+                    <div key={item.id} className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500">
+                        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
+                        </svg>
+                      </div>
+                      <div className="flex-grow min-w-0">
+                        <p className="font-medium text-gray-800 truncate">{item.name}</p>
+                        <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+                        {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                          <div className="mt-1 space-y-0.5">
+                            {Object.values(item.selectedOptions).map((opt, idx) => (
+                              <p key={idx} className="text-xs text-gray-500 truncate pl-2 border-l-2 border-rose-200">
+                                {opt}
+                              </p>
+                            ))}
+                          </div>
                         )}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                      <span className="font-semibold text-rose-600">₱{(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  ))}
+                </div>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between items-center mt-8 pt-6 border-t border-rose-100">
-                  <button
-                    type="button"
-                    onClick={() => currentStep === 1 ? onBack() : setCurrentStep(currentStep - 1)}
-                    className="flex items-center gap-2 text-gray-600 hover:text-rose-600 font-medium transition-colors"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                <div className="border-t border-rose-100 pt-4 space-y-2">
+                  <div className="flex justify-between text-gray-600">
+                    <span>Subtotal</span>
+                    <span>₱{(total - (advocacyDonation * 80) - addonsTotal).toFixed(2)}</span>
+                  </div>
+                  {selectedAddons.length > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>Add-ons ({selectedAddons.length})</span>
+                      <span>₱{addonsTotal.toFixed(2)}</span>
+                    </div>
+                  )}
+                  {advocacyDonation > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>Advocacy Donation ({advocacyDonation} roses)</span>
+                      <span>₱{(advocacyDonation * 80).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-gray-600">
+                    <span>Delivery</span>
+                    <span className="text-green-600">Free</span>
+                  </div>
+                  <div className="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-rose-100">
+                    <span>Total</span>
+                    <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
+                      ₱{total.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-rose-50 rounded-xl">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
-                    {currentStep === 1 ? 'Back to Shop' : 'Previous'}
-                  </button>
-
-                  {currentStep < totalSteps ? (
-                    <motion.button
-                      type="button"
-                      onClick={() => {
-                        if (validateCurrentStep()) {
-                          setCurrentStep(currentStep + 1);
-                        }
-                      }}
-                      className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      Next Step
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </motion.button>
-                  ) : (
-                    <motion.button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                      whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
-                      whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          Place Order
-                          <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
-                          </svg>
-                        </>
-                      )}
-                    </motion.button>
-                  )}
-                </div>
-              </form>
-            </motion.div>
-          </div>
-
-          {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <motion.div
-              className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-6 border border-rose-100 sticky top-24"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Order Summary</h3>
-
-              <div className="space-y-3 mb-6 max-h-60 overflow-y-auto">
-                {cart.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-rose-100 to-pink-100 rounded-xl flex items-center justify-center flex-shrink-0 text-rose-500">
-                      <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
-                      </svg>
-                    </div>
-                    <div className="flex-grow min-w-0">
-                      <p className="font-medium text-gray-800 truncate">{item.name}</p>
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                    </div>
-                    <span className="font-semibold text-rose-600">₱{(item.price * item.quantity).toFixed(2)}</span>
+                    <span>Secure checkout</span>
                   </div>
-                ))}
-              </div>
-
-              <div className="border-t border-rose-100 pt-4 space-y-2">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal</span>
-                  <span>₱{(total - (advocacyDonation * 80) - addonsTotal).toFixed(2)}</span>
                 </div>
-                {selectedAddons.length > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>Add-ons ({selectedAddons.length})</span>
-                    <span>₱{addonsTotal.toFixed(2)}</span>
-                  </div>
-                )}
-                {advocacyDonation > 0 && (
-                  <div className="flex justify-between text-gray-600">
-                    <span>Advocacy Donation ({advocacyDonation} roses)</span>
-                    <span>₱{(advocacyDonation * 80).toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-gray-600">
-                  <span>Delivery</span>
-                  <span className="text-green-600">Free</span>
-                </div>
-                <div className="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-rose-100">
-                  <span>Total</span>
-                  <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
-                    ₱{total.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-6 p-4 bg-rose-50 rounded-xl">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <svg className="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                  <span>Secure checkout</span>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </div>
           </div>
         </div>
       </div>

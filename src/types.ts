@@ -8,6 +8,7 @@ export interface Product {
   description?: string;
   tags?: string[];
   available?: boolean;
+  bundleItems?: string;
 }
 
 export interface ProductFilters {
@@ -21,6 +22,7 @@ export interface ProductFilters {
 
 export interface CartItem extends Product {
   quantity: number;
+  selectedOptions?: { [slotIndex: number]: string };
 }
 
 export interface BundleSelection {
@@ -69,19 +71,19 @@ export interface OrderFormData {
   studentId: string;
   contactNumber: string;
   facebookLink: string;
-  
+
   // Recipient
   recipientName: string;
   recipientContact: string;
   recipientFbLink: string;
   anonymous: boolean;
-  
+
   // Delivery Choice 1
   deliveryDate1: string;
   venue1: string;
   room1: string;
   time1: string;
-  
+
   // Delivery Choice 2
   deliveryDate2: string;
   venue2: string;
@@ -96,8 +98,10 @@ export interface OrderFormData {
   messageForBeneficiary: string;
   messageForRecipient: string;
   specialRequests: string;
-  
+
   // Payment
   totalAmount: number;
+  // Output for API
+  bundleDetails?: string;
   proofOfPaymentFile?: File | null;
 }

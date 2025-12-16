@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +6,8 @@ import { fetchProducts, ProductsResult, trackPageView } from '../services/sheetS
 import { useCart } from '../context/CartContext';
 import RoseLoader from '../components/RoseLoader';
 import NotFound from './NotFound';
+import { parseBundleString, formatOptionName, getRelatedBundles, BundleSlot } from '../utils/bundleHelpers';
+import UpsellModal from '../components/UpsellModal';
 
 const ProductDetailPage = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,6 +15,14 @@ const ProductDetailPage = () => {
     const { addToCart, setIsCartOpen } = useCart();
     const [imageLoaded, setImageLoaded] = useState(false);
     const [isAdded, setIsAdded] = useState(false);
+
+    // Bundle State
+    const [bundleSlots, setBundleSlots] = useState<BundleSlot[]>([]);
+    const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: string }>({});
+
+    // Upsell State
+    const [showUpsell, setShowUpsell] = useState(false);
+    const [upsellBundle, setUpsellBundle] = useState<any>(null);
 
     // Scroll to top on mount
     useEffect(() => {
@@ -24,7 +34,39 @@ const ProductDetailPage = () => {
         queryFn: fetchProducts,
     });
 
-    const product = productsResult?.products.find((p) => p.id === id);
+    const products = productsResult?.products || [];
+    const product = products.find((p) => p.id === id);
+
+    // Initialize bundle slots if product has bundleItems
+    useEffect(() => {
+        if (product?.bundleItems) {
+            const parsed = parseBundleString(product.bundleItems);
+            setBundleSlots(parsed);
+
+            // Auto-select fixed options
+            const initialSelections: { [key: number]: string } = {};
+            parsed.forEach((slot, index) => {
+                if (slot.isFixed) {
+                    initialSelections[index] = slot.options[0];
+                }
+            });
+            setSelectedOptions(initialSelections);
+        } else {
+            setBundleSlots([]);
+            setSelectedOptions({});
+        }
+    }, [product]);
+
+    // Check for Upsell opportunities
+    useEffect(() => {
+        if (product && !product.bundleItems && products.length > 0) {
+            const relatedBundles = getRelatedBundles(product, products);
+            if (relatedBundles.length > 0) {
+                // Pick the first relevant bundle (or random)
+                setUpsellBundle(relatedBundles[0]);
+            }
+        }
+    }, [product, products]);
 
     // Track page view
     useEffect(() => {
@@ -45,15 +87,40 @@ const ProductDetailPage = () => {
         return <NotFound />;
     }
 
+    const isBundleReady = bundleSlots.every((slot, index) => selectedOptions[index]);
+
     const handleAddToCart = () => {
         if (product.stock === 0) return;
-        addToCart(product);
+
+        // If it's a regular product and we have an upsell available, show it first
+        if (!product.bundleItems && upsellBundle) {
+            setShowUpsell(true);
+            return;
+        }
+
+        if (product.bundleItems && !isBundleReady) return;
+
+        addToCart({
+            ...product,
+            selectedOptions: product.bundleItems ? selectedOptions : undefined
+        });
+
         setIsAdded(true);
         setTimeout(() => {
             setIsAdded(false);
             setIsCartOpen(true);
         }, 800);
     };
+
+    // Keep the "Add to Cart" logic for upsell refusal or direct add
+    const confirmAddToCart = () => {
+        addToCart(product);
+        setIsAdded(true);
+        setTimeout(() => {
+            setIsAdded(false);
+            setIsCartOpen(true);
+        }, 800);
+    }
 
     const getStockStatus = () => {
         if (product.stock === 0) return { text: 'Out of Stock', color: 'bg-gray-100 text-gray-500', dotColor: 'bg-gray-400' };
@@ -67,6 +134,16 @@ const ProductDetailPage = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-rose-50 pt-24 pb-12 px-4">
             <div className="max-w-7xl mx-auto">
+                <UpsellModal
+                    isOpen={showUpsell}
+                    onClose={() => {
+                        setShowUpsell(false);
+                        confirmAddToCart(); // Add original item if they close upsell
+                    }}
+                    originalProduct={product}
+                    bundle={upsellBundle || product} // Fallback to self (shouldn't happen)
+                />
+
                 {/* Breadcrumb / Back Button */}
                 <div className="mb-8">
                     <Link
@@ -139,6 +216,48 @@ const ProductDetailPage = () => {
                                     </p>
                                 </div>
 
+                                {/* Bundle Configuration UI */}
+                                {bundleSlots.length > 0 && (
+                                    <div className="mb-8 p-6 bg-rose-50 rounded-2xl border border-rose-100">
+                                        <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                                            <span className="text-xl">✨</span> Customize Your Bundle
+                                        </h3>
+                                        <div className="space-y-4">
+                                            {bundleSlots.map((slot, index) => (
+                                                <div key={index} className="pb-4 border-b border-rose-100 last:border-0 last:pb-0">
+                                                    <p className="font-semibold text-sm text-gray-500 mb-2 uppercase tracking-wide">
+                                                        Item {index + 1}: <span className="text-rose-600">{slot.isFixed ? formatOptionName(slot.options[0]) : 'Choose One'}</span>
+                                                    </p>
+
+                                                    {!slot.isFixed ? (
+                                                        <div className="flex flex-wrap gap-2">
+                                                            {slot.options.map((option) => (
+                                                                <button
+                                                                    key={option}
+                                                                    onClick={() => setSelectedOptions(prev => ({ ...prev, [index]: option }))}
+                                                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all border ${selectedOptions[index] === option
+                                                                            ? 'bg-rose-500 text-white border-rose-500 shadow-md'
+                                                                            : 'bg-white text-gray-600 border-gray-200 hover:border-rose-300 hover:bg-rose-50'
+                                                                        }`}
+                                                                >
+                                                                    {formatOptionName(option)}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-2 text-gray-700 bg-white px-3 py-2 rounded-lg border border-gray-100 inline-block">
+                                                            <svg className="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                            {formatOptionName(slot.options[0])}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Tags */}
                                 {product.tags && product.tags.length > 0 && (
                                     <div className="mb-8">
@@ -157,8 +276,8 @@ const ProductDetailPage = () => {
                                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-100">
                                     <motion.button
                                         onClick={handleAddToCart}
-                                        disabled={product.stock === 0}
-                                        className={`flex-1 px-8 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all ${product.stock === 0
+                                        disabled={product.stock === 0 || (!!product.bundleItems && !isBundleReady)}
+                                        className={`flex-1 px-8 py-4 rounded-xl font-bold text-lg shadow-lg flex items-center justify-center gap-2 transition-all ${product.stock === 0 || (!!product.bundleItems && !isBundleReady)
                                                 ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                                                 : 'bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-rose-200 hover:scale-[1.02]'
                                             }`}
@@ -167,7 +286,12 @@ const ProductDetailPage = () => {
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                                         </svg>
-                                        {product.stock === 0 ? 'Sold Out' : 'Add to Cart'}
+                                        {product.stock === 0
+                                            ? 'Sold Out'
+                                            : product.bundleItems && !isBundleReady
+                                                ? 'Select Options'
+                                                : 'Add to Cart'
+                                        }
                                     </motion.button>
                                 </div>
 

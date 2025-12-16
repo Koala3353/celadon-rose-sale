@@ -2,18 +2,41 @@ import { useState, useMemo, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../types';
 import CartDrawer from '../components/CartDrawer';
+import { useCart } from '../context/CartContext';
 import { fetchProducts, trackPageView, ProductsResult } from '../services/sheetService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import RoseLoader from '../components/RoseLoader';
 
+import SuggestionToast from '../components/SuggestionToast';
+import BundleSelectionModal from '../components/BundleSelectionModal';
+
 const PRODUCTS_PER_PAGE = 12;
+const SUGGESTION_DELAY = 15000; // 15 seconds
+const SUGGESTION_SESSION_KEY = 'rose_sale_suggestion_seen';
 
 const ShopPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [sortBy, setSortBy] = useState<'name' | 'price-asc' | 'price-desc'>('name');
   const [currentPage, setCurrentPage] = useState(1);
+  const { addToCart, setIsCartOpen } = useCart();
+
+  // Suggestion State
+  const [showSuggestion, setShowSuggestion] = useState(false);
+  const [suggestedProduct, setSuggestedProduct] = useState<Product | null>(null);
+
+  // Bundle Modal State
+  const [selectedBundle, setSelectedBundle] = useState<Product | null>(null);
+
+  const handleQuickAdd = (product: Product) => {
+    if (product.bundleItems) {
+      setSelectedBundle(product);
+    } else {
+      addToCart(product);
+      setIsCartOpen(true);
+    }
+  };
 
   const { data: productsResult, isLoading, error } = useQuery<ProductsResult, Error>({
     queryKey: ['products'],
@@ -33,6 +56,28 @@ const ShopPage = () => {
   useEffect(() => {
     trackPageView('shop');
   }, []);
+
+  // Random Suggestion Logic
+  useEffect(() => {
+    // Only run if products are loaded and we haven't shown a suggestion yet
+    if (!products || products.length === 0 || isLoading) return;
+
+    // Check session storage
+    const hasSeenSuggestion = sessionStorage.getItem(SUGGESTION_SESSION_KEY);
+    if (hasSeenSuggestion) return;
+
+    const timer = setTimeout(() => {
+      // Pick a random product
+      const randomProduct = products[Math.floor(Math.random() * products.length)];
+      setSuggestedProduct(randomProduct);
+      setShowSuggestion(true);
+
+      // Mark as seen
+      sessionStorage.setItem(SUGGESTION_SESSION_KEY, 'true');
+    }, SUGGESTION_DELAY);
+
+    return () => clearTimeout(timer);
+  }, [products, isLoading]);
 
   // Reset page when filters change
   useEffect(() => {
@@ -158,6 +203,15 @@ const ShopPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-rose-50 pt-20 md:pt-24">
       <CartDrawer />
+
+      {/* Random Product Suggestion Toast */}
+      {suggestedProduct && (
+        <SuggestionToast
+          isOpen={showSuggestion}
+          onClose={() => setShowSuggestion(false)}
+          product={suggestedProduct}
+        />
+      )}
 
       {/* Fallback/Expired Cache Warning Banner */}
       {(isFallback || isExpiredCache) && (
@@ -357,13 +411,34 @@ const ShopPage = () => {
             >
               <AnimatePresence mode="popLayout">
                 {paginatedProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    onQuickAdd={handleQuickAdd}
+                  />
                 ))}
               </AnimatePresence>
             </motion.div>
 
             {/* Bottom Pagination */}
             <Pagination />
+
+            {/* Bundle Selection Modal */}
+            <AnimatePresence>
+              {selectedBundle && (
+                <BundleSelectionModal
+                  product={selectedBundle}
+                  isOpen={!!selectedBundle}
+                  onClose={() => setSelectedBundle(null)}
+                  onAddToCart={(item) => {
+                    addToCart(item);
+                    setSelectedBundle(null);
+                    setIsCartOpen(true);
+                  }}
+                />
+              )}
+            </AnimatePresence>
           </>
         )}
       </div>

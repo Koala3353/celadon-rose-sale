@@ -8,15 +8,23 @@ import RoseLoader from './RoseLoader';
 interface ProductCardProps {
   product: Product;
   index?: number;
+  onQuickAdd?: (product: Product) => void;
 }
 
-const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
+const ProductCard = ({ product, index = 0, onQuickAdd }: ProductCardProps) => {
   const { addToCart, setIsCartOpen } = useCart();
   const [isAdded, setIsAdded] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   const handleAddToCart = () => {
     if (product.stock === 0) return;
+
+    // If it's a bundle and we have a handler, delegate to it (open modal)
+    if (product.bundleItems && onQuickAdd) {
+      onQuickAdd(product);
+      return;
+    }
+
     addToCart(product);
     setIsAdded(true);
     setTimeout(() => {
@@ -81,12 +89,12 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
           }}
           disabled={product.stock === 0}
           className={`absolute bottom-4 left-1/2 -translate-x-1/2 px-6 py-3 rounded-full font-medium shadow-lg transition-all duration-300 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 z-10 ${product.stock === 0
-              ? 'bg-gray-400 text-white cursor-not-allowed'
-              : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
+            ? 'bg-gray-400 text-white cursor-not-allowed'
+            : 'bg-white text-rose-600 hover:bg-rose-600 hover:text-white'
             }`}
           whileTap={{ scale: 0.95 }}
         >
-          {product.stock === 0 ? 'Sold Out' : 'Quick Add'}
+          {product.stock === 0 ? 'Sold Out' : (product.bundleItems ? 'Customize' : 'Quick Add')}
         </motion.button>
       </div>
 
@@ -124,8 +132,8 @@ const ProductCard = ({ product, index = 0 }: ProductCardProps) => {
             onClick={handleAddToCart}
             disabled={product.stock === 0}
             className={`p-3 rounded-full transition-all duration-300 ${product.stock === 0
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white'
               }`}
             whileHover={{ scale: product.stock > 0 ? 1.1 : 1 }}
             whileTap={{ scale: product.stock > 0 ? 0.9 : 1 }}

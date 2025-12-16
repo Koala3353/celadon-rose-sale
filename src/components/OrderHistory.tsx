@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { fetchUserOrders, SheetOrder } from '../services/sheetService';
+import { fetchUserOrders, searchOrder, SheetOrder } from '../services/sheetService';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
+import Toast, { ToastType } from './Toast';
 
 const OrderHistory: React.FC = () => {
   const navigate = useNavigate();
@@ -12,11 +13,56 @@ const OrderHistory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  const { data: orders, isLoading, error } = useQuery<SheetOrder[], Error>({
+  const { data: userOrders, isLoading: isUserOrdersLoading, error } = useQuery<SheetOrder[], Error>({
     queryKey: ['orders', user?.email],
     queryFn: () => fetchUserOrders(user!.email!),
     enabled: !!user,
   });
+
+  const [isSearching, setIsSearching] = useState(false);
+
+  const { signIn } = useAuth();
+
+  // Toast State
+  const [toast, setToast] = useState<{ message: string; type: ToastType; isVisible: boolean }>({
+    message: '',
+    type: 'info',
+    isVisible: false
+  });
+
+  const showToast = (message: string, type: ToastType = 'info') => {
+    setToast({ message, type, isVisible: true });
+  };
+
+  const handleGuestSearch = async (orderId: string) => {
+    if (!orderId.trim()) return;
+
+    setIsSearching(true);
+    try {
+      const order = await searchOrder(orderId.trim());
+      if (order) {
+        setSelectedOrder(order);
+      } else {
+        showToast('Order not found. Please check the Order ID and try again.', 'error');
+      }
+    } catch (err: any) {
+      console.error('Search failed:', err);
+      if (err.code === 'REQUIRES_AUTH') {
+        const shouldSignIn = window.confirm(`${err.message}\n\nWould you like to sign in now?`);
+        if (shouldSignIn) {
+          signIn();
+        }
+      } else {
+        showToast('Failed to search for order. Please check the ID and try again.', 'error');
+      }
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const orders = user ? userOrders : [];
+  const isLoading = user ? isUserOrdersLoading : false;
+
 
   const getStatusConfig = (status: string) => {
     const normalizedStatus = status.toLowerCase();
@@ -279,25 +325,67 @@ const OrderHistory: React.FC = () => {
           </motion.div>
         )}
 
-        {/* Not Signed In State */}
+        {/* Guest Search State */}
         {!user && !isLoading && (
           <motion.div
-            className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-12 text-center border border-rose-100"
+            className="bg-white rounded-3xl shadow-xl shadow-rose-100/50 p-8 md:p-12 text-center border border-rose-100"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <div className="w-20 h-20 bg-rose-100 rounded-full mx-auto flex items-center justify-center mb-6">
-              <span className="text-4xl">🔒</span>
+              <span className="text-4xl">🔍</span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-800 mb-2">Sign In Required</h3>
-            <p className="text-gray-600 mb-6">Please sign in to view your order history.</p>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">Track Your Order</h3>
+            <p className="text-gray-600 mb-8 max-w-md mx-auto">
+              Guests can track their order status here. If you're an Ateneo student, please sign in to see your full history.
+            </p>
+
+            {/* Guest Search Form */}
+            <div className="max-w-md mx-auto mb-8">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const form = e.target as HTMLFormElement;
+                  const input = form.elements.namedItem('orderId') as HTMLInputElement;
+                  if (input.value) {
+                    handleGuestSearch(input.value);
+                  }
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  name="orderId"
+                  type="text"
+                  placeholder="Enter Order ID (e.g., ORD-ABC123456)"
+                  className="flex-1 px-4 py-3 rounded-xl border border-rose-200 focus:border-rose-500 focus:ring-2 focus:ring-rose-200 outline-none"
+                  required
+                />
+                <button
+                  type="submit"
+                  disabled={isSearching}
+                  className="px-6 py-3 bg-rose-500 text-white rounded-xl font-medium hover:bg-rose-600 transition-colors shadow-lg shadow-rose-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSearching ? 'Searching...' : 'Track'}
+                </button>
+              </form>
+            </div>
+
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">or</span>
+              </div>
+            </div>
+
             <motion.button
               onClick={() => navigate('/')}
-              className="px-8 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200"
+              className="mt-4 text-rose-600 font-semibold hover:text-rose-700 hover:underline"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Go to Login
+              Sign In with Google
             </motion.button>
           </motion.div>
         )}
@@ -353,8 +441,8 @@ const OrderHistory: React.FC = () => {
                     key={filter}
                     onClick={() => setStatusFilter(filter)}
                     className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${statusFilter === filter
-                        ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
-                        : 'bg-white text-gray-600 hover:bg-rose-50 border border-rose-100'
+                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-200'
+                      : 'bg-white text-gray-600 hover:bg-rose-50 border border-rose-100'
                       }`}
                   >
                     {filter}
@@ -815,6 +903,13 @@ const OrderHistory: React.FC = () => {
             </motion.div>
           )}
         </AnimatePresence>
+        {/* Toast Notification */}
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          isVisible={toast.isVisible}
+          onClose={() => setToast(prev => ({ ...prev, isVisible: false }))}
+        />
       </div>
     </motion.div>
   );

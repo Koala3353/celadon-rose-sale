@@ -50,6 +50,8 @@ export interface ProductsResult {
  * Fetches products from the API server (which caches Google Sheets data)
  */
 export const fetchProducts = async (): Promise<ProductsResult> => {
+  return { products: INITIAL_PRODUCTS, isFallback: true, isExpiredCache: false };
+
   // Check local cache first for instant loading
   const cached = localStorage.getItem(CACHE_KEY_PRODUCTS);
 
@@ -326,6 +328,27 @@ export const fetchUserOrders = async (email: string): Promise<SheetOrder[]> => {
   } catch (error) {
     console.error('Failed to fetch orders from API:', error);
     return [];
+  }
+};
+
+// Search for an order by ID (guest access)
+export const searchOrder = async (orderId: string): Promise<SheetOrder | null> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/orders/search?orderId=${encodeURIComponent(orderId)}`);
+
+    if (response.status === 403) {
+      const data = await response.json();
+      throw { code: 'REQUIRES_AUTH', message: data.message };
+    }
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      throw new Error('Failed to search order');
+    }
+    const json = await response.json();
+    return json.success ? json.data : null;
+  } catch (error) {
+    throw error;
   }
 };
 
