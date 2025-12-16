@@ -120,12 +120,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
   // ... (rest of component code until rendering total) ...
 
-  <div className="flex justify-between text-gray-600">
-    <span>Delivery</span>
-    <span className={deliveryFee > 0 ? "text-gray-800" : "text-green-600"}>
-      {deliveryFee > 0 ? `₱${deliveryFee.toFixed(2)}` : 'Free'}
-    </span>
-  </div>
+
 
   // Update email when user logs in
   useEffect(() => {
@@ -1484,7 +1479,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                   )}
                   <div className="flex justify-between text-gray-600">
                     <span>Delivery</span>
-                    <span className="text-green-600">Free</span>
+                    <span className={deliveryFee > 0 ? "text-gray-800" : "text-green-600"}>
+                      {deliveryFee > 0 ? `₱${deliveryFee.toFixed(2)}` : 'Free'}
+                    </span>
                   </div>
                   <div className="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-rose-100">
                     <span>Total</span>
