@@ -251,7 +251,7 @@ export interface SheetOrder {
   assignedDoveEmail: string;
 }
 
-export const submitOrder = async (orderData: any, paymentProof: File): Promise<boolean> => {
+export const submitOrder = async (orderData: any, paymentProof: File): Promise<string | null> => {
   // Use FormData to support file upload
   const formData = new FormData();
 
@@ -279,11 +279,12 @@ export const submitOrder = async (orderData: any, paymentProof: File): Promise<b
     }
 
     console.log("Order submitted successfully:", result.data);
+    const orderId = result.data?.orderId || 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
     // Store locally for order history
     const newOrder: Order = {
       ...(orderData as OrderFormData),
-      id: result.data?.orderId || 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
+      id: orderId,
       date: new Date().toISOString(),
       status: 'Pending',
       items: orderData.items,
@@ -293,10 +294,10 @@ export const submitOrder = async (orderData: any, paymentProof: File): Promise<b
     const existingOrders: Order[] = existingOrdersStr ? JSON.parse(existingOrdersStr) : [];
     localStorage.setItem(ORDERS_KEY, JSON.stringify([newOrder, ...existingOrders]));
 
-    return true;
+    return orderId;
   } catch (error) {
     console.error("Failed to submit order:", error);
-    return false;
+    return null;
   }
 };
 

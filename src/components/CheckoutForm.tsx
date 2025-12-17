@@ -77,6 +77,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
+  const [submittedOrderId, setSubmittedOrderId] = useState<string | null>(null);
 
   // 8MB in bytes
   const MAX_FILE_SIZE = 8 * 1024 * 1024;
@@ -479,9 +480,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     };
 
     try {
-      await submitOrder(orderData, paymentProof);
-      setSuccess(true);
-      clearCart();
+      const orderId = await submitOrder(orderData, paymentProof);
+      if (orderId) {
+        setSubmittedOrderId(orderId);
+        setSuccess(true);
+        clearCart();
+      } else {
+        setError('There was an error submitting your order. Please try again.');
+      }
     } catch (err) {
       setError('There was an error submitting your order. Please try again.');
     } finally {
@@ -632,6 +638,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
             </svg>
           </motion.h2>
+
+          {submittedOrderId && (
+            <motion.div
+              className="mb-6 p-4 bg-rose-50 rounded-xl border border-rose-100 inline-block"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.25 }}
+            >
+              <p className="text-sm text-gray-500 mb-1">Your Order ID:</p>
+              <p className="text-2xl font-mono font-bold text-rose-600 select-all">
+                {submittedOrderId}
+              </p>
+              <p className="text-xs text-gray-400 mt-2">Please save this ID to track your order.</p>
+            </motion.div>
+          )}
 
           <motion.p
             className="text-gray-600 text-lg mb-8"

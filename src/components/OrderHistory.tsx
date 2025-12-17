@@ -13,6 +13,42 @@ const OrderHistory: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const formatDate = (dateString: string) => {
+    try {
+      if (!dateString) return 'Date not available';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Date not available';
+
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    } catch (e) {
+      return 'Date not available';
+    }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    try {
+      if (!dateString) return 'Date not available';
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'Date not available';
+
+      return date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric'
+      });
+    } catch (e) {
+      return 'Date not available';
+    }
+  };
+
   const { data: userOrders, isLoading: isUserOrdersLoading, error } = useQuery<SheetOrder[], Error>({
     queryKey: ['orders', user?.email],
     queryFn: () => fetchUserOrders(user!.email!),
@@ -500,12 +536,7 @@ const OrderHistory: React.FC = () => {
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            {new Date(order.timestamp).toLocaleDateString('en-US', {
-                              weekday: 'long',
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric'
-                            })}
+                            {formatDate(order.timestamp)}
                           </p>
                         </div>
                         <div className="text-right">
@@ -642,14 +673,7 @@ const OrderHistory: React.FC = () => {
                     <div>
                       <h2 className="text-2xl font-bold">Order #{selectedOrder.orderId}</h2>
                       <p className="text-rose-100 text-sm mt-1">
-                        {new Date(selectedOrder.timestamp).toLocaleDateString('en-US', {
-                          weekday: 'long',
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: 'numeric',
-                          minute: 'numeric'
-                        })}
+                        {formatDateTime(selectedOrder.timestamp)}
                       </p>
                     </div>
                     <motion.button
