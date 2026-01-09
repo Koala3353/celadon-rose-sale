@@ -1280,19 +1280,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                     );
                                   }}
                                   className={`p-4 rounded-xl border-2 transition-all duration-300 ${isDeliveryService
-                                      ? 'border-green-500 bg-green-50 cursor-default'
-                                      : selectedAddons.includes(addon.id)
-                                        ? 'border-rose-500 bg-rose-50 cursor-pointer'
-                                        : 'border-rose-100 bg-white hover:border-rose-300 cursor-pointer'
+                                    ? 'border-green-500 bg-green-50 cursor-default'
+                                    : selectedAddons.includes(addon.id)
+                                      ? 'border-rose-500 bg-rose-50 cursor-pointer'
+                                      : 'border-rose-100 bg-white hover:border-rose-300 cursor-pointer'
                                     }`}
                                 >
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="font-medium text-gray-800 text-sm">{addon.name}</span>
                                     <div className={`w-5 h-5 rounded border flex items-center justify-center ${isDeliveryService
-                                        ? 'bg-green-500 border-green-500'
-                                        : selectedAddons.includes(addon.id)
-                                          ? 'bg-rose-500 border-rose-500'
-                                          : 'border-gray-300 bg-white'
+                                      ? 'bg-green-500 border-green-500'
+                                      : selectedAddons.includes(addon.id)
+                                        ? 'bg-rose-500 border-rose-500'
+                                        : 'border-gray-300 bg-white'
                                       }`}>
                                       {(selectedAddons.includes(addon.id) || isDeliveryService) && (
                                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1522,12 +1522,22 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                 <div className="border-t border-rose-100 pt-4 space-y-2">
                   <div className="flex justify-between text-gray-600">
                     <span>Subtotal</span>
-                    <span>₱{(total - (advocacyDonation * 80) - addonsTotal).toFixed(2)}</span>
+                    <span>₱{cart.reduce((acc, item) => acc + item.price * item.quantity, 0).toFixed(2)}</span>
                   </div>
-                  {selectedAddons.length > 0 && (
+                  {hasDeliveryService && (
                     <div className="flex justify-between text-gray-600">
-                      <span>Add-ons ({selectedAddons.length})</span>
-                      <span>₱{addonsTotal.toFixed(2)}</span>
+                      <span>Delivery Service</span>
+                      <span>₱20.00</span>
+                    </div>
+                  )}
+                  {selectedAddons.filter(id => id !== 'service-delivery').length > 0 && (
+                    <div className="flex justify-between text-gray-600">
+                      <span>
+                        Letters ({selectedAddons.filter(id => id !== 'service-delivery').length})
+                      </span>
+                      <span className={hasDeliveryService ? 'text-green-600' : ''}>
+                        {hasDeliveryService ? 'FREE' : `₱${(selectedAddons.filter(id => id !== 'service-delivery').length * 10).toFixed(2)}`}
+                      </span>
                     </div>
                   )}
                   {advocacyDonation > 0 && (
@@ -1536,12 +1546,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                       <span>₱{(advocacyDonation * 80).toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-gray-600">
-                    <span>Delivery</span>
-                    <span className={deliveryFee > 0 ? "text-gray-800" : "text-green-600"}>
-                      {deliveryFee > 0 ? `₱${deliveryFee.toFixed(2)}` : 'Free'}
-                    </span>
-                  </div>
                   <div className="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-rose-100">
                     <span>Total</span>
                     <span className="bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
