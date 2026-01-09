@@ -904,24 +904,40 @@ const OrderHistory: React.FC = () => {
                       Items Ordered
                     </h3>
                     <div className="space-y-2">
-                      {parseCartItems(selectedOrder.cartItems).map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-white rounded-xl p-3 border border-amber-100">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center">
-                              <span>🌹</span>
+                      {parseCartItems(selectedOrder.cartItems).map((item, idx) => {
+                        // Split bundle items: "Product Name (details)" -> show separately
+                        const parenMatch = item.name.match(/^([^(]+)\s*\((.+)\)$/);
+                        const mainName = parenMatch ? parenMatch[1].trim() : item.name;
+                        const bundleContents = parenMatch ? parenMatch[2] : null;
+
+                        return (
+                          <div key={idx} className="bg-white rounded-xl p-3 border border-amber-100">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-gradient-to-br from-rose-100 to-pink-100 rounded-lg flex items-center justify-center">
+                                  <span>🌹</span>
+                                </div>
+                                <span className="font-medium text-gray-800">{mainName}</span>
+                              </div>
+                              <span className="text-gray-600">x{item.quantity}</span>
                             </div>
-                            <span className="font-medium text-gray-800">{item.name}</span>
+                            {bundleContents && (
+                              <div className="mt-2 ml-13 pl-3 border-l-2 border-rose-200">
+                                <p className="text-xs text-gray-500 mb-1">Bundle includes:</p>
+                                <ul className="text-sm text-gray-600 space-y-0.5">
+                                  {bundleContents.split(',').map((part, i) => (
+                                    <li key={i} className="flex items-start gap-1">
+                                      <span className="text-rose-400 mt-0.5">•</span>
+                                      <span>{part.trim()}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
                           </div>
-                          <span className="text-gray-600">x{item.quantity}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
-                    {selectedOrder.bundleDetails && (
-                      <div className="mt-3 p-3 bg-white rounded-xl border border-amber-100">
-                        <p className="text-sm text-gray-500">Bundle Details</p>
-                        <p className="text-gray-800">{selectedOrder.bundleDetails}</p>
-                      </div>
-                    )}
                   </div>
 
                   {/* Messages */}
