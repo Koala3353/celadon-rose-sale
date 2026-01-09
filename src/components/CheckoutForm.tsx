@@ -146,6 +146,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     }
   }, [user]);
 
+  // Auto-add/remove delivery service fee based on delivery type
+  useEffect(() => {
+    if (deliveryType === 'deliver') {
+      // Auto-add delivery service if not already selected
+      setSelectedAddons(prev =>
+        prev.includes('service-delivery') ? prev : [...prev, 'service-delivery']
+      );
+    } else {
+      // Remove delivery service for pickup orders
+      setSelectedAddons(prev => prev.filter(id => id !== 'service-delivery'));
+    }
+  }, [deliveryType]);
+
   // Load saved details from localStorage on mount
   useEffect(() => {
     try {
@@ -1251,35 +1264,46 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             }).map((addon) => {
                               // Check if this letter is free (delivery service selected)
                               const isLetterFree = addon.category === 'letter' && hasDeliveryService;
+                              // Delivery service is auto-included and cannot be deselected
+                              const isDeliveryService = addon.id === 'service-delivery';
+
                               return (
                                 <div
                                   key={addon.id}
                                   onClick={() => {
+                                    // Prevent toggling delivery service - it's auto-managed
+                                    if (isDeliveryService) return;
                                     setSelectedAddons(prev =>
                                       prev.includes(addon.id)
                                         ? prev.filter(id => id !== addon.id)
                                         : [...prev, addon.id]
                                     );
                                   }}
-                                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${selectedAddons.includes(addon.id)
-                                    ? 'border-rose-500 bg-rose-50'
-                                    : 'border-rose-100 bg-white hover:border-rose-300'
+                                  className={`p-4 rounded-xl border-2 transition-all duration-300 ${isDeliveryService
+                                      ? 'border-green-500 bg-green-50 cursor-default'
+                                      : selectedAddons.includes(addon.id)
+                                        ? 'border-rose-500 bg-rose-50 cursor-pointer'
+                                        : 'border-rose-100 bg-white hover:border-rose-300 cursor-pointer'
                                     }`}
                                 >
                                   <div className="flex items-center justify-between mb-2">
                                     <span className="font-medium text-gray-800 text-sm">{addon.name}</span>
-                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${selectedAddons.includes(addon.id)
-                                      ? 'bg-rose-500 border-rose-500'
-                                      : 'border-gray-300 bg-white'
+                                    <div className={`w-5 h-5 rounded border flex items-center justify-center ${isDeliveryService
+                                        ? 'bg-green-500 border-green-500'
+                                        : selectedAddons.includes(addon.id)
+                                          ? 'bg-rose-500 border-rose-500'
+                                          : 'border-gray-300 bg-white'
                                       }`}>
-                                      {selectedAddons.includes(addon.id) && (
+                                      {(selectedAddons.includes(addon.id) || isDeliveryService) && (
                                         <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                         </svg>
                                       )}
                                     </div>
                                   </div>
-                                  {isLetterFree ? (
+                                  {isDeliveryService ? (
+                                    <p className="text-green-600 font-semibold">₱{addon.price} <span className="text-xs font-normal">(auto-included)</span></p>
+                                  ) : isLetterFree ? (
                                     <p className="text-green-600 font-semibold">FREE <span className="text-gray-400 text-xs line-through">₱{addon.price}</span></p>
                                   ) : (
                                     <p className="text-rose-600 font-semibold">₱{addon.price}</p>
