@@ -20,7 +20,13 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const savedCart = localStorage.getItem('rose_cart');
     if (savedCart) {
-      setCart(JSON.parse(savedCart));
+      const parsed = JSON.parse(savedCart);
+      // Migrate legacy items: ensure they have cartItemId
+      const migrated = parsed.map((item: any) => ({
+        ...item,
+        cartItemId: item.cartItemId || `${item.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+      }));
+      setCart(migrated);
     }
   }, []);
 
@@ -28,20 +34,32 @@ export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.setItem('rose_cart', JSON.stringify(cart));
   }, [cart]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product & { selectedOptions?: any }) => {
     setCart(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      // Find item with same ID AND same options
+      const existingRequestOptions = JSON.stringify(product.selectedOptions || {});
+
+      const existing = prev.find(item => {
+        const itemOptions = JSON.stringify(item.selectedOptions || {});
+        return item.id === product.id && itemOptions === existingRequestOptions;
+      });
+
       if (existing) {
-        return prev.map(item => 
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        return prev.map(item =>
+          (item.cartItemId === existing.cartItemId)
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+
+      // New item: generate unique cartItemId
+      const uniqueId = `${product.id}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      return [...prev, { ...product, quantity: 1, cartItemId: uniqueId }];
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(prev => prev.filter(item => item.id !== productId));
+  const removeFromCart = (cartItemId: string) => {
+    setCart(prev => prev.filter(item => item.cartItemId !== cartItemId));
   };
 
   const clearCart = () => {

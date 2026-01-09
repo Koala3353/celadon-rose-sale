@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { fetchProducts, ProductsResult, trackPageView } from '../services/sheetService';
+import { fetchProducts, fetchAllProducts, ProductsResult, trackPageView } from '../services/sheetService';
 import { useCart } from '../context/CartContext';
 import RoseLoader from '../components/RoseLoader';
 import NotFound from './NotFound';
@@ -35,7 +35,14 @@ const ProductDetailPage = () => {
         queryFn: fetchProducts,
     });
 
+    // Fetch ALL products (including unavailable) for bundle option lookups
+    const { data: allProductsResult } = useQuery<ProductsResult, Error>({
+        queryKey: ['products-all'],
+        queryFn: fetchAllProducts,
+    });
+
     const products = productsResult?.products || [];
+    const allProducts = allProductsResult?.products || products; // Fallback to available products if not loaded
     const product = products.find((p) => p.id === id);
 
     // Reset bundle state when product changes
@@ -212,7 +219,7 @@ const ProductDetailPage = () => {
                                         </h3>
                                         <BundleConfigurator
                                             product={product}
-                                            allProducts={products}
+                                            allProducts={allProducts}
                                             onConfigChange={(valid, _, details) => {
                                                 setIsBundleReady(valid);
                                                 setBundleDetails(details);

@@ -30,7 +30,7 @@ export const StickmanSitting: React.FC<StickmanProps> = ({ className = "w-24 h-2
                 <path d="M5 12 L8 12 L8 18" /> {/* Sitting Leg 1 */}
                 <motion.path
                     d="M5 12 L2 12 L2 18"
-                    animate={{ rotate: [0, 15, 0] }}
+                    animate={{ rotate: [0, -15, 0] }} // Reversed from 15
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                     style={{ originX: "5px", originY: "12px" }}
                 /> {/* Swinging Leg 2 - adjusted origin */}
@@ -57,7 +57,7 @@ export const StickmanSitting: React.FC<StickmanProps> = ({ className = "w-24 h-2
                 {/* Legs - static base relative to lean */}
                 <motion.path
                     d="M5 12 L8 12 L8 18"
-                    animate={{ rotate: [0, -15, 0] }}
+                    animate={{ rotate: [0, 15, 0] }} // Reversed from -15
                     transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                     style={{ originX: "5px", originY: "12px" }}
                 />

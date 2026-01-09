@@ -108,6 +108,35 @@ export const fetchProducts = async (): Promise<ProductsResult> => {
 };
 
 /**
+ * Fetches ALL products including unavailable ones from the API
+ * Used for bundle configuration to display correct product names
+ */
+export const fetchAllProducts = async (): Promise<ProductsResult> => {
+  try {
+    // Fetch from API server with includeAll flag
+    const response = await fetch(`${API_BASE_URL}/products?includeAll=true`);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result: ApiResponse<Product[]> = await response.json();
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Failed to fetch all products');
+    }
+
+    console.log(`Fetched ${result.data.length} products (including unavailable) from API`);
+    return { products: result.data, isFallback: false, isExpiredCache: false };
+
+  } catch (error) {
+    console.error('Failed to fetch all products from API:', error);
+    // Fallback to regular products fetch
+    return fetchProducts();
+  }
+};
+
+/**
  * Fetches filter options from the API
  */
 export const fetchFilters = async (): Promise<CachedFilters | null> => {

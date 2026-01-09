@@ -73,13 +73,28 @@ export const getRelatedBundles = (product: Product, allProducts: Product[]): Pro
 
 /**
  * Finds a product that matches the selected option string (if it's not a literal)
- */
-/**
- * Finds a product that matches the selected option string (if it's not a literal)
  * Matches by ID or Name (case-insensitive)
+ * NOTE: This function searches ALL products regardless of availability status.
+ * This allows bundle options to display correct product names even for unavailable items.
  */
 export const findProductForOption = (option: string, allProducts: Product[]): Product | undefined => {
     if (isLiteralOption(option)) return undefined; // Literals are never products
+
+    const search = option.toLowerCase().trim();
+
+    // Search all products regardless of availability
+    return allProducts.find(p =>
+        p.id.toLowerCase() === search ||
+        p.name.toLowerCase() === search
+    );
+};
+
+/**
+ * Finds a product by ID or Name specifically, without filtering by availability.
+ * Used for bundle option label display.
+ */
+export const findProductByIdOrName = (option: string, allProducts: Product[]): Product | undefined => {
+    if (isLiteralOption(option)) return undefined;
 
     const search = option.toLowerCase().trim();
 

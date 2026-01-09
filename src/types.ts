@@ -23,6 +23,7 @@ export interface ProductFilters {
 export interface CartItem extends Product {
   quantity: number;
   selectedOptions?: { [slotIndex: number]: string };
+  cartItemId?: string; // Unique ID for cart management (handles duplicate products with diff options)
 }
 
 export interface BundleSelection {

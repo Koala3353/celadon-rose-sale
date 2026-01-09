@@ -12,6 +12,47 @@ const OrderHistory: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<SheetOrder | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [guestOrders, setGuestOrders] = useState<SheetOrder[]>([]);
+  const [isGuestLoading, setIsGuestLoading] = useState(false);
+
+  // Load guest orders from local storage
+  React.useEffect(() => {
+    if (!user) {
+      const loadGuestOrders = async () => {
+        setIsGuestLoading(true);
+        try {
+          const savedIdsStr = localStorage.getItem('guest_tracked_ids');
+          if (savedIdsStr) {
+            const ids = JSON.parse(savedIdsStr) as string[];
+            const uniqueIds = [...new Set(ids)]; // Deduplicate
+
+            const validOrders: SheetOrder[] = [];
+
+            // Limit to last 5 requests to avoid API spam
+            const recentIds = uniqueIds.slice(0, 5);
+
+            await Promise.all(recentIds.map(async (id) => {
+              try {
+                const order = await searchOrder(id);
+                if (order) validOrders.push(order);
+              } catch (e) {
+                console.warn(`Failed to reload guest order ${id}`, e);
+              }
+            }));
+
+            setGuestOrders(validOrders);
+          }
+        } catch (error) {
+          console.error('Error loading guest orders:', error);
+        } finally {
+          setIsGuestLoading(false);
+        }
+      };
+      loadGuestOrders();
+    } else {
+      setGuestOrders([]);
+    }
+  }, [user]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -78,6 +119,25 @@ const OrderHistory: React.FC = () => {
       const order = await searchOrder(orderId.trim());
       if (order) {
         setSelectedOrder(order);
+
+        // Save to local storage if not present
+        if (!user) {
+          const savedIdsStr = localStorage.getItem('guest_tracked_ids');
+          const ids = savedIdsStr ? JSON.parse(savedIdsStr) as string[] : [];
+
+          if (!ids.includes(order.orderId)) {
+            // Add to start of list
+            const newIds = [order.orderId, ...ids];
+            localStorage.setItem('guest_tracked_ids', JSON.stringify(newIds));
+
+            // Update local state
+            setGuestOrders(prev => {
+              // Avoid duplicates in state
+              if (prev.some(o => o.orderId === order.orderId)) return prev;
+              return [order, ...prev];
+            });
+          }
+        }
       } else {
         showToast('Order not found. Please check the Order ID and try again.', 'error');
       }
@@ -96,8 +156,10 @@ const OrderHistory: React.FC = () => {
     }
   };
 
-  const orders = user ? userOrders : [];
-  const isLoading = user ? isUserOrdersLoading : false;
+
+
+  const orders = user ? userOrders : guestOrders;
+  const isLoading = user ? isUserOrdersLoading : isGuestLoading;
 
 
   const getStatusConfig = (status: string) => {
@@ -158,10 +220,30 @@ const OrderHistory: React.FC = () => {
   // Parse cart items string into array for display
   const parseCartItems = (cartItemsStr: string): { name: string; quantity: number }[] => {
     if (!cartItemsStr) return [];
-    // Format: "Emerald Teardrop Necklace x1, Silver Heart Shaped Locket x1, Grand Fifty Stem Mixed Bouquet x1"
-    return cartItemsStr.split(',').map(item => {
+
+    // Split by comma BUT ignore commas inside parentheses (for bundles)
+    const items: string[] = [];
+    let currentItem = '';
+    let parenDepth = 0;
+
+    for (let i = 0; i < cartItemsStr.length; i++) {
+      const char = cartItemsStr[i];
+      if (char === '(') parenDepth++;
+      if (char === ')') parenDepth--;
+
+      if (char === ',' && parenDepth === 0) {
+        items.push(currentItem.trim());
+        currentItem = '';
+      } else {
+        currentItem += char;
+      }
+    }
+    if (currentItem.trim()) items.push(currentItem.trim());
+
+    return items.map(item => {
       const trimmed = item.trim();
-      const match = trimmed.match(/^(.+)\s+x(\d+)$/);
+      // Robust regex to find the LAST " x[number]" pattern
+      const match = trimmed.match(/^(.*)\s+x(\d+)$/);
       if (match) {
         return { name: match[1].trim(), quantity: parseInt(match[2]) };
       }

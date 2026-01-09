@@ -441,7 +441,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       time2: deliveryType === 'deliver' ? time2 : '',
       advocacyDonation,
       msgRecipient: selectedAddons.length > 0 ? messageForRecipient : '',
-      msgBeneficiary: advocacyDonation > 0 ? messageForBeneficiary : '',
+      msgBeneficiary: '', // Field removed from UI per user request
       notes: specialRequests,
       items: cart,
       cartItems: [
@@ -1085,7 +1085,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                               />
                             </div>
                             <div>
-                              <label className={labelClass}>Delivery Time</label>
+                              <label className={labelClass}>Delivery Time (AM/PM)</label>
                               <input
                                 type="time"
                                 value={time1}
@@ -1093,6 +1093,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                 required
                                 className={inputClass}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Select time using your device's time picker</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
@@ -1144,7 +1145,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                               />
                             </div>
                             <div>
-                              <label className={labelClass}>Delivery Time</label>
+                              <label className={labelClass}>Delivery Time (AM/PM)</label>
                               <input
                                 type="time"
                                 value={time2}
@@ -1152,6 +1153,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                 required
                                 className={inputClass}
                               />
+                              <p className="text-xs text-gray-500 mt-1">Select time using your device's time picker</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
@@ -1270,18 +1272,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <p className="text-sm text-gray-500">Select an add-on card to include a personal message!</p>
                         </div>
 
-                        {advocacyDonation > 0 && (
-                          <div>
-                            <label className={labelClass}>Letter/Message for Recipient from Beneficiary</label>
-                            <textarea
-                              placeholder="Write a message that will come from the beneficiary..."
-                              value={messageForBeneficiary}
-                              onChange={(e) => setMessageForBeneficiary(e.target.value)}
-                              rows={3}
-                              className={`${inputClass} resize-none`}
-                            />
-                          </div>
-                        )}
+
 
                         {selectedAddons.length > 0 && (
                           <motion.div

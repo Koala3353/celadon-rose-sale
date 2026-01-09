@@ -16,7 +16,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
   const { cart, removeFromCart, clearCart } = useCart();
   const { user, setShowLoginModal } = useAuth();
 
-  const total = cart.reduce((acc, item) => acc + item.price, 0);
+  const total = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
 
   const handleCheckout = () => {
     if (!user) {
@@ -100,7 +100,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                   <AnimatePresence>
                     {cart.map((item, index) => (
                       <motion.li
-                        key={item.id}
+                        key={item.cartItemId}
                         className="bg-white rounded-2xl p-4 shadow-sm border border-rose-100 hover:shadow-md transition-shadow"
                         initial={{ opacity: 0, x: 50 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -131,7 +131,10 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
                             <Link to={`/product/${item.id}`} onClick={onClose}>
                               <h3 className="font-semibold text-gray-800 truncate hover:text-rose-600 transition-colors">{item.name}</h3>
                             </Link>
-                            <p className="text-rose-600 font-bold text-lg">₱{item.price.toFixed(2)}</p>
+                            <p className="text-rose-600 font-bold text-lg">
+                              ₱{item.price.toFixed(2)}
+                              {item.quantity > 1 && <span className="text-sm font-medium text-gray-500 ml-2">x{item.quantity}</span>}
+                            </p>
                             {item.category && (
                               <span className="inline-block px-2 py-0.5 bg-rose-100 text-rose-600 text-xs rounded-full mt-1">
                                 {item.category}
@@ -153,7 +156,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose, onCheckout }) 
 
                           {/* Remove Button */}
                           <motion.button
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.cartItemId!)}
                             className="w-8 h-8 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors flex-shrink-0"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}

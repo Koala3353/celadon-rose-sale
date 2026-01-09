@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Product } from '../types';
 import { useCart } from '../context/CartContext';
 import { useQuery } from '@tanstack/react-query';
-import { fetchProducts, ProductsResult } from '../services/sheetService';
+import { fetchAllProducts, ProductsResult } from '../services/sheetService';
 import BundleConfigurator from './BundleConfigurator';
 
 interface BundleSelectionModalProps {
@@ -17,10 +17,11 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
     const [isBundleReady, setIsBundleReady] = useState(false);
     const [bundleDetails, setBundleDetails] = useState('');
 
-    // We need all products to perform nested lookups
+    // Fetch ALL products (including unavailable) for bundle option lookups
+    // This ensures we can display correct product names even for unavailable items
     const { data: productsResult } = useQuery<ProductsResult, Error>({
-        queryKey: ['products'],
-        queryFn: fetchProducts,
+        queryKey: ['products-all'],
+        queryFn: fetchAllProducts,
         enabled: isOpen, // Only fetch if modal is open (usually already cached)
     });
 
