@@ -432,3 +432,41 @@ export const fetchAnalytics = async (): Promise<any> => {
     return null;
   }
 };
+
+/**
+ * Best seller product with sold count
+ */
+export interface BestSellerProduct extends Product {
+  soldCount: number;
+  originalStock: number;
+  availableStock: number;
+}
+
+/**
+ * Fetch best sellers (products with most sales)
+ */
+export const fetchBestSellers = async (limit: number = 6): Promise<BestSellerProduct[]> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/bestsellers?limit=${limit}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result: ApiResponse<BestSellerProduct[]> = await response.json();
+
+    if (result.success && result.data) {
+      return result.data;
+    }
+
+    return [];
+  } catch (error) {
+    console.error('Failed to fetch best sellers:', error);
+    return [];
+  }
+};
