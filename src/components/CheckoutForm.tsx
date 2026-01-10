@@ -1273,11 +1273,27 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                   onClick={() => {
                                     // Prevent toggling delivery service - it's auto-managed
                                     if (isDeliveryService) return;
-                                    setSelectedAddons(prev =>
-                                      prev.includes(addon.id)
-                                        ? prev.filter(id => id !== addon.id)
-                                        : [...prev, addon.id]
-                                    );
+
+                                    // For letters: only allow one selection at a time
+                                    if (addon.category === 'letter') {
+                                      setSelectedAddons(prev => {
+                                        // If already selected, deselect it
+                                        if (prev.includes(addon.id)) {
+                                          return prev.filter(id => id !== addon.id);
+                                        }
+                                        // Otherwise, remove any other letters and add this one
+                                        const otherLetterIds = ADD_ONS.filter(a => a.category === 'letter').map(a => a.id);
+                                        const withoutLetters = prev.filter(id => !otherLetterIds.includes(id));
+                                        return [...withoutLetters, addon.id];
+                                      });
+                                    } else {
+                                      // Normal toggle for non-letter add-ons
+                                      setSelectedAddons(prev =>
+                                        prev.includes(addon.id)
+                                          ? prev.filter(id => id !== addon.id)
+                                          : [...prev, addon.id]
+                                      );
+                                    }
                                   }}
                                   className={`p-4 rounded-xl border-2 transition-all duration-300 ${isDeliveryService
                                     ? 'border-green-500 bg-green-50 cursor-default'
@@ -1530,13 +1546,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                       <span>₱20.00</span>
                     </div>
                   )}
-                  {selectedAddons.filter(id => id !== 'service-delivery').length > 0 && (
+                  {selectedAddons.some(id => ADD_ONS.find(a => a.id === id)?.category === 'letter') && (
                     <div className="flex justify-between text-gray-600">
-                      <span>
-                        Letters ({selectedAddons.filter(id => id !== 'service-delivery').length})
-                      </span>
+                      <span>Letter</span>
                       <span className={hasDeliveryService ? 'text-green-600' : ''}>
-                        {hasDeliveryService ? 'FREE' : `₱${(selectedAddons.filter(id => id !== 'service-delivery').length * 10).toFixed(2)}`}
+                        {hasDeliveryService ? 'FREE' : '₱10.00'}
                       </span>
                     </div>
                   )}
