@@ -196,6 +196,12 @@ const HomePage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Only show best sellers if they have 20+ items sold
+  const qualifiedBestSellers = useMemo(() => {
+    if (!bestSellers) return [];
+    return bestSellers.filter(p => p.soldCount >= 20);
+  }, [bestSellers]);
+
   const products = productsResult?.products;
 
   // Get featured products (low stock items - selling fast!)
@@ -498,8 +504,9 @@ const HomePage = () => {
       </section>
 
 
-      {/* Best Sellers or Popular Products */}
-      {((bestSellers && bestSellers.length > 0) || popularProducts.length > 0) && (
+
+      {/* Best Sellers or Hot Items */}
+      {(qualifiedBestSellers.length > 0 || popularProducts.length > 0) && (
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -510,7 +517,7 @@ const HomePage = () => {
               variants={sectionVariants}
               transition={{ duration: 0.5 }}
             >
-              {bestSellers && bestSellers.length > 0 ? (
+              {qualifiedBestSellers.length > 0 ? (
                 <>
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-600 rounded-full text-sm font-medium mb-4">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -527,19 +534,22 @@ const HomePage = () => {
                 </>
               ) : (
                 <>
+                  <span className="inline-flex items-center gap-2 px-4 py-2 bg-rose-100 text-rose-600 rounded-full text-sm font-medium mb-4">
+                    🔥 Hot Items
+                  </span>
                   <h2 className="text-3xl md:text-4xl font-playfair font-bold text-gray-800 mb-3">
-                    Popular Picks
+                    Suggested For You
                   </h2>
                   <p className="text-gray-500 max-w-md mx-auto">
-                    Our most loved rose arrangements, handpicked for you.
+                    Handpicked rose arrangements just for you
                   </p>
                 </>
               )}
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {bestSellers && bestSellers.length > 0 ? (
-                bestSellers.map((product, i) => (
+              {qualifiedBestSellers.length > 0 ? (
+                qualifiedBestSellers.map((product, i) => (
                   <motion.div
                     key={product.id}
                     className="product-card group relative"
