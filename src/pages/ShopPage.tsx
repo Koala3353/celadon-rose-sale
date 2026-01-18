@@ -34,7 +34,6 @@ const ShopPage = () => {
       setSelectedBundle(product);
     } else {
       addToCart(product);
-      setIsCartOpen(true);
     }
   };
 
@@ -98,7 +97,6 @@ const ShopPage = () => {
     let filtered = products.filter((p) => {
       const matchesSearch =
         p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         p.tags?.some((t) => t.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
@@ -434,7 +432,6 @@ const ShopPage = () => {
                   onAddToCart={(item) => {
                     addToCart(item);
                     setSelectedBundle(null);
-                    setIsCartOpen(true);
                   }}
                 />
               )}

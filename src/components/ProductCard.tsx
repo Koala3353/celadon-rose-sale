@@ -29,7 +29,6 @@ const ProductCard = ({ product, index = 0, onQuickAdd }: ProductCardProps) => {
     setIsAdded(true);
     setTimeout(() => {
       setIsAdded(false);
-      setIsCartOpen(true);
     }, 800);
   };
 

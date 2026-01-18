@@ -124,6 +124,16 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                           Your data is protected
                         </p>
                       </div>
+
+                      {/* Non-Ateneo notice */}
+                      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p className="text-sm text-blue-700 font-medium text-center">
+                          💡 Not an Ateneo student?
+                        </p>
+                        <p className="text-xs text-blue-600 text-center mt-1">
+                          You can still order! Just add items to your cart and select "Continue as Guest" at checkout.
+                        </p>
+                      </div>
                     </>
                   )}
                 </div>

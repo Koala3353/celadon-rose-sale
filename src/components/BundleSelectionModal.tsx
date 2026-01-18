@@ -42,7 +42,6 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
         });
 
         onClose();
-        setIsCartOpen(true);
     };
 
     if (!isOpen || !product) return null;

@@ -139,29 +139,29 @@ const AnimatedCounter = ({ value }: { value: string }) => {
 // Stats data
 const stats = [
   { value: '500+', label: 'Happy Customers' },
-  { value: '50+', label: 'Rose Varieties' },
-  { value: '24hr', label: 'Delivery Time' },
+  { value: '40+', label: 'Different Items Available' },
+  { value: '1hr', label: 'Delivery Time' },
   { value: '100%', label: 'Fresh Guarantee' },
 ];
 
 // Testimonials data
 const testimonials = [
   {
-    name: 'Maria Santos',
+    name: 'John Andre Lee',
     role: 'Verified Buyer',
     content: 'The roses were absolutely stunning! Fresh, vibrant, and beautifully arranged. My mom loved them!',
     rating: 5,
   },
   {
-    name: 'Juan dela Cruz',
+    name: 'Patricia Lee',
     role: 'Verified Buyer',
     content: 'Fast delivery and excellent quality. The personalized message card was a nice touch. Will order again!',
     rating: 5,
   },
   {
-    name: 'Ana Reyes',
+    name: 'Yuan Baltazar',
     role: 'Verified Buyer',
-    content: 'Best rose shop in town! The prices are reasonable and the flowers last for weeks. Highly recommend!',
+    content: 'Best flower event in Ateneo! The prices are reasonable and the flowers last for weeks. Highly recommend!',
     rating: 5,
   },
 ];

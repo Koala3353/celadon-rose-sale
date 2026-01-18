@@ -44,6 +44,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
   // Delivery Type
   const [deliveryType, setDeliveryType] = useState<DeliveryType>('deliver');
   const [pickupDate, setPickupDate] = useState('');
+  const [pickupTime, setPickupTime] = useState('');
 
   // Recipient Details
   const [recipientName, setRecipientName] = useState('');
@@ -158,6 +159,31 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       setSelectedAddons(prev => prev.filter(id => id !== 'service-delivery'));
     }
   }, [deliveryType]);
+
+  // Scroll to top on mount and when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+
+  // Redirect to shop if cart is empty (prevents checkout with no items)
+  useEffect(() => {
+    if (cart.length === 0 && !success) {
+      onBack();
+    }
+  }, [cart.length, success, onBack]);
+
+  // Reset second choice when first choice changes
+  useEffect(() => {
+    // If second choice date is now before first choice, reset it
+    if (deliveryDate2 && deliveryDate1 && deliveryDate2 < deliveryDate1) {
+      setDeliveryDate2('');
+      setTime2('');
+    }
+    // If same date and time2 is not after time1, reset time2
+    if (deliveryDate2 === deliveryDate1 && time2 && time1 && time2 <= time1) {
+      setTime2('');
+    }
+  }, [deliveryDate1, time1]);
 
   // Load saved details from localStorage on mount
   useEffect(() => {
@@ -322,6 +348,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           setError('Please select a pickup date');
           return false;
         }
+        if (!pickupTime) {
+          setError('Please select a pickup time');
+          return false;
+        }
       } else {
         // Validate recipient details
         if (!recipientName.trim()) {
@@ -455,10 +485,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
       recipientContact: deliveryType === 'deliver' ? recipientContact : '',
       recipientFbLink: deliveryType === 'deliver' ? recipientFbLink : '',
       anonymous: deliveryType === 'deliver' ? anonymous : false,
-      deliveryDate1: deliveryType === 'deliver' ? deliveryDate1 : '',
+      // For pickup: use deliveryDate1/time1 fields so they go to columns L/M
+      deliveryDate1: deliveryType === 'deliver' ? deliveryDate1 : pickupDate,
       venue1: deliveryType === 'deliver' ? venue1 : '',
       room1: deliveryType === 'deliver' ? room1 : '',
-      time1: deliveryType === 'deliver' ? time1 : '',
+      time1: deliveryType === 'deliver' ? time1 : pickupTime,
       deliveryDate2: deliveryType === 'deliver' ? deliveryDate2 : '',
       venue2: deliveryType === 'deliver' ? venue2 : '',
       room2: deliveryType === 'deliver' ? room2 : '',
@@ -623,6 +654,40 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     value
   }));
 
+  // Delivery time options (class-end intervals)
+  const timeOptions = [
+    { value: '10:50', label: '10:50 - 11:00 AM' },
+    { value: '12:20', label: '12:20 - 12:30 PM' },
+    { value: '13:50', label: '1:50 - 2:00 PM' },
+    { value: '15:20', label: '3:20 - 3:30 PM' },
+    { value: '16:50', label: '4:50 - 5:00 PM' },
+  ];
+
+  // Available dates for delivery/pickup (Feb 9-13, 2026)
+  const dateOptions = [
+    { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
+    { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
+    { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
+    { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
+    { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
+  ];
+
+  // Filter second choice options to be after first choice
+  const dateOptions2 = dateOptions.filter(date => {
+    if (!deliveryDate1) return true;
+    return date.value >= deliveryDate1;
+  });
+
+  const timeOptions2 = timeOptions.filter(time => {
+    if (!deliveryDate1 || !time1) return true;
+    // If same date, time must be after first choice
+    if (deliveryDate2 === deliveryDate1) {
+      return time.value > time1;
+    }
+    // If different (later) date, all times are valid
+    return true;
+  });
+
   if (success) {
     return (
       <motion.div
@@ -757,7 +822,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               {steps.map((step) => (
                 <motion.button
                   key={step.id}
-                  onClick={() => step.id <= currentStep && setCurrentStep(step.id)}
+                  onClick={() => {
+                    if (step.id <= currentStep) {
+                      setCurrentStep(step.id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                  }}
                   className={`relative z-10 flex flex-col items-center px-2 ${step.id <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'
                     }`}
                   whileHover={step.id <= currentStep ? { scale: 1.1 } : {}}
@@ -969,13 +1039,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
                         <div>
                           <label className={labelClass}>When will the order be picked up?</label>
-                          <input
-                            type="date"
+                          <select
                             value={pickupDate}
                             onChange={(e) => setPickupDate(e.target.value)}
                             required
                             className={inputClass}
-                            min={new Date().toISOString().split('T')[0]}
+                          >
+                            <option value="">Select date...</option>
+                            {dateOptions.map((date) => (
+                              <option key={date.value} value={date.value}>
+                                {date.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className={labelClass}>Pickup Time</label>
+                          <input
+                            type="time"
+                            value={pickupTime}
+                            onChange={(e) => setPickupTime(e.target.value)}
+                            required
+                            className={inputClass}
                           />
                         </div>
 
@@ -986,7 +1072,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                               </svg>
                               Note:
-                            </span> You will be notified about the pickup location and time via email.
+                            </span> You will be notified about the pickup location via email.
                           </p>
                         </div>
                       </motion.div>
@@ -1065,7 +1151,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           />
                           <label htmlFor="anonymous" className="text-gray-700 cursor-pointer">
                             <span className="font-medium">Anonymous Delivery?</span>
-                            <p className="text-sm text-gray-500">The recipient won't know who sent the roses</p>
+                            <p className="text-sm text-gray-500">The recipient won't know who sent the gift</p>
                           </label>
                         </div>
                       </motion.div>
@@ -1099,25 +1185,36 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className={labelClass}>Delivery Date</label>
-                              <input
-                                type="date"
+                              <select
                                 value={deliveryDate1}
                                 onChange={(e) => setDeliveryDate1(e.target.value)}
                                 required
                                 className={inputClass}
-                                min={new Date().toISOString().split('T')[0]}
-                              />
+                              >
+                                <option value="">Select date...</option>
+                                {dateOptions.map((date) => (
+                                  <option key={date.value} value={date.value}>
+                                    {date.label}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                             <div>
-                              <label className={labelClass}>Delivery Time (AM/PM)</label>
-                              <input
-                                type="time"
+                              <label className={labelClass}>Delivery Time</label>
+                              <select
                                 value={time1}
                                 onChange={(e) => setTime1(e.target.value)}
                                 required
                                 className={inputClass}
-                              />
-                              <p className="text-xs text-gray-500 mt-1">Select time using your device's time picker</p>
+                              >
+                                <option value="">Select time...</option>
+                                {timeOptions.map((time) => (
+                                  <option key={time.value} value={time.value}>
+                                    {time.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="text-xs text-gray-500 mt-1">Select the time after the recipient's class ends so we can arrive early and wait</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
@@ -1159,25 +1256,36 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className={labelClass}>Delivery Date</label>
-                              <input
-                                type="date"
+                              <select
                                 value={deliveryDate2}
                                 onChange={(e) => setDeliveryDate2(e.target.value)}
                                 required
                                 className={inputClass}
-                                min={deliveryDate1 || new Date().toISOString().split('T')[0]}
-                              />
+                              >
+                                <option value="">Select date...</option>
+                                {dateOptions2.map((date) => (
+                                  <option key={date.value} value={date.value}>
+                                    {date.label}
+                                  </option>
+                                ))}
+                              </select>
                             </div>
                             <div>
-                              <label className={labelClass}>Delivery Time (AM/PM)</label>
-                              <input
-                                type="time"
+                              <label className={labelClass}>Delivery Time</label>
+                              <select
                                 value={time2}
                                 onChange={(e) => setTime2(e.target.value)}
                                 required
                                 className={inputClass}
-                              />
-                              <p className="text-xs text-gray-500 mt-1">Select time using your device's time picker</p>
+                              >
+                                <option value="">Select time...</option>
+                                {timeOptions2.map((time) => (
+                                  <option key={time.value} value={time.value}>
+                                    {time.label}
+                                  </option>
+                                ))}
+                              </select>
+                              <p className="text-xs text-gray-500 mt-1">Select the time after the recipient's class ends so we can arrive early and wait</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
@@ -1437,7 +1545,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                   <div className="flex justify-between items-center mt-8 pt-6 border-t border-rose-100">
                     <button
                       type="button"
-                      onClick={() => currentStep === 1 ? onBack() : setCurrentStep(currentStep - 1)}
+                      onClick={() => {
+                        if (currentStep === 1) {
+                          onBack();
+                        } else {
+                          setCurrentStep(currentStep - 1);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
                       className="flex items-center gap-2 text-gray-600 hover:text-rose-600 font-medium transition-colors"
                     >
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1452,6 +1567,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                         onClick={() => {
                           if (validateCurrentStep()) {
                             setCurrentStep(currentStep + 1);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
                           }
                         }}
                         className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-semibold shadow-lg shadow-rose-200 hover:shadow-xl hover:shadow-rose-300 transition-all duration-300"

@@ -103,7 +103,6 @@ const ProductDetailPage = () => {
         setIsAdded(true);
         setTimeout(() => {
             setIsAdded(false);
-            setIsCartOpen(true);
         }, 800);
     };
 
@@ -113,7 +112,6 @@ const ProductDetailPage = () => {
         setIsAdded(true);
         setTimeout(() => {
             setIsAdded(false);
-            setIsCartOpen(true);
         }, 800);
     }
 
