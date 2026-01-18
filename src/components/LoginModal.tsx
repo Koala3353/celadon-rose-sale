@@ -71,12 +71,12 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                 {/* Decorative header */}
                 <div className="bg-gradient-to-br from-rose-400 to-pink-500 px-8 py-10 text-center text-white">
                   <motion.div
-                    className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-full mx-auto flex items-center justify-center mb-4"
+                    className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-full mx-auto flex items-center justify-center mb-4 p-3"
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', delay: 0.1 }}
                   >
-                    <span className="text-4xl">🌹</span>
+                    <img src="/assets/logo.png" alt="Rose Sale Logo" className="w-full h-full object-contain" />
                   </motion.div>
                   <h2 className="text-2xl font-bold mb-2">Welcome to Rose Sale 2026</h2>
                   <p className="text-white/80 text-sm">Sign in to place orders and track deliveries</p>
