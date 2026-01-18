@@ -1,7 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import ProductCard from '../components/ProductCard';
 import { Product } from '../types';
-import CartDrawer from '../components/CartDrawer';
 import { useCart } from '../context/CartContext';
 import { fetchProducts, trackPageView, ProductsResult } from '../services/sheetService';
 import { useQuery } from '@tanstack/react-query';
@@ -200,7 +199,6 @@ const ShopPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-rose-50 pt-20 md:pt-24">
-      <CartDrawer />
 
       {/* Random Product Suggestion Toast */}
       {suggestedProduct && (
