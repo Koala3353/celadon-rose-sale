@@ -1354,7 +1354,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             <input
                               type="number"
                               min="0"
-                              value={advocacyDonation}
+                              value={advocacyDonation === 0 ? '' : advocacyDonation}
+                              placeholder="0"
                               onChange={(e) => setAdvocacyDonation(Math.max(0, parseInt(e.target.value) || 0))}
                               className={`${inputClass} w-32`}
                             />
