@@ -663,13 +663,23 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     { value: '16:50', label: '4:50 - 5:00 PM' },
   ];
 
-  // Available dates for delivery/pickup (Feb 9-13, 2026)
+  // Available dates for delivery (Feb 9-13, 2026)
   const dateOptions = [
     { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
     { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
     { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
     { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
     { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
+  ];
+
+  // Available dates for pickup (Feb 9-14, 2026) - includes Valentine's Day
+  const pickupDateOptions = [
+    { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
+    { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
+    { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
+    { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
+    { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
+    { value: '2026-02-14', label: 'February 14, 2026 (Saturday)' },
   ];
 
   // Filter second choice options to be after first choice
@@ -1046,13 +1056,43 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             className={inputClass}
                           >
                             <option value="">Select date...</option>
-                            {dateOptions.map((date) => (
+                            {pickupDateOptions.map((date) => (
                               <option key={date.value} value={date.value}>
                                 {date.label}
                               </option>
                             ))}
                           </select>
                         </div>
+
+                        {/* Warning for Feb 14 */}
+                        {pickupDate === '2026-02-14' && (
+                          <div className="p-4 bg-amber-50 rounded-xl border border-amber-200 flex items-start gap-3">
+                            <svg className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            <div>
+                              <h4 className="text-amber-800 font-bold text-sm mb-1">Valentine's Day Pickup Hours</h4>
+                              <p className="text-amber-700 text-sm">
+                                Pickups on February 14 are available only from <strong>11:00 AM to 4:00 PM</strong>. Please plan accordingly!
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Warning for regular pickup dates */}
+                        {pickupDate && pickupDate !== '2026-02-14' && (
+                          <div className="p-4 bg-blue-50 rounded-xl border border-blue-200 flex items-start gap-3">
+                            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div>
+                              <h4 className="text-blue-800 font-bold text-sm mb-1">Operating Hours Reminder</h4>
+                              <p className="text-blue-700 text-sm">
+                                Pickups are only available during operating hours. If your selected time is outside these hours, we'll include your preferred time as a reminder in the confirmation email.
+                              </p>
+                            </div>
+                          </div>
+                        )}
 
                         <div>
                           <label className={labelClass}>Pickup Time</label>

@@ -6,11 +6,12 @@ import { Link } from 'react-router-dom';
 interface UpsellModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onViewBundle: () => void;
     originalProduct: Product;
     bundle: Product;
 }
 
-const UpsellModal: React.FC<UpsellModalProps> = ({ isOpen, onClose, originalProduct, bundle }) => {
+const UpsellModal: React.FC<UpsellModalProps> = ({ isOpen, onClose, onViewBundle, originalProduct, bundle }) => {
     // Close on escape key
     useEffect(() => {
         const handleEsc = (e: KeyboardEvent) => {
@@ -63,14 +64,14 @@ const UpsellModal: React.FC<UpsellModalProps> = ({ isOpen, onClose, originalProd
                             <div className="flex flex-col gap-3">
                                 <Link
                                     to={`/product/${bundle.id}`}
-                                    onClick={onClose}
+                                    onClick={onViewBundle}
                                     className="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-bold shadow-lg shadow-rose-200 hover:shadow-xl hover:scale-[1.02] transition-all"
                                 >
                                     View Bundle
                                 </Link>
                                 <button
                                     onClick={onClose}
-                                    className="w-full py-3 text-gray-500 hover:text-gray-800 font-medium transition-colors"
+                                    className="w-full py-3 text-gray-500 hover:text-gray-800 font-medium transition-colors underline underline-offset-2 decoration-gray-300 hover:decoration-gray-500"
                                 >
                                     No thanks, I'll stick with {originalProduct.name}
                                 </button>

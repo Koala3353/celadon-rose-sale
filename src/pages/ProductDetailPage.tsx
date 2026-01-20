@@ -131,7 +131,11 @@ const ProductDetailPage = () => {
                     isOpen={showUpsell}
                     onClose={() => {
                         setShowUpsell(false);
-                        confirmAddToCart(); // Add original item if they close upsell
+                        confirmAddToCart(); // Add original item if they close upsell or click "No thanks"
+                    }}
+                    onViewBundle={() => {
+                        setShowUpsell(false);
+                        // Don't add anything to cart - just navigate to bundle page
                     }}
                     originalProduct={product}
                     bundle={upsellBundle || product} // Fallback to self (shouldn't happen)
