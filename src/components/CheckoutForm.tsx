@@ -683,7 +683,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
     { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
     { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
-    { value: '2026-02-14', label: 'February 14, 2026 (Saturday) 💝' },
+    { value: '2026-02-14', label: 'February 14, 2026 (Saturday)' },
   ];
   const pickupDateOptions = allPickupDates.filter(date => date.value >= today);
 
@@ -1110,14 +1110,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           />
                         </div>
 
-                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100 flex items-start gap-3">
+                          <svg className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium text-rose-600 inline-flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                              </svg>
-                              Note:
-                            </span> You will be notified about the pickup location via email.
+                            <span className="font-medium text-rose-600">Note:</span> You will be notified about the pickup location via email.
                           </p>
                         </div>
                       </motion.div>
@@ -1362,14 +1360,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           </div>
                         </div>
 
-                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100">
+                        <div className="p-4 bg-rose-50 rounded-xl border border-rose-100 flex items-start gap-3">
+                          <svg className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium text-rose-600 inline-flex items-center gap-1">
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                              </svg>
-                              Tip:
-                            </span> The first option must be earlier than the second option. Provide a backup in case the recipient is unavailable.
+                            <span className="font-medium text-rose-600">Tip:</span> The first option must be earlier than the second option. Provide a backup in case the recipient is unavailable.
                           </p>
                         </div>
                       </motion.div>
