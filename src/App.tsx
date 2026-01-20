@@ -22,10 +22,10 @@ function AppContent() {
   const { showLoginModal, setShowLoginModal } = useAuth();
   const location = useLocation();
 
-  // Reset checkout view when navigating to a different page
+  // Reset checkout view when navigating to a different page (pathname or hash changes)
   useEffect(() => {
     setShowCheckout(false);
-  }, [location.pathname]);
+  }, [location.pathname, location.key]);
 
   return (
     <div className="min-h-screen flex flex-col">
