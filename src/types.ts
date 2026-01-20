@@ -41,6 +41,7 @@ export enum DeliveryVenue {
   G = "G - Gonzaga Hall",
   K = "K - Kostka Hall",
   LH = "LH - Leong Hall",
+  MVP = "MVP - Manuel V. Pangilinan Center for Student Leadership",
   SEC_A = "SEC-A - Science Education Complex A",
   SEC_B = "SEC-B - Science Education Complex B",
   SEC_C = "SEC-C - Science Education Complex C",
