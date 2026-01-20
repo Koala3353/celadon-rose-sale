@@ -1218,6 +1218,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <h3 className="text-2xl font-bold text-gray-800">Delivery Details</h3>
                         </div>
 
+                        {/* Time selection note */}
+                        <div className="p-3 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-2">
+                          <svg className="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <p className="text-xs text-blue-700">Select the time after the recipient's class ends so we can arrive early and wait.</p>
+                        </div>
+
                         {/* First Choice */}
                         <div className="p-4 bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl border border-rose-100">
                           <h4 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
@@ -1257,7 +1265,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                   </option>
                                 ))}
                               </select>
-                              <p className="text-xs text-gray-500 mt-1">Select the time after the recipient's class ends so we can arrive early and wait</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
@@ -1328,7 +1335,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                                   </option>
                                 ))}
                               </select>
-                              <p className="text-xs text-gray-500 mt-1">Select the time after the recipient's class ends so we can arrive early and wait</p>
                             </div>
                             <div>
                               <label className={labelClass}>Venue</label>
