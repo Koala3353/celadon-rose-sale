@@ -663,24 +663,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     { value: '16:50', label: '4:50 - 5:00 PM' },
   ];
 
-  // Available dates for delivery (Feb 9-13, 2026)
-  const dateOptions = [
-    { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
-    { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
-    { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
-    { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
-    { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
-  ];
+  // Get today's date in YYYY-MM-DD format (based on user's device)
+  const today = new Date().toISOString().split('T')[0];
 
-  // Available dates for pickup (Feb 9-14, 2026) - includes Valentine's Day
-  const pickupDateOptions = [
+  // Available dates for delivery (Feb 9-13, 2026) - filtered to today or later
+  const allDeliveryDates = [
     { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
     { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
     { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
     { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
     { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
-    { value: '2026-02-14', label: 'February 14, 2026 (Saturday)' },
   ];
+  const dateOptions = allDeliveryDates.filter(date => date.value >= today);
+
+  // Available dates for pickup (Feb 9-14, 2026) - includes Valentine's Day, filtered to today or later
+  const allPickupDates = [
+    { value: '2026-02-09', label: 'February 9, 2026 (Monday)' },
+    { value: '2026-02-10', label: 'February 10, 2026 (Tuesday)' },
+    { value: '2026-02-11', label: 'February 11, 2026 (Wednesday)' },
+    { value: '2026-02-12', label: 'February 12, 2026 (Thursday)' },
+    { value: '2026-02-13', label: 'February 13, 2026 (Friday)' },
+    { value: '2026-02-14', label: 'February 14, 2026 (Saturday) 💝' },
+  ];
+  const pickupDateOptions = allPickupDates.filter(date => date.value >= today);
 
   // Filter second choice options to be after first choice
   const dateOptions2 = dateOptions.filter(date => {
