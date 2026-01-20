@@ -76,7 +76,7 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
                     animate={{ scale: 1 }}
                     transition={{ type: 'spring', delay: 0.1 }}
                   >
-                    <img src="/assets/logo.png" alt="Rose Sale Logo" className="w-full h-full object-contain" />
+                    <img src={`${import.meta.env.BASE_URL}assets/logo.png`} alt="Rose Sale Logo" className="w-full h-full object-contain" />
                   </motion.div>
                   <h2 className="text-2xl font-bold mb-2">Welcome to Rose Sale 2026</h2>
                   <p className="text-white/80 text-sm">Sign in to place orders and track deliveries</p>
