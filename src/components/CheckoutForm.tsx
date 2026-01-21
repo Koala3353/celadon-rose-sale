@@ -759,13 +759,42 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
           )}
 
           <motion.p
-            className="text-gray-600 text-lg mb-8"
+            className="text-gray-600 text-lg mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
             Thank you for your purchase! Your roses will be delivered with love.
           </motion.p>
+
+          <motion.div
+            className="mb-8 p-4 bg-amber-50 rounded-xl border border-amber-200 text-left"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.35 }}
+          >
+            <p className="text-amber-800 text-sm">
+              <span className="font-semibold">📧 Note:</span> You'll receive a confirmation email within an hour.
+              If you don't receive it, please message us on{' '}
+              <a
+                href="https://www.facebook.com/therosesale"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-rose-600 hover:text-rose-700 underline font-medium"
+              >
+                Facebook
+              </a>
+              {' '}or{' '}
+              <a
+                href="https://www.instagram.com/therosesale"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-rose-600 hover:text-rose-700 underline font-medium"
+              >
+                Instagram
+              </a>.
+            </p>
+          </motion.div>
 
           <div className="relative inline-block">
             <motion.button
