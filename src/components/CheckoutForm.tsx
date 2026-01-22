@@ -777,7 +777,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               <span className="font-semibold">📧 Note:</span> You'll receive a confirmation email within an hour.
               If you don't receive it, please message us on{' '}
               <a
-                href="https://www.facebook.com/therosesale"
+                href="https://www.facebook.com/CeladonRoseSale/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-rose-600 hover:text-rose-700 underline font-medium"
@@ -786,7 +786,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
               </a>
               {' '}or{' '}
               <a
-                href="https://www.instagram.com/therosesale"
+                href="https://instagram.com/cldn.rosesale"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-rose-600 hover:text-rose-700 underline font-medium"
