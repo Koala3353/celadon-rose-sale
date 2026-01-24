@@ -302,7 +302,7 @@ const HomePage = () => {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-rose-100/80 backdrop-blur-sm text-rose-600 rounded-full text-sm font-medium">
               <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-              Now Accepting Orders for 2026
+              Visit Us at SEC-C Foyer on Feb 9-14!
             </span>
           </motion.div>
 
