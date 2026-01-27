@@ -663,6 +663,29 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     { value: '16:50', label: '4:50 - 5:00 PM' },
   ];
 
+  // Pickup time options (30-minute intervals with AM/PM)
+  const pickupTimeOptions = [
+    { value: '08:00', label: '8:00 AM' },
+    { value: '08:30', label: '8:30 AM' },
+    { value: '09:00', label: '9:00 AM' },
+    { value: '09:30', label: '9:30 AM' },
+    { value: '10:00', label: '10:00 AM' },
+    { value: '10:30', label: '10:30 AM' },
+    { value: '11:00', label: '11:00 AM' },
+    { value: '11:30', label: '11:30 AM' },
+    { value: '12:00', label: '12:00 PM' },
+    { value: '12:30', label: '12:30 PM' },
+    { value: '13:00', label: '1:00 PM' },
+    { value: '13:30', label: '1:30 PM' },
+    { value: '14:00', label: '2:00 PM' },
+    { value: '14:30', label: '2:30 PM' },
+    { value: '15:00', label: '3:00 PM' },
+    { value: '15:30', label: '3:30 PM' },
+    { value: '16:00', label: '4:00 PM' },
+    { value: '16:30', label: '4:30 PM' },
+    { value: '17:00', label: '5:00 PM' },
+  ];
+
   // Get today's date in YYYY-MM-DD format (based on user's device)
   const today = new Date().toISOString().split('T')[0];
 
@@ -774,7 +797,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
             transition={{ delay: 0.35 }}
           >
             <p className="text-amber-800 text-sm">
-              <span className="font-semibold">📧 Note:</span> You'll receive a confirmation email within an hour.
+              <span className="font-semibold">📧 Note:</span> You'll receive a confirmation email within 2 hours.
               If you don't receive it, please message us on{' '}
               <a
                 href="https://www.facebook.com/CeladonRoseSale/"
@@ -1122,7 +1145,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             <div>
                               <h4 className="text-blue-800 font-bold text-sm mb-1">Operating Hours Reminder</h4>
                               <p className="text-blue-700 text-sm">
-                                Pickups are only available during operating hours. If your selected time is outside these hours, we'll include your preferred time as a reminder in the confirmation email.
+                                Our operating hours are <strong>10:00 AM - 5:00 PM (Monday-Friday)</strong> and <strong>11:00 AM - 4:00 PM (Saturday)</strong>. Pickups are only available during these hours. If your selected time is outside these hours, we'll include your preferred time as a reminder in the confirmation email.
                               </p>
                             </div>
                           </div>
@@ -1130,13 +1153,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
 
                         <div>
                           <label className={labelClass}>Pickup Time</label>
-                          <input
-                            type="time"
+                          <select
                             value={pickupTime}
                             onChange={(e) => setPickupTime(e.target.value)}
                             required
                             className={inputClass}
-                          />
+                          >
+                            <option value="">Select a time</option>
+                            {pickupTimeOptions.map((time) => (
+                              <option key={time.value} value={time.value}>
+                                {time.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
 
                         <div className="p-4 bg-rose-50 rounded-xl border border-rose-100 flex items-start gap-3">
@@ -1532,10 +1561,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                             <textarea
                               placeholder="Write a sweet message for the recipient..."
                               value={messageForRecipient}
-                              onChange={(e) => setMessageForRecipient(e.target.value)}
+                              onChange={(e) => setMessageForRecipient(e.target.value.slice(0, 200))}
+                              maxLength={200}
                               rows={4}
                               className={`${inputClass} resize-none`}
                             />
+                            <p className={`text-xs mt-1 ${messageForRecipient.length >= 200 ? 'text-rose-500' : 'text-gray-400'}`}>
+                              {messageForRecipient.length}/200 characters
+                            </p>
                           </motion.div>
                         )}
 
@@ -1544,10 +1577,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <textarea
                             placeholder="e.g., lego flower built, specific delivery instructions..."
                             value={specialRequests}
-                            onChange={(e) => setSpecialRequests(e.target.value)}
+                            onChange={(e) => setSpecialRequests(e.target.value.slice(0, 200))}
+                            maxLength={200}
                             rows={3}
                             className={`${inputClass} resize-none`}
                           />
+                          <p className={`text-xs mt-1 ${specialRequests.length >= 200 ? 'text-rose-500' : 'text-gray-400'}`}>
+                            {specialRequests.length}/200 characters
+                          </p>
                         </div>
                       </motion.div>
                     )}
@@ -1570,10 +1607,47 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                           <h3 className="text-2xl font-bold text-gray-800">Payment</h3>
                         </div>
 
-                        <div className="p-6 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl text-white">
-                          <p className="text-sm opacity-80 mb-1">Transfer to</p>
-                          <p className="text-2xl font-bold mb-4">GCash: 0917 XXX XXXX</p>
-                          <p className="text-sm opacity-80">Amount: <span className="font-bold text-lg">₱{total.toFixed(2)}</span></p>
+                        {/* GCash Payment Details */}
+                        <div className="bg-white rounded-2xl border-2 border-blue-100 overflow-hidden shadow-lg">
+                          <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white text-center">
+                            <p className="text-sm opacity-90 mb-1">Scan QR or Transfer to</p>
+                            <p
+                              className="text-xl font-bold cursor-pointer hover:underline transition-all active:scale-95"
+                              onClick={() => {
+                                navigator.clipboard.writeText('09777329406');
+                                const el = document.getElementById('copy-feedback');
+                                if (el) {
+                                  el.classList.remove('opacity-0');
+                                  el.classList.add('opacity-100');
+                                  setTimeout(() => {
+                                    el.classList.remove('opacity-100');
+                                    el.classList.add('opacity-0');
+                                  }, 1500);
+                                }
+                              }}
+                              title="Click to copy number"
+                            >
+                              GCash: +63 977 732 9406
+                              <span className="inline-block ml-2 align-middle">
+                                <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </span>
+                            </p>
+                            <p id="copy-feedback" className="text-xs mt-1 opacity-0 transition-opacity duration-300 text-green-200">✓ Copied to clipboard!</p>
+                            <p className="text-sm font-medium mt-1">Andrew Tan</p>
+                          </div>
+                          <div className="p-4 flex justify-center">
+                            <img
+                              src={`${import.meta.env.BASE_URL}assets/gcash.jpg`}
+                              alt="GCash QR Code"
+                              className="max-w-[280px] w-full rounded-lg"
+                            />
+                          </div>
+                          <div className="p-4 bg-rose-50 text-center border-t border-rose-100">
+                            <p className="text-sm text-gray-600">Amount to Pay:</p>
+                            <p className="text-2xl font-bold text-rose-600">₱{total.toFixed(2)}</p>
+                          </div>
                         </div>
 
                         <div>

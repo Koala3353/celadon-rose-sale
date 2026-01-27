@@ -16,6 +16,8 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
     const { addToCart, setIsCartOpen } = useCart();
     const [isBundleReady, setIsBundleReady] = useState(false);
     const [bundleDetails, setBundleDetails] = useState('');
+    const [selectedBundleImage, setSelectedBundleImage] = useState<string | null>(null);
+    const [selectedBundleDescription, setSelectedBundleDescription] = useState<string | null>(null);
 
     // Fetch ALL products (including unavailable) for bundle option lookups
     // This ensures we can display correct product names even for unavailable items
@@ -30,6 +32,8 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
         if (isOpen) {
             setIsBundleReady(false);
             setBundleDetails('');
+            setSelectedBundleImage(null);
+            setSelectedBundleDescription(null);
         }
     }, [isOpen, product]);
 
@@ -81,9 +85,13 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
                         <div className="p-6 space-y-6">
                             {/* Product Image Preview (Tiny) */}
                             <div className="flex items-center gap-4 bg-rose-50 p-3 rounded-xl">
-                                <img src={product.imageUrl} alt={product.name} className="w-16 h-16 object-cover rounded-lg" />
+                                <img
+                                    src={selectedBundleImage || product.imageUrl}
+                                    alt={product.name}
+                                    className="w-16 h-16 object-cover rounded-lg transition-all duration-300"
+                                />
                                 <div>
-                                    <p className="text-sm text-gray-600 line-clamp-2">{product.description}</p>
+                                    <p className="text-sm text-gray-600 line-clamp-2">{selectedBundleDescription || product.description}</p>
                                 </div>
                             </div>
 
@@ -91,9 +99,11 @@ const BundleSelectionModal: React.FC<BundleSelectionModalProps> = ({ isOpen, onC
                             <BundleConfigurator
                                 product={product}
                                 allProducts={productsResult?.products || []}
-                                onConfigChange={(valid, _, details) => {
+                                onConfigChange={(valid, _, details, lastSelectedProduct) => {
                                     setIsBundleReady(valid);
                                     setBundleDetails(details);
+                                    setSelectedBundleImage(lastSelectedProduct?.imageUrl || null);
+                                    setSelectedBundleDescription(lastSelectedProduct?.description || null);
                                 }}
                             />
                         </div>

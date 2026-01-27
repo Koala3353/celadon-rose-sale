@@ -5,7 +5,7 @@ import { parseBundleString, formatOptionName, findProductForOption, isLiteralOpt
 interface BundleConfiguratorProps {
     product: Product;
     allProducts: Product[];
-    onConfigChange: (isValid: boolean, selectedOptions: { [key: string]: string }, bundleDetailsString: string) => void;
+    onConfigChange: (isValid: boolean, selectedOptions: { [key: string]: string }, bundleDetailsString: string, lastSelectedProduct?: Product) => void;
 }
 
 const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allProducts, onConfigChange }) => {
@@ -105,7 +105,26 @@ const BundleConfigurator: React.FC<BundleConfiguratorProps> = ({ product, allPro
 
         const finalString = product.bundleItems ? buildDetailsString(product.bundleItems, '') : '';
 
-        onConfigChange(isValid, selections, finalString);
+        // Find the last selected product (highest path index with a selection that has an image)
+        const selectionPaths = Object.keys(selections).sort((a, b) => {
+            // Sort by path depth (count of dots) then by value
+            const depthA = a.split('.').length;
+            const depthB = b.split('.').length;
+            if (depthA !== depthB) return depthB - depthA;
+            return b.localeCompare(a);
+        });
+
+        let lastSelectedProduct: Product | undefined;
+        for (const path of selectionPaths) {
+            const selectedOption = selections[path];
+            const foundProduct = findProductForOption(selectedOption, allProducts);
+            if (foundProduct?.imageUrl) {
+                lastSelectedProduct = foundProduct;
+                break;
+            }
+        }
+
+        onConfigChange(isValid, selections, finalString, lastSelectedProduct);
     }, [selections, product, allProducts]);
 
 

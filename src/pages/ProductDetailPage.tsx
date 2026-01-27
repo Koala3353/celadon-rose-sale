@@ -16,10 +16,13 @@ const ProductDetailPage = () => {
     const { addToCart, setIsCartOpen } = useCart();
     const [imageLoaded, setImageLoaded] = useState(false);
     const [isAdded, setIsAdded] = useState(false);
+    const [isLightboxOpen, setIsLightboxOpen] = useState(false);
 
     // Bundle State
     const [isBundleReady, setIsBundleReady] = useState(false);
     const [bundleDetails, setBundleDetails] = useState('');
+    const [selectedBundleImage, setSelectedBundleImage] = useState<string | null>(null);
+    const [selectedBundleDescription, setSelectedBundleDescription] = useState<string | null>(null);
 
     // Upsell State
     const [showUpsell, setShowUpsell] = useState(false);
@@ -49,6 +52,8 @@ const ProductDetailPage = () => {
     useEffect(() => {
         setIsBundleReady(false);
         setBundleDetails('');
+        setSelectedBundleImage(null);
+        setSelectedBundleDescription(null);
     }, [product]);
 
     // Check for Upsell opportunities
@@ -157,25 +162,38 @@ const ProductDetailPage = () => {
                 <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:gap-12">
                         {/* Image Section */}
-                        <div className="bg-rose-50 relative aspect-square md:aspect-auto md:h-full min-h-[400px]">
+                        <div
+                            className="bg-rose-50 relative aspect-square md:aspect-auto md:h-full min-h-[400px] cursor-zoom-in group overflow-hidden"
+                            onClick={() => setIsLightboxOpen(true)}
+                        >
                             {!imageLoaded && (
-                                <div className="absolute inset-0 flex items-center justify-center">
+                                <div className="absolute inset-0 flex items-center justify-center z-10">
                                     <RoseLoader size="md" />
                                 </div>
                             )}
                             <motion.img
-                                src={product.imageUrl}
+                                src={selectedBundleImage || product.imageUrl}
                                 alt={product.name}
-                                className={`w-full h-full object-cover transition-opacity duration-500 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
+                                key={selectedBundleImage || product.imageUrl}
+                                className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}
                                 onLoad={() => setImageLoaded(true)}
                                 initial={{ scale: 1.1, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ duration: 0.5 }}
                             />
 
+                            {/* Zoom hint overlay - positioned above image */}
+                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center pointer-events-none z-10">
+                                <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg">
+                                    <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                    </svg>
+                                </div>
+                            </div>
+
                             {/* Category Badge on Image */}
                             {product.category && (
-                                <div className="absolute top-6 left-6">
+                                <div className="absolute top-6 left-6 z-10">
                                     <span className="px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-sm font-semibold text-gray-800 shadow-sm">
                                         {product.category}
                                     </span>
@@ -209,7 +227,7 @@ const ProductDetailPage = () => {
                                 <div className="prose prose-rose max-w-none mb-8">
                                     <h3 className="text-lg font-semibold text-gray-800 mb-2">Description</h3>
                                     <p className="text-gray-600 leading-relaxed text-lg">
-                                        {product.description || 'No description available for this beautiful arrangement.'}
+                                        {selectedBundleDescription || product.description || 'No description available for this beautiful arrangement.'}
                                     </p>
                                 </div>
 
@@ -222,9 +240,11 @@ const ProductDetailPage = () => {
                                         <BundleConfigurator
                                             product={product}
                                             allProducts={allProducts}
-                                            onConfigChange={(valid, _, details) => {
+                                            onConfigChange={(valid, _, details, lastSelectedProduct) => {
                                                 setIsBundleReady(valid);
                                                 setBundleDetails(details);
+                                                setSelectedBundleImage(lastSelectedProduct?.imageUrl || null);
+                                                setSelectedBundleDescription(lastSelectedProduct?.description || null);
                                             }}
                                         />
                                     </div>
@@ -309,6 +329,48 @@ const ProductDetailPage = () => {
                             <h3 className="text-xl font-bold text-gray-800 mb-1">Added to Cart!</h3>
                             <p className="text-gray-500">{product.name} is in your bag.</p>
                         </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Image Lightbox Modal */}
+            <AnimatePresence>
+                {isLightboxOpen && (
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 cursor-zoom-out"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setIsLightboxOpen(false)}
+                    >
+                        <div className="absolute inset-0 bg-black/90 backdrop-blur-md" />
+
+                        {/* Close button */}
+                        <button
+                            onClick={() => setIsLightboxOpen(false)}
+                            className="absolute top-4 right-4 z-10 p-2 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors"
+                        >
+                            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        {/* Full size image */}
+                        <motion.img
+                            src={selectedBundleImage || product.imageUrl}
+                            alt={product.name}
+                            className="relative z-10 max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+
+                        {/* Product name caption */}
+                        <div className="absolute bottom-6 left-0 right-0 text-center z-10">
+                            <p className="text-white text-lg font-medium drop-shadow-lg">{product.name}</p>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
