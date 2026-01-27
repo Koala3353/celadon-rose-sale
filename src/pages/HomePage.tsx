@@ -198,14 +198,33 @@ const HomePage = () => {
 
   const products = productsResult?.products;
 
+  // Store shuffled products in refs to prevent re-shuffling on every render
+  const shuffledProductsRef = useRef<Product[] | null>(null);
+  const shuffleSeedRef = useRef<number>(Date.now());
+
+  // Stable shuffle function using seed
+  const stableShuffleProducts = useMemo(() => {
+    if (!products) return [];
+    // Only shuffle once when products first load
+    if (shuffledProductsRef.current === null || shuffledProductsRef.current.length !== products.length) {
+      const available = products.filter(p => p.stock > 0);
+      // Fisher-Yates shuffle with seeded random
+      const shuffled = [...available];
+      let seed = shuffleSeedRef.current;
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        seed = (seed * 9301 + 49297) % 233280;
+        const j = Math.floor((seed / 233280) * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      shuffledProductsRef.current = shuffled;
+    }
+    return shuffledProductsRef.current;
+  }, [products]);
+
   // Get featured products (randomly picked items for "Limited Stock Available")
   const featuredProducts = useMemo(() => {
-    if (!products) return [];
-    const available = products.filter(p => p.stock > 0);
-    // Shuffle and pick 4 random products
-    const shuffled = [...available].sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, 4);
-  }, [products]);
+    return stableShuffleProducts.slice(0, 4);
+  }, [stableShuffleProducts]);
 
   // Best sellers: show qualified best sellers + fill remaining with random products
   const bestSellerProducts = useMemo(() => {
@@ -216,7 +235,6 @@ const HomePage = () => {
 
     // Get IDs already used in featured section
     const featuredIds = new Set(featuredProducts.map(p => p.id));
-    const qualifiedIds = new Set(qualified.map(p => p.id));
 
     // Filter qualified to exclude featured items
     const filteredQualified = qualified.filter(p => !featuredIds.has(p.id));
@@ -226,15 +244,14 @@ const HomePage = () => {
       return filteredQualified.slice(0, 4);
     }
 
-    // Otherwise, fill remaining slots with random products
-    const usedIds = new Set([...featuredIds, ...qualifiedIds]);
-    const available = products.filter(p => p.stock > 0 && !usedIds.has(p.id));
-    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    // Otherwise, fill remaining slots with random products (from stable shuffle)
+    const usedIds = new Set([...featuredIds, ...qualified.map(p => p.id)]);
+    const remaining = stableShuffleProducts.filter(p => !usedIds.has(p.id));
     const needed = 4 - filteredQualified.length;
 
     // Combine best sellers with random products
-    return [...filteredQualified, ...shuffled.slice(0, needed)];
-  }, [products, bestSellers, featuredProducts]);
+    return [...filteredQualified, ...remaining.slice(0, needed)];
+  }, [products, bestSellers, featuredProducts, stableShuffleProducts]);
 
   // Check if we have any qualified best sellers
   const hasQualifiedBestSellers = useMemo(() => {
@@ -455,6 +472,14 @@ const HomePage = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {featuredProducts.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  onQuickAdd={handleQuickAdd}
+                />
+              ))}
             </div>
           </div>
         </section>
