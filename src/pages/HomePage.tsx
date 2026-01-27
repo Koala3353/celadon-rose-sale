@@ -196,63 +196,50 @@ const HomePage = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  // Only show best sellers if they have 20+ items sold
-  const qualifiedBestSellers = useMemo(() => {
-    if (!bestSellers) return [];
-    return bestSellers.filter(p => p.soldCount >= 20);
-  }, [bestSellers]);
-
   const products = productsResult?.products;
 
-  // Get featured products (low stock items - selling fast!)
+  // Get featured products (randomly picked items for "Limited Stock Available")
   const featuredProducts = useMemo(() => {
     if (!products) return [];
-    return products
-      .filter(p => p.stock > 0 && p.stock <= 20)
-      .sort((a, b) => a.stock - b.stock)
-      .slice(0, 4);
+    const available = products.filter(p => p.stock > 0);
+    // Shuffle and pick 4 random products
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 4);
   }, [products]);
 
-  // Get popular products (ensure at least 1 bundle is shown)
-  const popularProducts = useMemo(() => {
+  // Best sellers: show qualified best sellers + fill remaining with random products
+  const bestSellerProducts = useMemo(() => {
     if (!products) return [];
 
-    // Filter out already featured items
+    // Get qualified best sellers (20+ sold)
+    const qualified = bestSellers?.filter(p => p.soldCount >= 20) || [];
+
+    // Get IDs already used in featured section
     const featuredIds = new Set(featuredProducts.map(p => p.id));
-    const available = products.filter(p => p.stock > 0 && !featuredIds.has(p.id));
+    const qualifiedIds = new Set(qualified.map(p => p.id));
 
-    // Separate bundles and non-bundles
-    const bundles = available.filter(p => p.category === 'Bundles' || p.bundleItems);
-    const nonBundles = available.filter(p => p.category !== 'Bundles' && !p.bundleItems);
+    // Filter qualified to exclude featured items
+    const filteredQualified = qualified.filter(p => !featuredIds.has(p.id));
 
-    let result: Product[] = [];
-
-    // 1. Try to add one random bundle first
-    if (bundles.length > 0) {
-      const randomBundleIndex = Math.floor(Math.random() * bundles.length);
-      result.push(bundles[randomBundleIndex]);
-      // Remove used bundle from further selection if we were to pick more (though here we mix with non-bundles)
+    // If we have enough significant best sellers (3+), just use those
+    if (filteredQualified.length >= 3) {
+      return filteredQualified.slice(0, 4);
     }
 
-    // 2. Fill the rest with non-bundles (shuffled)
-    const shuffledNonBundles = [...nonBundles].sort(() => Math.random() - 0.5);
-    const needed = 4 - result.length;
+    // Otherwise, fill remaining slots with random products
+    const usedIds = new Set([...featuredIds, ...qualifiedIds]);
+    const available = products.filter(p => p.stock > 0 && !usedIds.has(p.id));
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    const needed = 4 - filteredQualified.length;
 
-    result = [...result, ...shuffledNonBundles.slice(0, needed)];
+    // Combine best sellers with random products
+    return [...filteredQualified, ...shuffled.slice(0, needed)];
+  }, [products, bestSellers, featuredProducts]);
 
-    // 3. If we still don't have 4, fill with remaining bundles or heavily stocked items
-    if (result.length < 4) {
-      const usedIds = new Set(result.map(p => p.id));
-      const remBundles = bundles.filter(p => !usedIds.has(p.id));
-      const remOthers = products.filter(p => !usedIds.has(p.id) && !featuredIds.has(p.id));
-
-      const filler = [...remBundles, ...remOthers].slice(0, 4 - result.length);
-      result = [...result, ...filler];
-    }
-
-    // Shuffle the final result so the bundle isn't always first
-    return result.sort(() => Math.random() - 0.5);
-  }, [products, featuredProducts]);
+  // Check if we have any qualified best sellers
+  const hasQualifiedBestSellers = useMemo(() => {
+    return bestSellers?.some(p => p.soldCount >= 20) || false;
+  }, [bestSellers]);
 
   useEffect(() => {
     // Reduced number of petals for better performance
@@ -505,8 +492,8 @@ const HomePage = () => {
 
 
 
-      {/* Best Sellers or Hot Items */}
-      {(qualifiedBestSellers.length > 0 || popularProducts.length > 0) && (
+      {/* Best Sellers Section */}
+      {bestSellerProducts.length > 0 && (
         <section className="py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -517,7 +504,7 @@ const HomePage = () => {
               variants={sectionVariants}
               transition={{ duration: 0.5 }}
             >
-              {qualifiedBestSellers.length > 0 ? (
+              {hasQualifiedBestSellers ? (
                 <>
                   <span className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-600 rounded-full text-sm font-medium mb-4">
                     <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -548,68 +535,14 @@ const HomePage = () => {
             </motion.div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {qualifiedBestSellers.length > 0 ? (
-                qualifiedBestSellers.map((product, i) => (
-                  <motion.div
-                    key={product.id}
-                    className="product-card group relative"
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-50px" }}
-                    transition={{ delay: i * 0.1, duration: 0.4 }}
-                  >
-                    {/* Sold count badge */}
-                    <div className="absolute top-3 right-3 z-10 px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-full shadow-lg">
-                      🔥 {product.soldCount} sold
-                    </div>
-                    <div className="relative aspect-square bg-gradient-to-br from-rose-50 to-pink-50 overflow-hidden">
-                      {product.imageUrl ? (
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <svg className="w-16 h-16 text-rose-300" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
-                          </svg>
-                        </div>
-                      )}
-                      {/* Quick add overlay */}
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <button
-                          onClick={(e) => { e.preventDefault(); handleQuickAdd(product); }}
-                          className="px-4 py-2 bg-white text-rose-600 rounded-full font-medium shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-all duration-300"
-                        >
-                          {product.bundleItems ? 'Customize' : 'Quick Add'}
-                        </button>
-                      </div>
-                    </div>
-                    <div className="p-5">
-                      <h3 className="font-semibold text-gray-800 text-lg truncate">{product.name}</h3>
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-xl font-bold text-rose-600">₱{product.price.toFixed(0)}</span>
-                        <Link to={`/product/${product.id}`}>
-                          <button className="px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white text-sm font-medium rounded-full transition-colors">
-                            View
-                          </button>
-                        </Link>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))
-              ) : (
-                popularProducts.map((product, i) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    index={i}
-                    onQuickAdd={handleQuickAdd}
-                  />
-                ))
-              )}
+              {bestSellerProducts.map((product, i) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  index={i}
+                  onQuickAdd={handleQuickAdd}
+                />
+              ))}
             </div>
 
             <div className="text-center mt-12">
