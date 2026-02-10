@@ -686,8 +686,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
     { value: '17:00', label: '5:00 PM' },
   ];
 
-  // Get today's date in YYYY-MM-DD format (based on user's device)
-  const today = new Date().toISOString().split('T')[0];
+  // Get today's date in YYYY-MM-DD format (based on user's local timezone)
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
   // Available dates for delivery (Feb 9-13, 2026) - filtered to today or later
   const allDeliveryDates = [
