@@ -1628,7 +1628,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                               }}
                               title="Click to copy number"
                             >
-                              GCash: +63 977 732 9406
+                              GCash: +63 915 423 0677
                               <span className="inline-block ml-2 align-middle">
                                 <svg className="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -1636,11 +1636,11 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
                               </span>
                             </p>
                             <p id="copy-feedback" className="text-xs mt-1 opacity-0 transition-opacity duration-300 text-green-200">✓ Copied to clipboard!</p>
-                            <p className="text-sm font-medium mt-1">Andrew Tan</p>
+                            <p className="text-sm font-medium mt-1">Dyanne Rachel Sia</p>
                           </div>
                           <div className="p-4 flex justify-center">
                             <img
-                              src={`${import.meta.env.BASE_URL}assets/gcash.jpg`}
+                              src={`${import.meta.env.BASE_URL}assets/gcash.png`}
                               alt="GCash QR Code"
                               className="max-w-[280px] w-full rounded-lg"
                             />
