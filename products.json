@@ -1,0 +1,878 @@
+[
+    {
+        "id": "transparent-lego-flower",
+        "name": "Transparent Red Lego Flower",
+        "price": 120,
+        "category": "Pre-order Exclusive",
+        "stock": 4,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Transparent_Red_Lego_Flower_dq6c0t.jpg",
+        "description": "An everlasting lego rose with a beautiful, glassy look to express your deep feelings for someone.",
+        "tags": [
+            "flower",
+            "romantic",
+            "gift"
+        ],
+        "available": true
+    },
+    {
+        "id": "lego-flower-01",
+        "name": "Pink Lego Flower",
+        "price": 120,
+        "category": "Others",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Pink_Blue_Lego_Flower_vndlft.jpg",
+        "description": "A lego pink rose for the sweetest person in your life forevermore.",
+        "tags": [
+            "flower",
+            "sweet",
+            "gift"
+        ],
+        "available": false
+    },
+    {
+        "id": "lego-flower-02",
+        "name": "Blue Lego Flower",
+        "price": 120,
+        "category": "Others",
+        "stock": 14,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Pink_Blue_Lego_Flower_vndlft.jpg",
+        "description": "A lego blue rose for someone with eternal elegance.",
+        "tags": [
+            "flower",
+            "calm",
+            "elegant"
+        ],
+        "available": false
+    },
+    {
+        "id": "lego-flower-00",
+        "name": "Pink/Blue Lego Flower",
+        "price": 120,
+        "category": "Others",
+        "stock": 14,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Pink_Blue_Lego_Flower_vndlft.jpg",
+        "description": "A lego rose for someone with eternal elegance.",
+        "tags": [
+            "flower",
+            "calm",
+            "elegant"
+        ],
+        "available": true,
+        "bundleItems": "lego-flower-01/lego-flower-02"
+    },
+    {
+        "id": "foil-flower-01",
+        "name": "Purple Foil Flower",
+        "price": 150,
+        "category": "Others",
+        "stock": 3,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Purple_Foil_Flower_dkvcgc.jpg",
+        "description": "Ethereal and iridescent. These flowers feature a holographic foil finish that shimmers and changes shades as they move in the light. Available in Mystery Purple, they add a magical, dreamy vibe to any arrangement.",
+        "tags": [
+            "flower",
+            "shiny",
+            "decor"
+        ],
+        "available": false
+    },
+    {
+        "id": "foil-flower-02",
+        "name": "White Foil Flower",
+        "price": 150,
+        "category": "Others",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392220/White_Foil_Flower_f0r3c8.jpg",
+        "description": "Ethereal and iridescent. These flowers feature a holographic foil finish that shimmers and changes shades as they move in the light. Available in Pearlescent White, they add a magical, dreamy vibe to any arrangement.",
+        "tags": [
+            "flower",
+            "elegant",
+            "gift"
+        ],
+        "available": false
+    },
+    {
+        "id": "foil-flower-00",
+        "name": "Purple/White Foil Flower",
+        "price": 150,
+        "category": "Others",
+        "stock": 3,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Purple_Foil_Flower_dkvcgc.jpg",
+        "description": "Ethereal and iridescent. These flowers feature a holographic foil finish that shimmers and changes shades as they move in the light. Available in Mystery Purple/Pearlescent White, they add a magical, dreamy vibe to any arrangement.",
+        "tags": [
+            "flower",
+            "elegant",
+            "gift"
+        ],
+        "available": true,
+        "bundleItems": "foil-flower-01/foil-flower-02"
+    },
+    {
+        "id": "crochet-flower-01",
+        "name": "[UNAVAILABLE] Light Pink Crochet Flower",
+        "price": 1000000,
+        "category": "Crochet",
+        "stock": 0,
+        "imageUrl": "https://picsum.photos/seed/crochet-flower-01/300/300",
+        "description": "-",
+        "tags": [
+            "-"
+        ],
+        "available": false
+    },
+    {
+        "id": "crochet-flower-02",
+        "name": "Yellow Crochet Flower",
+        "price": 200,
+        "category": "Crochet",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769474732/Crochet_Yellow_Flower_vflvio.jpg",
+        "description": "A cheerful yellow crochet flower that radiates warmth and happiness.",
+        "tags": [
+            "craft",
+            "cheerful",
+            "gift"
+        ],
+        "available": false
+    },
+    {
+        "id": "crochet-flower-03",
+        "name": "Red Crochet Flower",
+        "price": 200,
+        "category": "Crochet",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769474732/Crochet_Red_Flower_e4le9k.jpg",
+        "description": "A vibrant red crochet flower symbolizing love and passion.",
+        "tags": [
+            "craft",
+            "love",
+            "handmade"
+        ],
+        "available": false
+    },
+    {
+        "id": "crochet-flower-00",
+        "name": "Red/Yellow Crochet Flower",
+        "price": 200,
+        "category": "Crochet",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769474732/Crochet_Red_Flower_e4le9k.jpg",
+        "description": "A vibrant crochet flower symbolizing love and passion.",
+        "tags": [
+            "craft",
+            "love",
+            "handmade"
+        ],
+        "available": true,
+        "bundleItems": "crochet-flower-02/crochet-flower-03"
+    },
+    {
+        "id": "keychain-01",
+        "name": "Couple Keychain",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Chiikawa_Magnetic_Couple_Keychain_aj3s1b.jpg",
+        "description": "An adorable Chiikawa magnetic keychain set for cute pairs that sticks together when close. Puppy love, literally. Two distinct dog designs that share a magnetic connection. Perfect for couples or besties who want a low-key but matching accessory for their bags or keys.",
+        "tags": [
+            "accessory",
+            "cute",
+            "couple",
+            "animal",
+            "gift"
+        ],
+        "available": true,
+        "bundleItems": "chiikawa-keychain/dog-keychain"
+    },
+    {
+        "id": "chiikawa-keychain",
+        "name": "Chiikawa Magnetic Couple Keychain",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Chiikawa_Magnetic_Couple_Keychain_aj3s1b.jpg",
+        "description": "An adorable Chiikawa magnetic keychain set for cute pairs that sticks together when close.",
+        "tags": [
+            "accessory",
+            "cute",
+            "couple"
+        ],
+        "available": false
+    },
+    {
+        "id": "dog-keychain",
+        "name": "Dog Magnetic Couple Keychain",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Dog_Magnetic_Couple_Keychain_a8smi3.jpg",
+        "description": "Puppy love, literally. Two distinct dog designs that share a magnetic connection. Perfect for couples or besties who want a low-key but matching accessory for their bags or keys.",
+        "tags": [
+            "accessory",
+            "animal",
+            "gift"
+        ],
+        "available": false
+    },
+    {
+        "id": "tangled-bracelet",
+        "name": "Tangled Couple Bracelet",
+        "price": 300,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392215/Tangled_Couple_Bracelet_m6qnsv.jpg",
+        "description": "Premium Pick. Inspired by the \"new dream\" of Rapunzel and Flynn. These woven bracelets feature intricate detailing and a design that symbolizes an unbreakable, adventurous bond.",
+        "tags": [
+            "accessory",
+            "romantic",
+            "couple"
+        ],
+        "available": true
+    },
+    {
+        "id": "bracelet",
+        "name": "Couple Bracelet",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392224/Yin_Yang_Couple_Bracelet_e7yqsv.jpg",
+        "description": "Balance in harmony. A classic set featuring black and white cords with the Yin & Yang charms. Represents two opposites that complete each other perfectly. Sweet and subtle. One bracelet features a cute Bear charm, the other a Rabbit. It's the ultimate \"soft couple\" aesthetic accessory.",
+        "tags": [
+            "accessory",
+            "balance",
+            "gift",
+            "cute",
+            "couple"
+        ],
+        "available": true,
+        "bundleItems": "yin-yang-bracelet/bear-rabbit-bracelet"
+    },
+    {
+        "id": "yin-yang-bracelet",
+        "name": "Yin and Yang Couple Bracelet",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392224/Yin_Yang_Couple_Bracelet_e7yqsv.jpg",
+        "description": "Balance in harmony. A classic set featuring black and white cords with the Yin & Yang charms. Represents two opposites that complete each other perfectly.",
+        "tags": [
+            "accessory",
+            "balance",
+            "gift"
+        ],
+        "available": false
+    },
+    {
+        "id": "bear-rabbit-bracelet",
+        "name": "Bear and Rabbit Couple Bracelet",
+        "price": 200,
+        "category": "Accessory",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392210/Bear_Rabbit_Couple_Bracelet_o59cwt.jpg",
+        "description": "Sweet and subtle. One bracelet features a cute Bear charm, the other a Rabbit. It's the ultimate \"soft couple\" aesthetic accessory.",
+        "tags": [
+            "accessory",
+            "cute",
+            "couple"
+        ],
+        "available": false
+    },
+    {
+        "id": "flower-clamps-00",
+        "name": "Clamps",
+        "price": 100,
+        "category": "Accessory",
+        "stock": 3,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Flower_Clamp_mf9gzu.jpg",
+        "description": "Clamps that add a playful floral touch to your hair or accessories.",
+        "tags": [
+            "accessory",
+            "flower",
+            "cute",
+            "sweet",
+            "pink",
+            "blue"
+        ],
+        "available": true,
+        "bundleItems": "flower-clamps-01/flower clamps-02/flower clamps-03/flower clamps-04"
+    },
+    {
+        "id": "flower-clamps-01",
+        "name": "Acrylic Flower Clamps",
+        "price": 100,
+        "category": "Accessory",
+        "stock": 5,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Flower_Clamp_mf9gzu.jpg",
+        "description": "Clear acrylic flower clamps that add a playful floral touch to your hair or accessories.",
+        "tags": [
+            "accessory",
+            "flower",
+            "cute"
+        ],
+        "available": false
+    },
+    {
+        "id": "flower clamps-02",
+        "name": "Pink Flower Clamps",
+        "price": 100,
+        "category": "Accessory",
+        "stock": 3,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Flower_Clamp_mf9gzu.jpg",
+        "description": "Pink flower hair clamps for a soft and feminine look.",
+        "tags": [
+            "accessory",
+            "pink",
+            "sweet"
+        ],
+        "available": false
+    },
+    {
+        "id": "flower clamps-03",
+        "name": "Blue Flower Clamps",
+        "price": 100,
+        "category": "Accessory",
+        "stock": 6,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Blue_Flower_Clamp_su5aqh.jpg",
+        "description": "Blue flower hair clamps that add a cool and stylish accent.",
+        "tags": [
+            "accessory",
+            "blue",
+            "stylish"
+        ],
+        "available": false
+    },
+    {
+        "id": "flower clamps-04",
+        "name": "Purple Flower Clamps",
+        "price": 100,
+        "category": "Accessory",
+        "stock": 5,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392215/Purple_Flower_Clamp_wpbdde.jpg",
+        "description": "Purple flower hair clamps for an elegant pop of color.",
+        "tags": [
+            "accessory",
+            "purple",
+            "trendy"
+        ],
+        "available": false
+    },
+    {
+        "id": "recorder-01",
+        "name": "Red Cassette Recorder",
+        "price": 120,
+        "category": "Others",
+        "stock": 7,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Red_Blue_Cassette_Recorder_aqkosd.jpg",
+        "description": "This isn't just a toy—it's a mini voice recorder! Record a short, sweet message (like \"I love you\" or a funny inside joke) that plays back when the button is pressed. A retro way to speak your heart.",
+        "tags": [
+            "gift",
+            "audio",
+            "keepsake"
+        ],
+        "available": false
+    },
+    {
+        "id": "recorder-02",
+        "name": "Blue Cassette Recorder",
+        "price": 120,
+        "category": "Others",
+        "stock": 8,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Red_Blue_Cassette_Recorder_aqkosd.jpg",
+        "description": "This isn't just a toy—it's a mini voice recorder! Record a short, sweet message (like \"I love you\" or a funny inside joke) that plays back when the button is pressed. A retro way to speak your heart.",
+        "tags": [
+            "gift",
+            "memory",
+            "nostalgic"
+        ],
+        "available": false
+    },
+    {
+        "id": "recorder-00",
+        "name": "Red/Blue Casette Recorder",
+        "price": 120,
+        "category": "Others",
+        "stock": 7,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Red_Blue_Cassette_Recorder_aqkosd.jpg",
+        "description": "This isn't just a toy—it's a mini voice recorder! Record a short, sweet message (like \"I love you\" or a funny inside joke) that plays back when the button is pressed. A retro way to speak your heart.",
+        "tags": [
+            "gift",
+            "memory",
+            "nostalgic"
+        ],
+        "available": true,
+        "bundleItems": "recorder-01/recorder-02"
+    },
+    {
+        "id": "octupus-plush-01",
+        "name": "Light Blue & Blue Octopus Reversible Plushie",
+        "price": 120,
+        "category": "Others",
+        "stock": 5,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Octopus_Reversible_Plushie_iv0mg2.jpg",
+        "description": "What's your mood today? These viral plushies flip inside out to reveal a different color. Soft, squishy, and perfect for cuddling.",
+        "tags": [
+            "toy",
+            "soft",
+            "gift"
+        ],
+        "available": true
+    },
+    {
+        "id": "octupus-plush-02",
+        "name": "Blue & Pink Octopus Reversible Plushie",
+        "price": 120,
+        "category": "Others",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Octopus_Reversible_Plushie_iv0mg2.jpg",
+        "description": "What's your mood today? These viral plushies flip inside out to reveal a different color. Soft, squishy, and perfect for cuddling.",
+        "tags": [
+            "toy",
+            "soft",
+            "gift"
+        ],
+        "available": true
+    },
+    {
+        "id": "roses-00",
+        "name": "Red/White/Pink Rose",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 323,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392215/Rose_Bouquet_q5tp7y.jpg",
+        "description": "The universal symbol of love, reimagined to last forever. Each rose features tightly woven petals that mimic the unfolding beauty of a fresh bloom. Whether you are building a romantic bouquet or just need a single stem to say \"I care,\" this timeless classic is the perfect centerpiece.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": true,
+        "bundleItems": "roses-01/roses-02/roses-03"
+    },
+    {
+        "id": "roses-01",
+        "name": "Red Rose",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 401,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Red_Rose_nkkyb7.jpg",
+        "description": "The universal symbol of love, reimagined to last forever. Each rose features tightly woven petals that mimic the unfolding beauty of a fresh bloom. Whether you are building a romantic bouquet or just need a single stem to say \"I care,\" this timeless classic is the perfect centerpiece.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "roses-02",
+        "name": "White Rose",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 323,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392221/White_Rose_umlhej.jpg",
+        "description": "The universal symbol of love, reimagined to last forever. Each rose features tightly woven petals that mimic the unfolding beauty of a fresh bloom. Whether you are building a romantic bouquet or just need a single stem to say \"I care,\" this timeless classic is the perfect centerpiece.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "roses-03",
+        "name": "Pink Rose",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 459,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Rose_rojkqf.jpg",
+        "description": "The universal symbol of love, reimagined to last forever. Each rose features tightly woven petals that mimic the unfolding beauty of a fresh bloom. Whether you are building a romantic bouquet or just need a single stem to say \"I care,\" this timeless classic is the perfect centerpiece.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "carnations-00",
+        "name": "Light Pink/Pomelo/Two-Toned Carnation",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 20,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392212/Carnation_Bouquet_q5cwv1.jpg",
+        "description": "Soft, textured, and full of charm. These carnations capture the intricate, ruffled look of the real thing without ever wilting. Symbolizing fascination and gratitude, they add a wonderful depth and \"fluffiness\" to any arrangement, making your bouquet look fuller and more detailed.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": true,
+        "bundleItems": "carnations-01/carnations-02/carnations-03"
+    },
+    {
+        "id": "carnations-01",
+        "name": "Light Pink Carnation",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 20,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392212/Light_Pink_Carnation_mdgcus.jpg",
+        "description": "Soft, textured, and full of charm. These carnations capture the intricate, ruffled look of the real thing without ever wilting. Symbolizing fascination and gratitude, they add a wonderful depth and \"fluffiness\" to any arrangement, making your bouquet look fuller and more detailed.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "carnations-02",
+        "name": "Pomelo Carnation",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 346,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392214/Pomelo_Carnation_olevjx.jpg",
+        "description": "Soft, textured, and full of charm. These carnations capture the intricate, ruffled look of the real thing without ever wilting. Symbolizing fascination and gratitude, they add a wonderful depth and \"fluffiness\" to any arrangement, making your bouquet look fuller and more detailed.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "carnations-03",
+        "name": "Two-Toned Carnation",
+        "price": 100,
+        "category": "Focal Flower",
+        "stock": 98,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392219/Two-Toned_Carnation_cof12v.jpg",
+        "description": "Soft, textured, and full of charm. These carnations capture the intricate, ruffled look of the real thing without ever wilting. Symbolizing fascination and gratitude, they add a wonderful depth and \"fluffiness\" to any arrangement, making your bouquet look fuller and more detailed.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "tulips-00",
+        "name": "Pink/Yellow Tulip",
+        "price": 250,
+        "category": "Focal Flower",
+        "stock": 110,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Tulip_Bouquet_umfufb.jpg",
+        "description": "Sleek, sophisticated, and gracefully tall. Our premium tulips are designed for those who prefer a minimalist, modern aesthetic. With their clean lines and smooth silhouette, these blooms act as the \"tall girl\" of the group, adding elegance and height that instantly elevates the value of your bundle.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": true,
+        "bundleItems": "tulips-01/tulips-02"
+    },
+    {
+        "id": "tulips-01",
+        "name": "Pink Tulip",
+        "price": 250,
+        "category": "Focal Flower",
+        "stock": 110,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Tulip_slxuun.jpg",
+        "description": "Sleek, sophisticated, and gracefully tall. Our premium tulips are designed for those who prefer a minimalist, modern aesthetic. With their clean lines and smooth silhouette, these blooms act as the \"tall girl\" of the group, adding elegance and height that instantly elevates the value of your bundle.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "tulips-02",
+        "name": "Yellow Tulip",
+        "price": 250,
+        "category": "Focal Flower",
+        "stock": 114,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392221/Yellow_Tulip_b59is5.jpg",
+        "description": "Sleek, sophisticated, and gracefully tall. Our premium tulips are designed for those who prefer a minimalist, modern aesthetic. With their clean lines and smooth silhouette, these blooms act as the \"tall girl\" of the group, adding elegance and height that instantly elevates the value of your bundle.",
+        "tags": [
+            "flower",
+            "focal"
+        ],
+        "available": false
+    },
+    {
+        "id": "gerbera-00",
+        "name": "Yellow/Pink Gerbera",
+        "price": 150,
+        "category": "Premium Flower",
+        "stock": 22,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392222/Yellow_Pink_Gerbera_dgxfye.jpg",
+        "description": "Bold, bright, and impossible to ignore. With its wide, open face and intricate center details, the Gerbera is the \"sunshine\" of any arrangement. It is larger than our standard blooms, making it a fantastic statement piece that adds immediate volume and a happy, playful energy to your bundle.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": true,
+        "bundleItems": "gerbera-01/gerbera-02"
+    },
+    {
+        "id": "gerbera-01",
+        "name": "Yellow Gerbera",
+        "price": 150,
+        "category": "Premium Flower",
+        "stock": 22,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392221/Yellow_Gerbera_mivz7v.jpg",
+        "description": "Bold, bright, and impossible to ignore. With its wide, open face and intricate center details, the Gerbera is the \"sunshine\" of any arrangement. It is larger than our standard blooms, making it a fantastic statement piece that adds immediate volume and a happy, playful energy to your bundle.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": false
+    },
+    {
+        "id": "gerbera-02",
+        "name": "Pink Gerbera",
+        "price": 150,
+        "category": "Premium Flower",
+        "stock": 35,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392213/Pink_Gerbera_m9pjnl.jpg",
+        "description": "Bold, bright, and impossible to ignore. With its wide, open face and intricate center details, the Gerbera is the \"sunshine\" of any arrangement. It is larger than our standard blooms, making it a fantastic statement piece that adds immediate volume and a happy, playful energy to your bundle.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": false
+    },
+    {
+        "id": "carnations-06",
+        "name": "Blue/Lavender Carnation",
+        "price": 120,
+        "category": "Premium Flower",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392210/Blue_Carnation_roohg4.jpg",
+        "description": "The perfect accent to complete the look. This premium bloom offers a unique shape and texture that breaks the monotony of standard round flowers. Whether used as a secondary focal point or a high-end filler, it bridges the gap between the foliage and the centerpiece, giving your bouquet a professionally styled, cohesive finish.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": true,
+        "bundleItems": "carnations-04/carnations-05"
+    },
+    {
+        "id": "carnations-04",
+        "name": "Blue Carnation",
+        "price": 120,
+        "category": "Premium Flower",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392210/Blue_Carnation_roohg4.jpg",
+        "description": "The perfect accent to complete the look. This premium bloom offers a unique shape and texture that breaks the monotony of standard round flowers. Whether used as a secondary focal point or a high-end filler, it bridges the gap between the foliage and the centerpiece, giving your bouquet a professionally styled, cohesive finish.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": false
+    },
+    {
+        "id": "carnations-05",
+        "name": "Lavender Carnation",
+        "price": 120,
+        "category": "Premium Flower",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Lavender_Carnation_jcmfqz.jpg",
+        "description": "The perfect accent to complete the look. This premium bloom offers a unique shape and texture that breaks the monotony of standard round flowers. Whether used as a secondary focal point or a high-end filler, it bridges the gap between the foliage and the centerpiece, giving your bouquet a professionally styled, cohesive finish.",
+        "tags": [
+            "flower",
+            "premium"
+        ],
+        "available": false
+    },
+    {
+        "id": "rose-bouquet",
+        "name": "Rose Bouquet",
+        "price": 300,
+        "category": "Bouquet",
+        "stock": 323,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392215/Rose_Bouquet_q5tp7y.jpg",
+        "description": "The ultimate gesture of romance and love. This bouquet features three of our tightly woven, focal Roses. It's a timeless arrangement that looks elegant in any color combination. Perfect for dates, anniversaries, or just to make someone feel special.",
+        "tags": [
+            "flower",
+            "focal",
+            "combo"
+        ],
+        "available": true,
+        "bundleItems": "roses-01/roses-02/roses-03, roses-01/roses-02/roses-03, roses-01/roses-02/roses-03"
+    },
+    {
+        "id": "carnation-bouquet",
+        "name": "Carnation Bouquet",
+        "price": 300,
+        "category": "Bouquet",
+        "stock": 20,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392212/Carnation_Bouquet_q5cwv1.jpg",
+        "description": "Soft, fluffy, and full of charm. This bouquet highlights the intricate ruffled layers of three Carnations. It offers a \"fuller\" look than the  and feels sweet and friendly. A great choice for best friends, mothers, or \"congratulations\" gifts.",
+        "tags": [
+            "flower",
+            "focal",
+            "combo"
+        ],
+        "available": true,
+        "bundleItems": "carnations-01/carnations-02/carnations-03, carnations-01/carnations-02/carnations-03, carnations-01/carnations-02/carnations-03"
+    },
+    {
+        "id": "tulip-bouquet",
+        "name": "Tulip Bouquet",
+        "price": 700,
+        "category": "Bouquet",
+        "stock": 110,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/Tulip_Bouquet_umfufb.jpg",
+        "description": "Sleek, sophisticated, and modern. This bouquet features three of our tall Premium Tulips. With their clean lines and smooth silhouette, this arrangement offers a \"Korean-style\" aesthetic that stands out from the crowd.",
+        "tags": [
+            "flower",
+            "focal",
+            "combo",
+            "discount"
+        ],
+        "available": true,
+        "bundleItems": "tulips-01/tulips-02, tulips-01/tulips-02, tulips-01/tulips-02"
+    },
+    {
+        "id": "bundle-01",
+        "name": "Just Stick Around Bundle",
+        "price": 350,
+        "category": "Bundle",
+        "stock": 5,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392211/Just_Stick_Around_Bundle_fltyco.jpg",
+        "description": "Cute, colorful, and impossible to resist! This playful bundle combines a trio of our handcrafted blooms with a soft, squishy octopus plushie. It is the perfect \"little something\" to make someone smile—flowers they can keep forever and a plushie to hug when they miss you.",
+        "tags": [
+            "bundle",
+            "toy",
+            "flower"
+        ],
+        "available": true,
+        "bundleItems": "roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, octupus-plush-01/octupus-plush-02"
+    },
+    {
+        "id": "bundle-02",
+        "name": "Yours Everyday Bundle",
+        "price": 450,
+        "category": "Bundle",
+        "stock": 20,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392225/Yours_Everyday_Bundle_w5f5mo.jpg",
+        "description": "Wear your heart on your sleeve—literally. This set steps it up with four beautiful focal flowers and a pair of magnetic couple bracelets. Whether you choose the balanced \"Yin Yang\" or the adorable \"Bear & Rabbit,\" this bundle is all about connection.",
+        "tags": [
+            "bundle",
+            "accessory",
+            "flower"
+        ],
+        "available": true,
+        "bundleItems": "roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, yin-yang-bracelet/bear-rabbit-bracelet"
+    },
+    {
+        "id": "bundle-03",
+        "name": "Valentina's Bundle",
+        "price": 500,
+        "category": "Bundle",
+        "stock": 7,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392220/Valentina_s_Bundle_zfwibu.jpg",
+        "description": "A gift that speaks (or sings) volumes. This mixed bouquet features the elegance of a tall Tulip framed by two classic blooms. Paired with a special Audio keepsake, this bundle is designed for sentimental moments where words—and lyrics—matter most.",
+        "tags": [
+            "bundle",
+            "audio",
+            "memory",
+            "flower"
+        ],
+        "available": true,
+        "bundleItems": "tulips-01/tulips-02, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, roses-01/roses-02/roses-03/carnations-01/carnations-02/carnations-03, recorder-01/recorder-02"
+    },
+    {
+        "id": "bundle-04",
+        "name": "The Konvy Bundle",
+        "price": 700,
+        "category": "Bundle",
+        "stock": 0,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769392216/The_Konvy_Bundle_yxxdo8.jpg",
+        "description": "The ultimate self-care treat! We've partnered with Konvy to bring you a \"Beauty & Blooms\" package. It features a stunning handcrafted bouquet alongside a complete makeup essential kit. Perfect for the girl who loves to look good and feel appreciated. Grab it before it's gone!",
+        "tags": [
+            "bundle",
+            "flower",
+            "goated",
+            "premium",
+            "gift"
+        ],
+        "available": true,
+        "bundleItems": "rose-bouquet/carnation-bouquet, \"blush + power + lipstick + blotting\""
+    },
+    {
+        "id": "sticker-01",
+        "name": "2 Large Stickers",
+        "price": 50,
+        "category": "Others",
+        "stock": 30,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769473758/All_Stickers_qtoul8.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": true,
+        "bundleItems": "sticker-02/sticker-03/sticker-04/sticker-05/sticker-06, sticker-02/sticker-03/sticker-04/sticker-05/sticker-06"
+    },
+    {
+        "id": "sticker-02",
+        "name": "Lovebound Sticker",
+        "price": 50,
+        "category": "Others",
+        "stock": 31,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769428505/Lovebound_kcai1f.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": false
+    },
+    {
+        "id": "sticker-03",
+        "name": "Soft Spot Sticker",
+        "price": 50,
+        "category": "Others",
+        "stock": 30,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769428506/Soft_Spot_opwxqk.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": false
+    },
+    {
+        "id": "sticker-04",
+        "name": "Bloom Besties Sticker",
+        "price": 50,
+        "category": "Others",
+        "stock": 30,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769428500/Bloom_Besties_bucsug.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": false
+    },
+    {
+        "id": "sticker-05",
+        "name": "Panda's Serenade Sticker",
+        "price": 50,
+        "category": "Others",
+        "stock": 44,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769428506/Panda_s_Serenade_fuhrpq.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": false
+    },
+    {
+        "id": "sticker-06",
+        "name": "Heart Strings Sticker",
+        "price": 50,
+        "category": "Others",
+        "stock": 34,
+        "imageUrl": "https://res.cloudinary.com/df5iqlmjb/image/upload/v1769428503/Heart_Strings_dpacne.png",
+        "description": "Celebrate your connections with our collection of whimsical, heart-warming stickers. This bundle allows you to pick any two of our large, high-quality designs—perfect for personalizing your laptop, water bottle, or journal!",
+        "tags": [
+            "sticker",
+            "stationery"
+        ],
+        "available": false
+    }
+]
