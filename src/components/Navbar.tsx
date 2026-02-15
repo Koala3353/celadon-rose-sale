@@ -156,6 +156,14 @@ const Navbar = () => {
         </div>
       </motion.nav>
 
+      {/* Sale Ended Banner */}
+      <div className="fixed w-full top-16 md:top-20 z-30 bg-gradient-to-r from-rose-600 to-pink-600 text-white text-center py-3 text-base font-medium shadow-md flex items-center justify-center gap-2.5">
+        <svg className="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
+        </svg>
+        <span>The Rose Sale 2026 has ended. Thank you for your support!</span>
+      </div>
+
       {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (

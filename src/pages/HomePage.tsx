@@ -305,8 +305,10 @@ const HomePage = () => {
             className="mb-6"
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 bg-rose-100/80 backdrop-blur-sm text-rose-600 rounded-full text-sm font-medium">
-              <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse" />
-              Visit Us at SEC-C Foyer on Feb 9-14!
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
+              </svg>
+              The Rose Sale 2026 has ended — Thanks for the love!
             </span>
           </motion.div>
 

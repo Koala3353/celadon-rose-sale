@@ -761,64 +761,31 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Order Confirmed!
+            Demo Order Complete!
             <svg className="w-8 h-8 text-rose-500" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2C9.5 2 7.5 4 7.5 6.5c0 1.5.7 2.8 1.7 3.7-.4.5-.7 1.1-.7 1.8 0 1.5 1.3 2.8 2.8 2.8.3 0 .5 0 .7-.1v5.3c0 1 .8 2 2 2s2-1 2-2v-5.3c.2.1.5.1.7.1 1.5 0 2.8-1.3 2.8-2.8 0-.7-.3-1.3-.7-1.8 1-1 1.7-2.2 1.7-3.7C16.5 4 14.5 2 12 2z" />
             </svg>
           </motion.h2>
 
-          {submittedOrderId && (
-            <motion.div
-              className="mb-6 p-4 bg-rose-50 rounded-xl border border-rose-100 inline-block"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.25 }}
-            >
-              <p className="text-sm text-gray-500 mb-1">Your Order ID:</p>
-              <p className="text-2xl font-mono font-bold text-rose-600 select-all">
-                {submittedOrderId}
-              </p>
-              <p className="text-xs text-gray-400 mt-2">Please save this ID to track your order.</p>
-            </motion.div>
-          )}
+          <motion.div
+            className="mb-6 p-4 bg-gray-100 rounded-xl border border-gray-200"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+          >
+            <p className="text-gray-700 text-sm">
+              <span className="font-semibold">Portfolio Demo:</span> The Rose Sale 2026 has ended. This checkout flow is preserved for demonstration purposes only — no order was actually placed or processed.
+            </p>
+          </motion.div>
 
           <motion.p
-            className="text-gray-600 text-lg mb-4"
+            className="text-gray-600 text-lg mb-8"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            Thank you for your purchase! Your roses will be delivered with love.
+            Thanks for exploring the checkout experience!
           </motion.p>
-
-          <motion.div
-            className="mb-8 p-4 bg-amber-50 rounded-xl border border-amber-200 text-left"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-          >
-            <p className="text-amber-800 text-sm">
-              <span className="font-semibold">📧 Note:</span> You'll receive a confirmation email within 2 hours.
-              If you don't receive it, please message us on{' '}
-              <a
-                href="https://www.facebook.com/CeladonRoseSale/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-rose-600 hover:text-rose-700 underline font-medium"
-              >
-                Facebook
-              </a>
-              {' '}or{' '}
-              <a
-                href="https://instagram.com/cldn.rosesale"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-rose-600 hover:text-rose-700 underline font-medium"
-              >
-                Instagram
-              </a>.
-            </p>
-          </motion.div>
 
           <div className="relative inline-block">
             <motion.button
@@ -859,6 +826,19 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({ onBack }) => {
         </div>
 
         <div className="max-w-3xl mx-auto p-6 bg-white rounded-3xl shadow-xl my-10 relative overflow-hidden">
+
+          {/* Sale Ended Notice */}
+          <div className="mb-8 p-4 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-3">
+            <svg className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <h4 className="text-rose-800 font-bold text-sm mb-1">The Rose Sale 2026 has ended</h4>
+              <p className="text-rose-700 text-sm">
+                This checkout flow is preserved for portfolio & demo purposes. You can explore the full experience, but no orders will be processed.
+              </p>
+            </div>
+          </div>
 
           {!user && (
             <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
